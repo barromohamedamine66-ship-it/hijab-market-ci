@@ -14,7 +14,7 @@ export default function SellerProductsPage() {
 
   const loadProducts = async () => {
     setLoading(true);
-    const storeId = shop?.id || (user ? `shop-${user.id}` : undefined);
+    const storeId = shop?.id || user?.id || undefined;
     const list = await DBService.getProducts({ storeId });
     setProducts(list);
     setLoading(false);

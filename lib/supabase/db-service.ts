@@ -496,6 +496,44 @@ export const DBService = {
           .eq('owner_id', ownerId)
           .maybeSingle();
         if (!error && data) return data as Shop;
+
+        // Fallback: vérifier dans profiles si l'utilisateur est un vendeur enregistré
+        const { data: prof } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', ownerId)
+          .maybeSingle();
+
+        if (prof && prof.role === 'seller') {
+          const fallbackShop: Shop = {
+            id: prof.id,
+            owner_id: prof.id,
+            name: prof.full_name ? `Boutique ${prof.full_name}` : 'Boutique Partenaire',
+            slug: `boutique-${(prof.full_name || 'vendeur').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${prof.id.slice(0, 4)}`,
+            description: `Boutique officielle de ${prof.full_name || 'la vendeuse'}`,
+            phone: prof.phone || null,
+            whatsapp: prof.phone || null,
+            city: prof.city || 'Abidjan',
+            commune: prof.commune || 'Cocody',
+            address: prof.address || null,
+            logo_url: prof.avatar_url || '/logo.png',
+            banner_url: null,
+            status: 'active',
+            verified: true,
+            is_founder: true,
+            free_trial_start: prof.created_at,
+            free_trial_end: new Date(new Date(prof.created_at).getTime() + 90 * 86400000).toISOString(),
+            subscription_status: 'trial',
+            commission_rate: 0,
+            rating: 5.0,
+            total_reviews: 0,
+            total_sales: 0,
+            views_count: 0,
+            created_at: prof.created_at,
+            updated_at: prof.updated_at,
+          };
+          return fallbackShop;
+        }
       } catch (err) {
         console.warn('Supabase getShopByOwnerId error:', err);
       }
@@ -540,6 +578,7 @@ export const DBService = {
         const { data, error } = await supabase
           .from('shops')
           .insert({
+            id: (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shopData.owner_id)) ? shopData.owner_id : undefined,
             owner_id: shopData.owner_id,
             name: shopData.name,
             slug: slug,
@@ -567,9 +606,13 @@ export const DBService = {
       }
     }
 
-    // Local fallback
+    // Local fallback avec UUID valide si owner_id est un UUID
+    const fallbackId = (shopData.owner_id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shopData.owner_id))
+      ? shopData.owner_id
+      : `shop-${Date.now()}`;
+
     const newShop: Shop = {
-      id: `shop-${Date.now()}`,
+      id: fallbackId,
       owner_id: shopData.owner_id,
       name: shopData.name,
       slug: slug,
@@ -604,21 +647,71 @@ export const DBService = {
   async getAllAdminShops(): Promise<Shop[]> {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase
+        const { data: shopsData, error: shopsErr } = await supabase
           .from('shops')
           .select('*')
           .order('created_at', { ascending: false });
-        if (!error && data && data.length > 0) return data as Shop[];
-      } catch (err) {
-        console.warn('Supabase getAllAdminShops on shops error:', err);
-      }
-      try {
-        const { data, error } = await supabase
-          .from('stores')
+        
+        // Charger également les profils vendeurs réels enregistrés dans profiles
+        const { data: sellerProfiles } = await supabase
+          .from('profiles')
           .select('*')
+          .eq('role', 'seller')
           .order('created_at', { ascending: false });
-        if (!error && data && data.length > 0) return data as Shop[];
-      } catch (err) {}
+
+        const realShops: Shop[] = [];
+        const existingOwnerIds = new Set<string>();
+
+        if (shopsData && shopsData.length > 0) {
+          for (const s of shopsData) {
+            realShops.push(s as Shop);
+            existingOwnerIds.add(s.owner_id);
+          }
+        }
+
+        // Si des profils vendeurs existent dans profiles mais n'ont pas encore de ligne dans la table shops
+        if (sellerProfiles && sellerProfiles.length > 0) {
+          for (const p of sellerProfiles) {
+            if (!existingOwnerIds.has(p.id)) {
+              const syntheticShop: Shop = {
+                id: p.id,
+                owner_id: p.id,
+                name: p.full_name ? `Boutique ${p.full_name}` : 'Boutique Partenaire',
+                slug: `boutique-${(p.full_name || 'vendeur').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${p.id.slice(0, 4)}`,
+                description: `Boutique officielle de ${p.full_name || 'la vendeuse'} sur Hijab Market CI`,
+                phone: p.phone || null,
+                whatsapp: p.phone || null,
+                city: p.city || 'Abidjan',
+                commune: p.commune || 'Cocody',
+                address: p.address || null,
+                logo_url: p.avatar_url || '/logo.png',
+                banner_url: null,
+                status: 'active',
+                verified: true,
+                is_founder: true,
+                free_trial_start: p.created_at,
+                free_trial_end: new Date(new Date(p.created_at).getTime() + 90 * 86400000).toISOString(),
+                subscription_status: 'trial',
+                commission_rate: 0,
+                rating: 5.0,
+                total_reviews: 0,
+                total_sales: 0,
+                views_count: 0,
+                created_at: p.created_at,
+                updated_at: p.updated_at,
+              };
+              realShops.push(syntheticShop);
+              existingOwnerIds.add(p.id);
+            }
+          }
+        }
+
+        if (realShops.length > 0) {
+          return realShops;
+        }
+      } catch (err) {
+        console.warn('Supabase getAllAdminShops error:', err);
+      }
     }
     const shops = getLocalData<Shop[]>(STORAGE_KEYS.SHOPS, DEFAULT_SHOPS);
     return shops;
@@ -766,7 +859,13 @@ export const DBService = {
 
     let list = getLocalData<Product[]>(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
     if (options?.storeId) {
-      list = list.filter(p => p.store_id === options.storeId);
+      const targetId = options.storeId;
+      const cleanTargetId = targetId.startsWith('shop-') ? targetId.replace('shop-', '') : targetId;
+      list = list.filter(p => 
+        p.store_id === targetId || 
+        p.store_id === cleanTargetId || 
+        p.store_id === `shop-${cleanTargetId}`
+      );
     }
     if (options?.categorySlug && options.categorySlug !== 'all' && options.categorySlug !== 'Tous') {
       list = list.filter(p => p.category?.slug === options.categorySlug);
@@ -827,12 +926,50 @@ export const DBService = {
   }): Promise<Product> {
     const slug = `${productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${Date.now().toString().slice(-4)}`;
 
+    // Nettoyer et valider le store_id
+    let cleanStoreId = productData.store_id;
+    if (cleanStoreId.startsWith('shop-')) {
+      const stripped = cleanStoreId.replace('shop-', '');
+      if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(stripped)) {
+        cleanStoreId = stripped;
+      }
+    }
+
     if (isSupabaseConfigured()) {
       try {
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanStoreId);
+
+        // Si store_id est un UUID valide, s'assurer que la boutique existe dans shops pour respecter la clé étrangère
+        if (isUuid) {
+          try {
+            const { data: existingShop } = await supabase
+              .from('shops')
+              .select('id')
+              .eq('id', cleanStoreId)
+              .maybeSingle();
+
+            if (!existingShop) {
+              await supabase.from('shops').upsert({
+                id: cleanStoreId,
+                owner_id: cleanStoreId,
+                name: 'Boutique Partenaire',
+                slug: `boutique-${cleanStoreId.slice(0, 6)}`,
+                status: 'active',
+                verified: true,
+                is_founder: true,
+                subscription_status: 'trial',
+                commission_rate: 0,
+              });
+            }
+          } catch (shopSyncErr) {
+            console.warn('Vérification boutique avant produit:', shopSyncErr);
+          }
+        }
+
         const { data: prodData, error: prodError } = await supabase
           .from('products')
           .insert({
-            store_id: productData.store_id,
+            store_id: cleanStoreId,
             category_id: productData.category_id || null,
             name: productData.name,
             slug: slug,
@@ -859,7 +996,12 @@ export const DBService = {
               is_cover: true,
             });
           }
+          // Sauvegarder aussi en cache local
+          const localProds = getLocalData<Product[]>(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
+          setLocalData(STORAGE_KEYS.PRODUCTS, [prodData as unknown as Product, ...localProds]);
           return prodData as unknown as Product;
+        } else if (prodError) {
+          console.warn('Supabase createProduct insert error:', prodError);
         }
       } catch (err) {
         console.warn('Supabase createProduct error, using local fallback:', err);
@@ -868,7 +1010,7 @@ export const DBService = {
 
     // Local fallback
     const shops = getLocalData<Shop[]>(STORAGE_KEYS.SHOPS, DEFAULT_SHOPS);
-    const store = shops.find(s => s.id === productData.store_id) || DEFAULT_SHOPS[0];
+    const store = shops.find(s => s.id === cleanStoreId || s.id === productData.store_id) || DEFAULT_SHOPS[0];
     const category = DEFAULT_CATEGORIES.find(c => c.id === productData.category_id) || DEFAULT_CATEGORIES[0];
 
     const newProd: Product = {

@@ -62,7 +62,11 @@ export default function NewProductPage() {
     e.preventDefault();
     setError('');
 
-    const storeId = shop?.id || (user ? `shop-${user.id}` : 's1000000-0000-0000-0000-000000000001');
+    const storeId = (shop?.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shop.id))
+      ? shop.id
+      : (user?.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(user.id))
+        ? user.id
+        : shop?.id || (user?.id ?? '4ef24dbb-3313-4447-b622-d3519f17c47a');
 
     setLoading(true);
 

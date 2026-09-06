@@ -104,6 +104,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setShop(userShop);
             if (userShop) {
               try { localStorage.setItem(LOCAL_SHOP_KEY, JSON.stringify(userShop)); } catch {}
+
+              // Synchronisation automatique des éventuels articles enregistrés hors-ligne ou localement
+              try {
+                const localProds = JSON.parse(localStorage.getItem('hm_products') || '[]');
+                if (Array.isArray(localProds) && localProds.length > 0) {
+                  const unsynced = localProds.filter((p: any) => 
+                    p && p.name && (p.id?.startsWith('prod-') || p.store_id !== userShop.id)
+                  );
+                  for (const p of unsynced) {
+                    await DBService.createProduct({
+                      store_id: userShop.id,
+                      category_id: p.category_id || null,
+                      name: p.name,
+                      description: p.description || '',
+                      price: p.price || 5000,
+                      old_price: p.old_price,
+                      stock: p.stock || 10,
+                      material: p.material,
+                      colors: p.colors,
+                      sizes: p.sizes,
+                      badge: p.badge,
+                      imageUrl: p.images?.[0]?.image_url,
+                    });
+                  }
+                }
+              } catch (syncErr) {
+                console.warn('Auto-sync local products:', syncErr);
+              }
             }
           }
           return;
@@ -378,21 +406,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.warn('Erreur mise à jour profil Supabase:', profileErr);
           }
 
-          // Si vendeuse, créer la boutique
-          if (role === 'seller' && data.shop_name) {
-            const createdShop = await DBService.createShop({
-              owner_id: authData.user.id,
-              name: data.shop_name,
-              description: data.shop_description,
-              phone: data.phone,
-              whatsapp: data.whatsapp || data.phone,
-              city: data.city || 'Abidjan',
-              commune: data.commune || 'Cocody',
-            });
-            setShop(createdShop);
-          }
-
-          // Établir la session active immédiate
+          // Établir la session active immédiate pour authentifier les requêtes suivantes
           if (authData.session) {
             setSession(authData.session);
             setUser(authData.user);
@@ -411,6 +425,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             } catch {
               setUser(authData.user);
             }
+          }
+
+          // Si vendeuse, créer ou synchroniser la boutique
+          if (role === 'seller') {
+            const shopName = data.shop_name || `Boutique de ${data.full_name}`;
+            const createdShop = await DBService.createShop({
+              owner_id: authData.user.id,
+              name: shopName,
+              description: data.shop_description,
+              phone: data.phone,
+              whatsapp: data.whatsapp || data.phone,
+              city: data.city || 'Abidjan',
+              commune: data.commune || 'Cocody',
+            });
+            setShop(createdShop);
           }
 
           try {
