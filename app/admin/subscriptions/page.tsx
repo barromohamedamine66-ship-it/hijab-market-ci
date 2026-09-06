@@ -141,14 +141,14 @@ export default function AdminSubscriptionsPage() {
                 <h3 className="text-lg font-bold text-white font-heading">{plan.name}</h3>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl font-extrabold text-white">
-                    {plan.price_monthly.toLocaleString('fr-FR')} F
+                    {(plan.price_monthly ?? plan.price ?? 0).toLocaleString('fr-FR')} F
                   </span>
                   <span className="text-xs text-slate-400">/ mois</span>
                 </div>
                 <p className="text-xs text-slate-400">{plan.description}</p>
 
                 <ul className="space-y-2 pt-3 border-t border-slate-800 text-xs text-slate-300">
-                  {plan.features?.map((f, i) => (
+                  {(plan.features || []).map((f: string, i: number) => (
                     <li key={i} className="flex items-center gap-2">
                       <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                       <span>{f}</span>
@@ -160,8 +160,8 @@ export default function AdminSubscriptionsPage() {
               <button
                 onClick={() => {
                   setEditingPlan(plan);
-                  setMonthlyPrice(plan.price_monthly);
-                  setFeatures(plan.features?.join('\n') || '');
+                  setMonthlyPrice(plan.price_monthly ?? plan.price ?? 0);
+                  setFeatures((plan.features || []).join('\n'));
                 }}
                 className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition flex items-center justify-center gap-1.5"
               >

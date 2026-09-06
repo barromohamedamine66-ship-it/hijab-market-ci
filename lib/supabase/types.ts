@@ -145,6 +145,14 @@ export interface SubscriptionPlan {
   active: boolean;
   created_at: string;
   updated_at?: string;
+  code?: string;
+  price_monthly?: number;
+  price_yearly?: number;
+  features?: string[];
+  badge_name?: string;
+  is_popular?: boolean;
+  order_index?: number;
+  is_active?: boolean;
 }
 
 export interface StoreSubscription {
