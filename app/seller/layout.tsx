@@ -13,9 +13,7 @@ const navItems = [
   { href: '/seller/dashboard', icon: LayoutDashboard, label: 'Tableau de bord' },
   { href: '/seller/shop', icon: Store, label: 'Ma Boutique' },
   { href: '/seller/products', icon: Package, label: 'Mes Produits' },
-  { href: '/seller/orders', icon: ShoppingCart, label: 'Commandes' },
-  { href: '/seller/earnings', icon: DollarSign, label: 'Revenus & Portefeuille' },
-  { href: '/seller/withdrawals', icon: ArrowDownCircle, label: 'Demandes de Retrait' },
+  { href: '/seller/orders', icon: ShoppingCart, label: 'Commandes WhatsApp' },
 ];
 
 export default function SellerLayout({ children }: { children: React.ReactNode }) {

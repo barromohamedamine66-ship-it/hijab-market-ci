@@ -925,6 +925,41 @@ export const DBService = {
     return true;
   },
 
+  async updateProductStatus(productId: string, status: 'approved' | 'rejected' | 'archived'): Promise<boolean> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabase
+          .from('products')
+          .update({ status, updated_at: new Date().toISOString() })
+          .eq('id', productId);
+        if (!error) return true;
+      } catch (err) {
+        console.warn('Supabase updateProductStatus error:', err);
+      }
+    }
+    const products = getLocalData<Product[]>(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
+    const updated = products.map(p => p.id === productId ? { ...p, status } : p);
+    setLocalData(STORAGE_KEYS.PRODUCTS, updated);
+    return true;
+  },
+
+  async purgeDemoProducts(): Promise<number> {
+    const demoIds = ['p1000000-0000-0000-0000-000000000001', 'p1000000-0000-0000-0000-000000000002', 'p1000000-0000-0000-0000-000000000003', 'p1000000-0000-0000-0000-000000000004'];
+    if (isSupabaseConfigured()) {
+      try {
+        for (const id of demoIds) {
+          await supabase.from('products').delete().eq('id', id);
+        }
+      } catch (err) {
+        console.warn('Supabase purgeDemoProducts error:', err);
+      }
+    }
+    const products = getLocalData<Product[]>(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
+    const realProducts = products.filter(p => !demoIds.includes(p.id) && !p.id.startsWith('p1000000'));
+    setLocalData(STORAGE_KEYS.PRODUCTS, realProducts);
+    return products.length - realProducts.length;
+  },
+
   // ==========================================
   // COMMANDES / ORDERS
   // ==========================================

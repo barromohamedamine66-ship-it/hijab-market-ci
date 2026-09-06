@@ -375,6 +375,33 @@ export default function DevenirVendeurPage() {
               </Link>
             </div>
           </div>
+
+          {/* Paiement Officiel Wave pour les Abonnements */}
+          <div className="mt-10 p-6 rounded-3xl bg-[#0a151f] border-2 border-sky-500/40 text-center max-w-2xl mx-auto space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 text-xs font-bold border border-sky-500/30">
+              <span>🌊 Paiement Officiel Sécurisé Wave</span>
+            </div>
+            <h3 className="text-base sm:text-lg font-bold text-white">Règlement direct des formules par Wave Côte d'Ivoire</h3>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Pour activer votre Formule Business (15 000 F) ou Premium (30 000 F), réglez directement via Wave au compte officiel de la plateforme :
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
+              <div className="px-3.5 py-2 bg-slate-900 rounded-xl border border-sky-500/40 text-xs font-mono font-extrabold text-sky-400">
+                Numéro Wave : 07 77 39 38 13
+              </div>
+              <div className="px-3.5 py-2 bg-slate-900 rounded-xl border border-sky-500/40 text-xs font-bold text-white">
+                Compte : HIJABMARKET.CI
+              </div>
+              <a
+                href="https://pay.wave.com/m/M_ci_YBdDvRRAwSih/c/ci/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs transition shadow-md inline-flex items-center gap-1"
+              >
+                Lien Wave Direct ↗
+              </a>
+            </div>
+          </div>
         </section>
 
         {/* Comment ça marche en 3 étapes simples */}
