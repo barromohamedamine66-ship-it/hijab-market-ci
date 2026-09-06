@@ -47,3 +47,23 @@ export function getWaveDeepLink(): {
   };
 }
 
+/**
+ * Crée une session de checkout Wave
+ */
+export async function createWaveCheckoutSession(params: {
+  orderNumber: string;
+  amount: number;
+  customerName?: string;
+  customerPhone?: string;
+  successUrl?: string;
+  errorUrl?: string;
+}): Promise<{ wave_launch_url?: string; error?: string }> {
+  try {
+    const url = getWavePaymentUrl(params.amount, params.orderNumber);
+    return { wave_launch_url: url };
+  } catch (err: any) {
+    return { error: err?.message || 'Erreur lors de la génération du lien Wave' };
+  }
+}
+
+

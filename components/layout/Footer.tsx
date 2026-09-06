@@ -1,5 +1,7 @@
+'use client';
+
 import Link from 'next/link';
-import { Facebook, Instagram, Twitter, Mail, MapPin, Phone, Heart, MessageCircle } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Mail, MapPin, Phone, Heart, MessageCircle, Smartphone } from 'lucide-react';
 
 const footerLinks = {
   parcourir: [
@@ -27,8 +29,14 @@ const footerLinks = {
 export default function Footer() {
   const year = new Date().getFullYear();
 
+  const handleOpenInstall = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('open-pwa-install'));
+    }
+  };
+
   return (
-    <footer className="bg-gray-950 text-gray-400">
+    <footer className="bg-gray-950 text-gray-400 select-none">
       {/* CTA Banner */}
       <div className="bg-gradient-to-r from-emerald-800 to-emerald-950 py-12 border-b border-emerald-700/50">
         <div className="container text-center">
@@ -67,6 +75,27 @@ export default function Footer() {
             <p className="text-sm leading-relaxed mb-6">
               Le premier portail multi-boutiques dédié à la mode modeste, mastour et traditionnelle en Côte d'Ivoire. Qualité, authenticité et élégance garanties.
             </p>
+
+            {/* Application PWA Callout Badge */}
+            <div className="mb-6 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-500/30 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
+                  <Smartphone className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white">Application Disponible</p>
+                  <p className="text-[10px] text-gray-400">Installez sur Android & iPhone</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleOpenInstall}
+                className="py-1.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-sm"
+              >
+                Installer
+              </button>
+            </div>
+
             <div className="space-y-2.5 text-sm">
               <div className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-emerald-400 flex-shrink-0" />
@@ -147,6 +176,15 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <button
+                  type="button"
+                  onClick={handleOpenInstall}
+                  className="text-sm text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1.5 transition text-left"
+                >
+                  <span>📲 Installer l'application</span>
+                </button>
+              </li>
             </ul>
           </div>
         </div>

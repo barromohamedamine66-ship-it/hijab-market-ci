@@ -288,6 +288,20 @@ export default function Navbar() {
                     </Link>
                   </>
                 )}
+                {/* PWA Install trigger */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsOpen(false);
+                    if (typeof window !== 'undefined') {
+                      window.dispatchEvent(new CustomEvent('open-pwa-install'));
+                    }
+                  }}
+                  className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center justify-center gap-2 hover:bg-emerald-100 transition shadow-sm mt-1"
+                >
+                  <span className="text-base">📲</span>
+                  <span>Installer l'application mobile</span>
+                </button>
               </div>
             </div>
           </div>

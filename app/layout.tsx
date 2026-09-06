@@ -1,18 +1,49 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from './providers';
 import TopBanner from '@/components/layout/TopBanner';
 import WhatsAppButton from '@/components/layout/WhatsAppButton';
+import MobileBottomNav from '@/components/layout/MobileBottomNav';
+import PwaRegistry from '@/components/pwa/PwaRegistry';
+
+export const viewport: Viewport = {
+  themeColor: '#10b981',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+};
 
 export const metadata: Metadata = {
+  applicationName: 'HIJAB MARKET CI',
   title: {
     default: 'HIJAB MARKET CI — Toutes les boutiques de hijabs en un seul endroit',
     template: '%s | HIJAB MARKET CI',
   },
   description:
     'Découvrez la plus grande marketplace multi-vendeurs de hijabs en Côte d\'Ivoire. Des centaines de boutiques vérifiées, des milliers de produits de qualité.',
-  keywords: ['hijab', 'marketplace', 'boutique hijab', 'vente hijab', 'mode hijab', 'Côte d\'Ivoire', 'Abidjan'],
+  manifest: '/manifest.json',
+  keywords: ['hijab', 'marketplace', 'boutique hijab', 'vente hijab', 'mode hijab', 'Côte d\'Ivoire', 'Abidjan', 'abaya', 'foulard'],
   authors: [{ name: 'HIJAB MARKET CI' }],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'HIJAB MARKET',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: [
+      { url: '/favicon.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
   openGraph: {
     title: 'HIJAB MARKET CI',
     description: 'Toutes les boutiques de hijabs, en un seul endroit.',
@@ -36,12 +67,18 @@ export default function RootLayout({
           rel="stylesheet"
         />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" type="image/png" href="/logo.png" />
-        <meta name="theme-color" content="#10b981" />
-        <link rel="apple-touch-icon" href="/logo.png" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="HIJAB MARKET" />
       </head>
-      <body className="min-h-screen flex flex-col bg-[#fcfaf6] text-gray-900 font-sans antialiased selection:bg-emerald-100 selection:text-emerald-900">
+      <body className="min-h-screen flex flex-col bg-[#fcfaf6] text-gray-900 font-sans antialiased selection:bg-emerald-100 selection:text-emerald-900 pb-16 md:pb-0 overflow-x-hidden">
         <Providers>
+          {/* PWA Lifecycle, Registration and Prompts */}
+          <PwaRegistry />
+
           {/* Top announcements & interactive role switcher */}
           <TopBanner />
 
@@ -49,6 +86,9 @@ export default function RootLayout({
           <div className="flex-1">
             {children}
           </div>
+
+          {/* Native-like Mobile Bottom Navigation */}
+          <MobileBottomNav />
 
           {/* Floating WhatsApp Support 24/7 */}
           <WhatsAppButton />
