@@ -16,7 +16,7 @@ export default function AdminProductsPage() {
   const loadProducts = async () => {
     setLoading(true);
     try {
-      const data = await DBService.getProducts();
+      const data = await DBService.getProducts({ adminAll: true });
       setProducts(data);
     } catch (err) {
       console.error(err);

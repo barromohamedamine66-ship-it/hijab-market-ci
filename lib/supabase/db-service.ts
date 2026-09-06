@@ -349,11 +349,40 @@ function setLocalData<T>(key: string, val: T): void {
   } catch {}
 }
 
+// Cache ultra-rapide en mémoire pour éliminer les latences réseau répétées
+const memoryCache = new Map<string, { data: any; expiry: number }>();
+
+function getCached<T>(key: string): T | null {
+  const cached = memoryCache.get(key);
+  if (!cached) return null;
+  if (Date.now() > cached.expiry) {
+    memoryCache.delete(key);
+    return null;
+  }
+  return cached.data as T;
+}
+
+function setCached<T>(key: string, data: T, ttlMs: number): void {
+  memoryCache.set(key, { data, expiry: Date.now() + ttlMs });
+}
+
+function invalidateCachePrefix(prefix: string): void {
+  for (const key of memoryCache.keys()) {
+    if (key.startsWith(prefix)) {
+      memoryCache.delete(key);
+    }
+  }
+}
+
 export const DBService = {
   // ==========================================
   // CATÉGORIES (11 Catégories Dynamiques)
   // ==========================================
   async getCategories(includeInactive = false): Promise<Category[]> {
+    const cacheKey = `cats:${includeInactive}`;
+    const cached = getCached<Category[]>(cacheKey);
+    if (cached) return cached;
+
     if (isSupabaseConfigured()) {
       try {
         let query = supabase
@@ -366,13 +395,18 @@ export const DBService = {
         }
 
         const { data, error } = await query;
-        if (!error && data && data.length > 0) return data as Category[];
+        if (!error && data && data.length > 0) {
+          setCached(cacheKey, data as Category[], 300000); // 5 minutes
+          return data as Category[];
+        }
       } catch (err) {
         console.warn('Supabase getCategories error, fallback to defaults:', err);
       }
     }
     const local = getLocalData<Category[]>(STORAGE_KEYS.CATEGORIES, DEFAULT_CATEGORIES);
-    return includeInactive ? local : local.filter(c => c.is_active);
+    const result = includeInactive ? local : local.filter(c => c.is_active);
+    setCached(cacheKey, result, 60000);
+    return result;
   },
 
   async createCategory(categoryData: {
@@ -826,7 +860,13 @@ export const DBService = {
   // ==========================================
   // PRODUITS
   // ==========================================
-  async getProducts(options?: { categorySlug?: string; limit?: number; storeId?: string }): Promise<Product[]> {
+  async getProducts(options?: { categorySlug?: string; limit?: number; storeId?: string; adminAll?: boolean }): Promise<Product[]> {
+    const cacheKey = `prods:${JSON.stringify(options || {})}`;
+    if (!options?.adminAll) {
+      const cached = getCached<Product[]>(cacheKey);
+      if (cached) return cached;
+    }
+
     if (isSupabaseConfigured()) {
       try {
         let query = supabase
@@ -836,7 +876,7 @@ export const DBService = {
 
         if (options?.storeId) {
           query = query.eq('store_id', options.storeId);
-        } else {
+        } else if (!options?.adminAll) {
           query = query.eq('status', 'approved');
         }
 
@@ -850,6 +890,7 @@ export const DBService = {
           if (options?.categorySlug && options.categorySlug !== 'all' && options.categorySlug !== 'Tous') {
             list = list.filter(p => p.category?.slug === options.categorySlug);
           }
+          setCached(cacheKey, list, 15000); // 15 secondes de cache réactif
           return list;
         }
       } catch (err) {
@@ -999,6 +1040,7 @@ export const DBService = {
           // Sauvegarder aussi en cache local
           const localProds = getLocalData<Product[]>(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
           setLocalData(STORAGE_KEYS.PRODUCTS, [prodData as unknown as Product, ...localProds]);
+          invalidateCachePrefix('prods:');
           return prodData as unknown as Product;
         } else if (prodError) {
           console.warn('Supabase createProduct insert error:', prodError);
@@ -1050,10 +1092,12 @@ export const DBService = {
 
     const currentProds = getLocalData<Product[]>(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
     setLocalData(STORAGE_KEYS.PRODUCTS, [newProd, ...currentProds]);
+    invalidateCachePrefix('prods:');
     return newProd;
   },
 
   async deleteProduct(productId: string): Promise<boolean> {
+    invalidateCachePrefix('prods:');
     if (isSupabaseConfigured()) {
       try {
         const { error } = await supabase.from('products').delete().eq('id', productId);
@@ -1068,6 +1112,7 @@ export const DBService = {
   },
 
   async updateProductStatus(productId: string, status: 'approved' | 'rejected' | 'archived'): Promise<boolean> {
+    invalidateCachePrefix('prods:');
     if (isSupabaseConfigured()) {
       try {
         const { error } = await supabase

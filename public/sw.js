@@ -2,7 +2,7 @@
 // HIJAB MARKET CI — Service Worker PWA Haute Performance & Sécurisé
 // ==============================================================================
 
-const CACHE_VERSION = 'hm-ci-pwa-v1.0.1';
+const CACHE_VERSION = 'hm-ci-pwa-v1.0.2';
 const STATIC_CACHE = `hm-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `hm-images-${CACHE_VERSION}`;
 const PAGES_CACHE = `hm-pages-${CACHE_VERSION}`;
@@ -199,19 +199,18 @@ self.addEventListener('fetch', (event) => {
 // Gestionnaire de Navigation (Network-First avec Fallback Hors-Ligne)
 // ------------------------------------------------------------------------------
 async function handleNavigation(request) {
-  const timeoutPromise = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('Network timeout')), 2500)
-  );
-
   try {
-    const networkResponse = await Promise.race([fetch(request), timeoutPromise]);
+    const networkResponse = await fetch(request);
     if (networkResponse && networkResponse.status === 200) {
       const cache = await caches.open(PAGES_CACHE);
       cache.put(request, networkResponse.clone());
       return networkResponse;
     }
+    if (networkResponse) {
+      return networkResponse;
+    }
   } catch (err) {
-    // Le réseau a échoué ou a dépassé 2.5s (connexion faible ou hors ligne)
+    // Hors connexion
   }
 
   // Tente de récupérer la page depuis le cache
