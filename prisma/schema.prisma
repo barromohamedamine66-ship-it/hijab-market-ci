@@ -1,0 +1,373 @@
+// This is your Prisma schema file for HIJAB MARKET CI
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== ENUMS ====================
+
+enum Role {
+  CLIENT
+  VENDEUR
+  ADMIN
+  LIVREUR
+}
+
+enum OrderStatus {
+  EN_ATTENTE_PAIEMENT
+  PAYEE
+  CONFIRMEE_PAR_VENDEUR
+  EN_PREPARATION
+  PRETE_POUR_LIVRAISON
+  EN_LIVRAISON
+  LIVREE
+  FINALISEE
+  ANNULEE
+  LITIGE
+  REMBOURSEE
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum WithdrawalStatus {
+  DEMANDE
+  EN_VERIFICATION
+  APPROUVE
+  EN_TRAITEMENT
+  PAYE
+  ECHOUE
+  ANNULE
+}
+
+enum DisputeStatus {
+  OUVERT
+  EN_COURS
+  RESOLU
+  FERME
+}
+
+// ==================== MODELS ====================
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  password        String
+  firstName       String?
+  lastName        String?
+  phone           String?
+  role            Role      @default(CLIENT)
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  store           Store?
+  orders          Order[]
+  sellerOrders    SellerOrder[] @relation("SellerOrders")
+  deliveries      Delivery[]    @relation("DeliveryPerson")
+  reviews         Review[]
+  wallet          SellerWallet?
+  auditLogs       AuditLog[]
+  notifications   Notification[]
+}
+
+model Store {
+  id              String    @id @default(cuid())
+  sellerId        String    @unique
+  seller          User      @relation(fields: [sellerId], references: [id])
+  name            String    @unique
+  slug            String    @unique
+  description     String?
+  logo            String?
+  city            String?
+  isVerified      Boolean   @default(false)
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  products        Product[]
+  sellerOrders    SellerOrder[]
+}
+
+model Category {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  slug            String    @unique
+  image           String?
+  parentId        String?
+  parent          Category? @relation("SubCategories", fields: [parentId], references: [id])
+  children        Category[] @relation("SubCategories")
+  products        Product[]
+}
+
+model Product {
+  id              String    @id @default(cuid())
+  storeId         String
+  store           Store     @relation(fields: [storeId], references: [id])
+  categoryId      String
+  category        Category  @relation(fields: [categoryId], references: [id])
+  name            String
+  slug            String    @unique
+  description     String
+  price           Float
+  stock           Int       @default(0)
+  colors          String[]  @default([])
+  sizes           String[]  @default([])
+  images          String[]  @default([]) // URLs
+  isAvailable     Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+  reviews         Review[]
+}
+
+// ==================== PANIER ====================
+model Cart {
+  id              String    @id @default(cuid())
+  clientId        String    @unique
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  items           CartItem[]
+}
+
+model CartItem {
+  id              String    @id @default(cuid())
+  cartId          String
+  cart            Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product   @relation(fields: [productId], references: [id])
+  quantity        Int
+}
+
+// ==================== COMMANDES ====================
+model Order {
+  id              String    @id @default(cuid())
+  orderNumber     String    @unique // Ex: HMCI-2026-00001
+  clientId        String
+  client          User      @relation(fields: [clientId], references: [id])
+  totalAmount     Float     // Total = Sous-commandes + Frais globaux
+  shippingCost    Float     @default(0)
+  paymentStatus   PaymentStatus @default(PENDING)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  sellerOrders    SellerOrder[]
+  payments        Payment[]
+  refunds         Refund[]
+}
+
+model SellerOrder {
+  id              String    @id @default(cuid())
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id])
+  subOrderNumber  String    @unique // Ex: HMCI-2026-00001-A
+  sellerId        String
+  seller          User      @relation("SellerOrders", fields: [sellerId], references: [id])
+  storeId         String
+  store           Store     @relation(fields: [storeId], references: [id])
+  status          OrderStatus @default(EN_ATTENTE_PAIEMENT)
+  subTotal        Float
+  commissionAmount Float    @default(0) // Commission prélevée
+  shippingCost    Float     @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  items           OrderItem[]
+  deliveries      Delivery[]
+  disputes        Dispute[]
+}
+
+model OrderItem {
+  id              String    @id @default(cuid())
+  sellerOrderId   String
+  sellerOrder     SellerOrder @relation(fields: [sellerOrderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product   @relation(fields: [productId], references: [id])
+  quantity        Int
+  unitPrice       Float
+}
+
+// ==================== PAIEMENT ====================
+model Payment {
+  id              String    @id @default(cuid())
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id])
+  amount          Float
+  currency        String    @default("XOF")
+  method          String    // WAVE, ORANGE_MONEY, MTN_MONEY
+  provider        String    // Ex: CinetPay, Paystack
+  status          PaymentStatus @default(PENDING)
+  externalRef     String?   @unique // Ref du prestataire
+  internalRef     String    @unique // Ref générée (idempotence)
+  providerResponse String?  // JSON response
+  confirmedAt     DateTime?
+  createdAt       DateTime  @default(now())
+
+  events          PaymentEvent[]
+}
+
+model PaymentEvent {
+  id              String    @id @default(cuid())
+  paymentId       String
+  payment         Payment   @relation(fields: [paymentId], references: [id])
+  status          String
+  payload         String    // JSON brut du webhook
+  createdAt       DateTime  @default(now())
+}
+
+model Refund {
+  id              String    @id @default(cuid())
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id])
+  amount          Float
+  reason          String?
+  status          PaymentStatus @default(PENDING)
+  createdAt       DateTime  @default(now())
+}
+
+// ==================== PORTEFEUILLE VENDEUR ====================
+model SellerWallet {
+  id              String    @id @default(cuid())
+  sellerId        String    @unique
+  seller          User      @relation(fields: [sellerId], references: [id])
+  pendingBalance  Float     @default(0)
+  availableBalance Float    @default(0)
+  withdrawnBalance Float    @default(0)
+  updatedAt       DateTime  @updatedAt
+
+  transactions    WalletTransaction[]
+  withdrawals     WithdrawalRequest[]
+}
+
+model WalletTransaction {
+  id              String    @id @default(cuid())
+  walletId        String
+  wallet          SellerWallet @relation(fields: [walletId], references: [id])
+  amount          Float
+  type            String    // CREDIT (vente), DEBIT (retrait), COMMISSION
+  reference       String?   // ID commande ou retrait
+  description     String?
+  createdAt       DateTime  @default(now())
+}
+
+model WithdrawalRequest {
+  id              String    @id @default(cuid())
+  walletId        String
+  wallet          SellerWallet @relation(fields: [walletId], references: [id])
+  amount          Float
+  method          String    // WAVE, ORANGE_MONEY, MTN
+  beneficiaryNum  String
+  status          WithdrawalStatus @default(DEMANDE)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// ==================== LIVRAISON & OTP ====================
+model Delivery {
+  id              String    @id @default(cuid())
+  sellerOrderId   String
+  sellerOrder     SellerOrder @relation(fields: [sellerOrderId], references: [id])
+  deliveryPersonId String?
+  deliveryPerson  User?     @relation("DeliveryPerson", fields: [deliveryPersonId], references: [id])
+  address         String
+  city            String
+  fee             Float     @default(0)
+  status          String    @default("PENDING") // PENDING, ON_THE_WAY, DELIVERED, FAILED
+  reference       String?   @unique
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  otp             OtpCode?
+  events          DeliveryEvent[]
+}
+
+model DeliveryEvent {
+  id              String    @id @default(cuid())
+  deliveryId      String
+  delivery        Delivery  @relation(fields: [deliveryId], references: [id])
+  status          String
+  note            String?
+  createdAt       DateTime  @default(now())
+}
+
+model OtpCode {
+  id              String    @id @default(cuid())
+  deliveryId      String    @unique
+  delivery        Delivery  @relation(fields: [deliveryId], references: [id])
+  code            String    // Ex: "482731"
+  isUsed          Boolean   @default(false)
+  expiresAt       DateTime
+  validatedAt     DateTime?
+  createdAt       DateTime  @default(now())
+}
+
+// ==================== AUTRES ====================
+model Review {
+  id              String    @id @default(cuid())
+  productId       String
+  product         Product   @relation(fields: [productId], references: [id])
+  clientId        String
+  client          User      @relation(fields: [clientId], references: [id])
+  rating          Int
+  comment         String?
+  isVerifiedPurchase Boolean @default(true)
+  createdAt       DateTime  @default(now())
+
+  @@unique([productId, clientId])
+}
+
+model Dispute {
+  id              String    @id @default(cuid())
+  sellerOrderId   String
+  sellerOrder     SellerOrder @relation(fields: [sellerOrderId], references: [id])
+  reason          String
+  description     String
+  status          DisputeStatus @default(OUVERT)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model AuditLog {
+  id              String    @id @default(cuid())
+  userId          String?
+  user            User?     @relation(fields: [userId], references: [id])
+  action          String
+  entity          String
+  entityId        String?
+  details         String?   // JSON
+  createdAt       DateTime  @default(now())
+}
+
+model Notification {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  title           String
+  message         String
+  isRead          Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+}
+
+model Config {
+  id              String    @id @default(cuid())
+  key             String    @unique // Ex: "BASE_COMMISSION_RATE", "SECURITY_DELAY_HOURS"
+  value           String
+  updatedAt       DateTime  @updatedAt
+}
