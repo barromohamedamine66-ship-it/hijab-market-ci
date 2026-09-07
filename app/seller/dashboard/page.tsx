@@ -224,9 +224,21 @@ export default function SellerDashboardPage() {
           </div>
           <div>
             <p className="text-base sm:text-lg font-extrabold text-gray-900 font-heading">
-              Pionnière 2026
+              {shop?.subscription_status === 'active' ? 'Boutique Pro' : 'Pionnière 2026'}
             </p>
-            <p className="text-xs text-amber-600 font-semibold mt-1">Essai gratuit actif</p>
+            <p className={`text-xs font-semibold mt-1 ${
+              shop?.subscription_status === 'active' 
+                ? 'text-emerald-600' 
+                : daysRemaining > 0 
+                  ? 'text-amber-600' 
+                  : 'text-rose-600'
+            }`}>
+              {shop?.subscription_status === 'active' 
+                ? 'Abonnement actif' 
+                : daysRemaining > 0 
+                  ? `Essai : il reste ${daysRemaining} jours` 
+                  : 'Essai gratuit terminé'}
+            </p>
           </div>
         </div>
       </div>

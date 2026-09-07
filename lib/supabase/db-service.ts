@@ -910,6 +910,20 @@ export const DBService = {
         const { data, error } = await query;
         if (!error && data && data.length > 0) {
           let list = data as unknown as Product[];
+          
+          if (!options?.adminAll) {
+            const now = new Date().getTime();
+            const trialDays = 90; // Durée par défaut de l'essai gratuit
+            list = list.filter(p => {
+              const shop = p.store;
+              if (shop && shop.subscription_status === 'trial' && shop.created_at) {
+                const trialEnd = new Date(shop.created_at).getTime() + trialDays * 86400000;
+                if (now > trialEnd) return false; // Masquer l'article si l'essai est terminé
+              }
+              return true;
+            });
+          }
+
           if (options?.categorySlug && options.categorySlug !== 'all' && options.categorySlug !== 'Tous') {
             list = list.filter(p => p.category?.slug === options.categorySlug);
           }
@@ -934,6 +948,22 @@ export const DBService = {
     if (options?.categorySlug && options.categorySlug !== 'all' && options.categorySlug !== 'Tous') {
       list = list.filter(p => p.category?.slug === options.categorySlug);
     }
+    if (!options?.adminAll) {
+      const now = new Date().getTime();
+      const trialDays = 90;
+      list = list.filter(p => {
+        // En local, on doit retrouver le store s'il n'est pas déjà populé (ici on a p.store_id)
+        // Mais pour simplifier on cherche dans DEFAULT_SHOPS
+        const shops = getLocalData<Shop[]>(STORAGE_KEYS.SHOPS, DEFAULT_SHOPS);
+        const shop = shops.find(s => s.id === p.store_id || s.id === `shop-${p.store_id}`);
+        if (shop && shop.subscription_status === 'trial' && shop.created_at) {
+          const trialEnd = new Date(shop.created_at).getTime() + trialDays * 86400000;
+          if (now > trialEnd) return false;
+        }
+        return true;
+      });
+    }
+
     if (options?.limit) {
       list = list.slice(0, options.limit);
     }

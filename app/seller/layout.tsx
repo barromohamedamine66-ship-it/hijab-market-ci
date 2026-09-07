@@ -108,6 +108,40 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
       </div>
     );
   }
+  const trialDays = 90;
+  const trialEnd = shop?.created_at ? new Date(new Date(shop.created_at).getTime() + trialDays * 86400000) : new Date(Date.now() + trialDays * 86400000);
+  const now = new Date();
+  const daysRemaining = Math.max(0, Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+
+  if (shop?.subscription_status === 'trial' && daysRemaining <= 0) {
+    return (
+      <div className="min-h-screen bg-[#faf9f6] flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white border border-rose-200 rounded-3xl p-8 text-center shadow-xl">
+          <div className="w-16 h-16 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto mb-4 text-3xl">
+            ⏳
+          </div>
+          <h1 className="text-xl font-bold text-gray-900 font-heading mb-2">Essai Gratuit Terminé</h1>
+          <p className="text-xs text-gray-500 leading-relaxed mb-6">
+            Vos 90 jours d'essai gratuit sont écoulés. Vos articles sont temporairement masqués sur la marketplace. Veuillez régler votre abonnement mensuel pour réactiver votre boutique et recommencer à vendre.
+          </p>
+          <div className="flex flex-col gap-2.5">
+            <button
+              className="btn btn-primary w-full text-xs font-bold py-3 bg-rose-600 hover:bg-rose-700"
+              onClick={() => alert("L'intégration Wave / Orange Money sera bientôt disponible pour le paiement automatique.")}
+            >
+              Payer mon abonnement (5 000F)
+            </button>
+            <button
+              onClick={signOut}
+              className="text-xs text-gray-400 hover:text-gray-600 mt-2 font-medium"
+            >
+              Me déconnecter
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const shopDisplayName = shop?.name || profile?.full_name || 'Ma Boutique';
 
