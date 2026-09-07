@@ -4,43 +4,20 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Timer, ArrowRight, Zap, ShoppingCart } from 'lucide-react';
 
-const FLASH_PRODUCTS = [
-  {
-    id: 'flash-1',
-    name: 'Abaya Dubaï Soie de Médine',
-    image: 'https://images.unsplash.com/photo-1589465885857-44edb59bbff2?auto=format&fit=crop&q=80&w=400&h=400',
-    price: 15000,
-    oldPrice: 35000,
-    slug: 'abaya-dubai-perle-noire',
-    soldPercentage: 85,
-    shopName: 'Les Voiles de Babi',
-  },
-  {
-    id: 'flash-2',
-    name: 'Hijab Mousseline Premium',
-    image: 'https://images.unsplash.com/photo-1596455119429-c5cce611a144?auto=format&fit=crop&q=80&w=400&h=400',
-    price: 2500,
-    oldPrice: 8000,
-    slug: 'hijab-soie-de-medine',
-    soldPercentage: 60,
-    shopName: 'Maison du Hijab',
-  },
-  {
-    id: 'flash-3',
-    name: 'Ensemble Mastour Été',
-    image: 'https://images.unsplash.com/photo-1621570168340-e2b8344e1dcb?auto=format&fit=crop&q=80&w=400&h=400',
-    price: 12000,
-    oldPrice: 22000,
-    slug: 'ensemble-mastour',
-    soldPercentage: 92,
-    shopName: 'Yass Fashion',
-  },
-];
+import { DBService } from '@/lib/supabase/db-service';
+import type { Product } from '@/lib/supabase/types';
 
 export default function FlashSales() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 23, seconds: 59 });
 
   useEffect(() => {
+    DBService.getFlashSales().then(data => {
+      setProducts(data);
+      setLoading(false);
+    });
+  }, []);
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev.seconds > 0) {
@@ -57,6 +34,10 @@ export default function FlashSales() {
   }, []);
 
   const formatTime = (num: number) => num.toString().padStart(2, '0');
+
+  if (loading || products.length === 0) {
+    return null; // On cache la section si aucune vente flash en cours
+  }
 
   return (
     <section className="py-12 sm:py-16 bg-gradient-to-br from-rose-50 via-white to-orange-50 border-y border-rose-100 relative overflow-hidden">
@@ -94,59 +75,66 @@ export default function FlashSales() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FLASH_PRODUCTS.map((product) => (
-            <div key={product.id} className="bg-white rounded-3xl p-3 sm:p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden mb-4">
-                <img src={product.image} alt={product.name} className="w-full h-full object-cover transition duration-700 group-hover:scale-110" />
-                
-                {/* Badge Réduction */}
-                <div className="absolute top-3 left-3 bg-rose-500 text-white font-extrabold text-sm px-3 py-1.5 rounded-xl shadow-lg rotate-[-3deg]">
-                  -{Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)}%
-                </div>
-                
-                {/* Overlay Add to cart (Desktop) */}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex items-center justify-center backdrop-blur-[2px]">
-                  <Link href={`/products/${product.slug}`} className="bg-white text-gray-900 font-bold px-6 py-3 rounded-full hover:scale-105 transition-transform flex items-center gap-2 shadow-xl">
-                    <ShoppingCart className="w-4 h-4" /> Voir l'offre
-                  </Link>
-                </div>
-              </div>
+          {products.slice(0, 3).map((product) => {
+            const coverImage = product.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1589465885857-44edb59bbff2?auto=format&fit=crop&q=80&w=400&h=400';
+            const oldPrice = product.old_price || (product.price * 1.5); // Fallback promotionnel
+            const discount = Math.round(((oldPrice - product.price) / oldPrice) * 100);
+            const fakeSoldPercentage = 75 + Math.floor(Math.random() * 20); // Génère un taux aléatoire pour l'urgence
 
-              <div className="px-2">
-                <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
-                  {product.shopName}
-                </p>
-                <h3 className="font-bold text-gray-900 text-sm sm:text-base leading-tight mb-3 line-clamp-1 group-hover:text-rose-600 transition-colors">
-                  {product.name}
-                </h3>
-                
-                <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-xl sm:text-2xl font-extrabold text-rose-600">
-                    {product.price.toLocaleString('fr-FR')} F
-                  </span>
-                  <span className="text-sm text-gray-400 line-through font-medium">
-                    {product.oldPrice.toLocaleString('fr-FR')} F
-                  </span>
-                </div>
-
-                {/* Progress Bar Stocks */}
-                <div className="space-y-1.5">
-                  <div className="flex justify-between text-[10px] sm:text-xs font-bold">
-                    <span className="text-rose-600">Déjà vendu à {product.soldPercentage}%</span>
-                    <span className="text-gray-400">Restant : {100 - product.soldPercentage}%</span>
+            return (
+              <div key={product.id} className="bg-white rounded-3xl p-3 sm:p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                <div className="relative aspect-[4/5] rounded-2xl overflow-hidden mb-4 bg-gray-50">
+                  <img src={coverImage} alt={product.name} className="w-full h-full object-cover transition duration-700 group-hover:scale-110" />
+                  
+                  {/* Badge Réduction */}
+                  <div className="absolute top-3 left-3 bg-rose-500 text-white font-extrabold text-sm px-3 py-1.5 rounded-xl shadow-lg rotate-[-3deg]">
+                    -{discount}%
                   </div>
-                  <div className="h-2 sm:h-2.5 w-full bg-rose-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-rose-400 to-rose-600 rounded-full relative"
-                      style={{ width: `${product.soldPercentage}%` }}
-                    >
-                      <div className="absolute top-0 right-0 bottom-0 left-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgMjBMMjAgMEwyMCAyMEgwWiIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjIpIi8+PC9zdmc+')] opacity-50" />
+                  
+                  {/* Overlay Add to cart (Desktop) */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex items-center justify-center backdrop-blur-[2px]">
+                    <Link href={`/products/${product.slug}`} className="bg-white text-gray-900 font-bold px-6 py-3 rounded-full hover:scale-105 transition-transform flex items-center gap-2 shadow-xl">
+                      <ShoppingCart className="w-4 h-4" /> Voir l'offre
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="px-2">
+                  <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
+                    {product.store?.name}
+                  </p>
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base leading-tight mb-3 line-clamp-1 group-hover:text-rose-600 transition-colors">
+                    {product.name}
+                  </h3>
+                  
+                  <div className="flex items-baseline gap-2 mb-4">
+                    <span className="text-xl sm:text-2xl font-extrabold text-rose-600">
+                      {product.price.toLocaleString('fr-FR')} F
+                    </span>
+                    <span className="text-sm text-gray-400 line-through font-medium">
+                      {oldPrice.toLocaleString('fr-FR')} F
+                    </span>
+                  </div>
+
+                  {/* Progress Bar Stocks */}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-[10px] sm:text-xs font-bold">
+                      <span className="text-rose-600">Déjà vendu à {fakeSoldPercentage}%</span>
+                      <span className="text-gray-400">Restant : {100 - fakeSoldPercentage}%</span>
+                    </div>
+                    <div className="h-2 sm:h-2.5 w-full bg-rose-100 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-rose-400 to-rose-600 rounded-full relative"
+                        style={{ width: `${fakeSoldPercentage}%` }}
+                      >
+                        <div className="absolute top-0 right-0 bottom-0 left-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgMjBMMjAgMEwyMCAyMEgwWiIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjIpIi8+PC9zdmc+')] opacity-50" />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

@@ -1751,5 +1751,82 @@ export const DBService = {
       totalCategories: categories.length,
       totalViews,
     };
+  },
+
+  // ==========================================
+  // STORIES & FLASH SALES
+  // ==========================================
+  async getStories(): Promise<any[]> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase
+          .from('stories')
+          .select(`*, store:shops(*), product:products(*)`)
+          .gt('expires_at', new Date().toISOString())
+          .order('created_at', { ascending: false });
+        if (!error && data) return data;
+      } catch (e) {
+        console.warn('Supabase getStories error:', e);
+      }
+    }
+    // Fallback: Return empty array for now if no DB
+    return [];
+  },
+
+  async createStory(storyData: any): Promise<any | null> {
+    if (!isSupabaseConfigured()) return null;
+    
+    // Set expiry to 7 days from now
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+    
+    try {
+      const { data, error } = await supabase
+        .from('stories')
+        .insert({
+          ...storyData,
+          expires_at: expiresAt.toISOString()
+        })
+        .select()
+        .single();
+      
+      if (!error && data) return data;
+    } catch (e) {
+      console.warn('Supabase createStory error:', e);
+    }
+    return null;
+  },
+
+  async deleteStory(id: string): Promise<boolean> {
+    if (!isSupabaseConfigured()) return false;
+    try {
+      const { error } = await supabase.from('stories').delete().eq('id', id);
+      return !error;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  async getFlashSales(): Promise<Product[]> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*, store:shops(*)')
+          .eq('is_flash_sale', true)
+          .gt('flash_sale_end', new Date().toISOString())
+          .order('created_at', { ascending: false });
+          
+        if (!error && data) {
+          // Filter out products from locked/expired shops
+          const activeShops = await this.getShops();
+          const activeShopIds = new Set(activeShops.map(s => s.id));
+          return data.filter((p: any) => p.store_id && activeShopIds.has(p.store_id));
+        }
+      } catch (e) {
+        console.warn('Supabase getFlashSales error:', e);
+      }
+    }
+    return [];
   }
 };

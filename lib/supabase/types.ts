@@ -201,11 +201,25 @@ export interface Product {
   rating: number;
   reviews_count: number;
   admin_notes: string | null;
+  is_flash_sale?: boolean;
+  flash_sale_end?: string;
   created_at: string;
   updated_at: string;
   store?: Shop;
   category?: Category;
   images?: ProductImage[];
+}
+
+export interface Story {
+  id: string;
+  shop_id: string;
+  product_id?: string | null;
+  media_url: string;
+  media_type: 'image' | 'video';
+  created_at: string;
+  expires_at: string;
+  store?: Shop;
+  product?: Product;
 }
 
 export interface ProductImage {

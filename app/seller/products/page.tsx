@@ -5,12 +5,19 @@ import Link from 'next/link';
 import { DBService } from '@/lib/supabase/db-service';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Product } from '@/lib/supabase/types';
-import { Plus, Trash2, ExternalLink } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, Zap, X } from 'lucide-react';
 
 export default function SellerProductsPage() {
   const { user, shop } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Flash Sale Modal State
+  const [flashModalOpen, setFlashModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [flashPrice, setFlashPrice] = useState('');
+  const [flashDays, setFlashDays] = useState('1');
+  const [savingFlash, setSavingFlash] = useState(false);
 
   const loadProducts = async () => {
     const storeId = shop?.id || user?.id;
@@ -146,6 +153,17 @@ export default function SellerProductsPage() {
                       </span>
 
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            setSelectedProduct(product);
+                            setFlashPrice(product.price.toString());
+                            setFlashModalOpen(true);
+                          }}
+                          className="px-2 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[11px] transition flex items-center gap-1 shadow-sm border border-rose-200/50"
+                          title="Mettre en Vente Flash"
+                        >
+                          <Zap className="w-3.5 h-3.5 fill-rose-600" /> Flash
+                        </button>
                         <Link
                           href={`/seller/products/${product.id}/edit`}
                           className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-[11px] transition flex items-center gap-1 shadow-sm border border-amber-200/50"
@@ -227,6 +245,17 @@ export default function SellerProductsPage() {
                         </td>
                         <td className="py-4 px-6 text-right">
                           <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => {
+                                setSelectedProduct(product);
+                                setFlashPrice(product.price.toString());
+                                setFlashModalOpen(true);
+                              }}
+                              className="px-2 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold transition flex items-center gap-1.5 shadow-sm border border-rose-200/50"
+                              title="Mettre en Vente Flash"
+                            >
+                              <Zap className="w-4 h-4 fill-rose-600" /> Flash
+                            </button>
                             <Link
                               href={`/seller/products/${product.id}/edit`}
                               className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold transition flex items-center gap-1.5 shadow-sm border border-amber-200/50"
@@ -260,6 +289,89 @@ export default function SellerProductsPage() {
           </div>
         )}
       </div>
+
+      {/* MODAL VENTE FLASH */}
+      {flashModalOpen && selectedProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-rose-50/50">
+              <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                <Zap className="w-5 h-5 text-rose-500 fill-rose-500" /> 
+                Créer une Vente Flash
+              </h3>
+              <button onClick={() => setFlashModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <p className="text-sm font-semibold text-gray-700">
+                Produit : <span className="text-rose-600">{selectedProduct.name}</span>
+              </p>
+              
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Nouveau Prix (Promotionnel)</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={flashPrice}
+                    onChange={(e) => setFlashPrice(e.target.value)}
+                    className="input w-full pl-3 pr-12"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">FCFA</span>
+                </div>
+                <p className="text-[10px] text-gray-500 mt-1">Ancien prix : {selectedProduct.price} F</p>
+              </div>
+              
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Durée de la vente flash</label>
+                <select
+                  value={flashDays}
+                  onChange={(e) => setFlashDays(e.target.value)}
+                  className="input w-full"
+                >
+                  <option value="1">24 Heures</option>
+                  <option value="2">48 Heures</option>
+                  <option value="3">72 Heures</option>
+                </select>
+              </div>
+
+              <div className="pt-4 flex gap-3">
+                <button
+                  onClick={() => setFlashModalOpen(false)}
+                  className="btn btn-outline flex-1"
+                >
+                  Annuler
+                </button>
+                <button
+                  disabled={savingFlash}
+                  onClick={async () => {
+                    setSavingFlash(true);
+                    const endDate = new Date();
+                    endDate.setDate(endDate.getDate() + parseInt(flashDays));
+                    
+                    // On utilise le SDK supabase pour faire l'update
+                    const { supabase } = await import('@/lib/supabase/client');
+                    await supabase.from('products').update({
+                      is_flash_sale: true,
+                      old_price: selectedProduct.price,
+                      price: parseInt(flashPrice),
+                      flash_sale_end: endDate.toISOString()
+                    }).eq('id', selectedProduct.id);
+                    
+                    setFlashModalOpen(false);
+                    setSavingFlash(false);
+                    loadProducts();
+                  }}
+                  className="btn flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold border-transparent"
+                >
+                  {savingFlash ? 'Enregistrement...' : 'Lancer la Vente !'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
