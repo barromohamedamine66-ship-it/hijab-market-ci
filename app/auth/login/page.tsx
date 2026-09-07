@@ -105,9 +105,15 @@ export default function LoginPage() {
 
         <div className="mt-6 pt-6 border-t border-gray-100 text-center space-y-3">
           <p className="text-xs text-gray-700 font-medium">
+            Nouveau sur Hijab Market ?{' '}
+            <Link href="/auth/register/client" className="text-emerald-600 font-bold hover:underline">
+              Créer un compte client 🛍️
+            </Link>
+          </p>
+          <p className="text-xs text-gray-700 font-medium mt-2">
             Vous êtes une créatrice ou vendeuse ?{' '}
             <Link href="/auth/register/vendor" className="text-emerald-600 font-bold hover:underline">
-              Ouvrir une boutique vendeuse 🌟
+              Ouvrir une boutique 🌟
             </Link>
           </p>
           <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-100 text-center">

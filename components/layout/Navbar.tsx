@@ -162,15 +162,15 @@ export default function Navbar() {
                 <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-gray-200">
                   <Link
                     href="/auth/login"
-                    className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-emerald-600 transition"
+                    className="px-3 py-2 text-sm font-bold text-emerald-600 hover:bg-emerald-50 rounded-xl transition"
                   >
                     Connexion
                   </Link>
                   <Link
-                    href="/auth/register/vendor"
+                    href="/auth/register/client"
                     className="btn btn-primary btn-sm flex items-center gap-1.5"
                   >
-                    <span>🏪 Devenir Vendeuse</span>
+                    <span>Créer un compte</span>
                   </Link>
                 </div>
               )}
