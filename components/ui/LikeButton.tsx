@@ -26,7 +26,7 @@ export default function LikeButton({ productId, className = '' }: LikeButtonProp
     e.stopPropagation();
 
     if (!user) {
-      alert("Veuillez vous connecter pour ajouter cet article à vos favoris.");
+      window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
       return;
     }
     

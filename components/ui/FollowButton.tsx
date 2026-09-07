@@ -26,7 +26,7 @@ export default function FollowButton({ shopId, className = '' }: FollowButtonPro
     e.stopPropagation();
 
     if (!user) {
-      alert("Veuillez vous connecter pour vous abonner à cette boutique.");
+      window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
       return;
     }
     
