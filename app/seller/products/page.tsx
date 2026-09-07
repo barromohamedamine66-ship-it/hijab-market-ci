@@ -112,6 +112,12 @@ export default function SellerProductsPage() {
 
                       <div className="flex items-center gap-2">
                         <Link
+                          href={`/seller/products/${product.id}/edit`}
+                          className="px-3 py-1 rounded-xl bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-bold text-[11px] transition flex items-center gap-1"
+                        >
+                          Modifier
+                        </Link>
+                        <Link
                           href={`/products/${product.slug}`}
                           target="_blank"
                           className="px-3 py-1 rounded-xl bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-bold text-[11px] transition flex items-center gap-1"
@@ -186,6 +192,13 @@ export default function SellerProductsPage() {
                         </td>
                         <td className="py-4 px-6 text-right">
                           <div className="flex items-center justify-end gap-2">
+                            <Link
+                              href={`/seller/products/${product.id}/edit`}
+                              className="p-2 rounded-lg bg-gray-50 hover:bg-emerald-50 hover:text-emerald-600 text-gray-500 transition"
+                              title="Modifier le produit"
+                            >
+                              Modifier
+                            </Link>
                             <Link
                               href={`/products/${product.slug}`}
                               target="_blank"

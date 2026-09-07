@@ -1093,6 +1093,65 @@ export const DBService = {
     return newProd;
   },
 
+  async updateProduct(productId: string, updates: Partial<Product> & { imageUrl?: string }): Promise<Product | null> {
+    invalidateCachePrefix('prods:');
+    
+    // Preparation des donnees pour Supabase
+    const supabaseUpdates: any = { ...updates };
+    const newImageUrl = supabaseUpdates.imageUrl;
+    delete supabaseUpdates.imageUrl; // Ne pas envoyer imageUrl directement a la table products
+
+    if (isSupabaseConfigured()) {
+      try {
+        const { data: prodData, error } = await supabase
+          .from('products')
+          .update(supabaseUpdates)
+          .eq('id', productId)
+          .select('*, store:shops(*), category:categories(*)')
+          .single();
+          
+        if (!error && prodData) {
+          if (newImageUrl) {
+            // Check si l'image existe deja
+            const { data: imgData } = await supabase.from('product_images').select('id').eq('product_id', productId).maybeSingle();
+            if (imgData) {
+              await supabase.from('product_images').update({ image_url: newImageUrl }).eq('id', imgData.id);
+            } else {
+              await supabase.from('product_images').insert({
+                product_id: productId,
+                image_url: newImageUrl,
+                position: 0,
+                is_cover: true,
+              });
+            }
+          }
+          const localProds = getLocalData<Product[]>(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
+          const updatedLocal = localProds.map(p => p.id === productId ? { ...(prodData as unknown as Product), images: newImageUrl ? [{ id: 'img', product_id: productId, image_url: newImageUrl, position: 0, is_cover: true, created_at: '' }] : p.images } : p);
+          setLocalData(STORAGE_KEYS.PRODUCTS, updatedLocal);
+          return prodData as unknown as Product;
+        }
+      } catch (err) {
+        console.warn('Supabase updateProduct error:', err);
+      }
+    }
+
+    // Local fallback
+    const currentProds = getLocalData<Product[]>(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
+    let updatedProd: Product | null = null;
+    const updatedLocal = currentProds.map(p => {
+      if (p.id === productId) {
+        updatedProd = { ...p, ...supabaseUpdates, updated_at: new Date().toISOString() };
+        if (newImageUrl) {
+          updatedProd.images = [{ id: `img-${Date.now()}`, product_id: productId, image_url: newImageUrl, position: 0, is_cover: true, created_at: new Date().toISOString() }];
+        }
+        return updatedProd;
+      }
+      return p;
+    });
+    setLocalData(STORAGE_KEYS.PRODUCTS, updatedLocal);
+    return updatedProd;
+  },
+
   async deleteProduct(productId: string): Promise<boolean> {
     invalidateCachePrefix('prods:');
     if (isSupabaseConfigured()) {
