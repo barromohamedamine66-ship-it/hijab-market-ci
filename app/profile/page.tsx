@@ -5,10 +5,10 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, Phone, MapPin, Mail, Save, ArrowLeft, Lock } from 'lucide-react';
+import { User, Phone, MapPin, Mail, Save, ArrowLeft, Lock, LogOut, Store } from 'lucide-react';
 
 export default function ProfilePage() {
-  const { user, profile, updateProfile, loading: authLoading } = useAuth();
+  const { user, profile, updateProfile, loading: authLoading, signOut, role } = useAuth();
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -249,6 +249,40 @@ export default function ProfilePage() {
               </button>
             </div>
           </form>
+        </div>
+
+        {/* Account Actions */}
+        <div className="mt-6 flex flex-col gap-3">
+          {role !== 'seller' && (
+            <Link
+              href="/auth/register/vendor"
+              className="w-full p-4 bg-emerald-50 hover:bg-emerald-100 rounded-3xl border border-emerald-200 flex items-center justify-between transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                  <Store className="w-5 h-5" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-bold text-gray-900 text-sm group-hover:text-emerald-700 transition">Devenir Vendeuse</h3>
+                  <p className="text-[11px] text-gray-500">Créez votre boutique et commencez à vendre</p>
+                </div>
+              </div>
+              <span className="text-emerald-500 font-bold text-lg">→</span>
+            </Link>
+          )}
+
+          <button
+            onClick={signOut}
+            className="w-full p-4 bg-rose-50 hover:bg-rose-100 rounded-3xl border border-rose-200 flex items-center gap-3 transition-all text-rose-600"
+          >
+            <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center">
+              <LogOut className="w-5 h-5" />
+            </div>
+            <div className="text-left">
+              <h3 className="font-bold text-sm">Se déconnecter</h3>
+              <p className="text-[11px] text-rose-500/70">Fermer la session en cours</p>
+            </div>
+          </button>
         </div>
       </main>
 

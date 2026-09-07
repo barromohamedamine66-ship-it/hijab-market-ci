@@ -17,10 +17,11 @@ import {
   Store,
   Calendar,
   Award,
+  LogOut,
 } from 'lucide-react';
 
 export default function SellerDashboardPage() {
-  const { user, profile, shop } = useAuth();
+  const { user, profile, shop, signOut } = useAuth();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -97,6 +98,12 @@ export default function SellerDashboardPage() {
           >
             <Plus className="w-4 h-4" /> Ajouter un article
           </Link>
+          <button
+            onClick={signOut}
+            className="flex-1 md:flex-initial justify-center px-5 py-3 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 font-bold text-xs shadow-md transition flex items-center gap-1.5"
+          >
+            <LogOut className="w-4 h-4" /> Déconnexion
+          </button>
 
           <Link
             href={`/boutique/${shopSlug}`}

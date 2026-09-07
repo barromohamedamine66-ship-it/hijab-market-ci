@@ -17,7 +17,7 @@ export default function MobileBottomNav() {
       ? '/seller/dashboard'
       : role === 'admin'
       ? '/admin'
-      : '/dashboard'
+      : '/profile'
     : '/auth/login';
 
   const navItems = [
