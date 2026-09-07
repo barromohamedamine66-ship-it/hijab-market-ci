@@ -26,13 +26,30 @@ const footerLinks = {
   ],
 };
 
+import { useState, useEffect } from 'react';
+import { DBService } from '@/lib/supabase/db-service';
+
 export default function Footer() {
   const year = new Date().getFullYear();
+  const [trialDays, setTrialDays] = useState(90);
+
+  useEffect(() => {
+    DBService.getPlatformSettings().then(settings => {
+      setTrialDays(settings.founder_trial_days);
+    });
+  }, []);
 
   const handleOpenInstall = () => {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('open-pwa-install'));
     }
+  };
+
+  const dynamicFooterLinks = {
+    ...footerLinks,
+    vendeurs: footerLinks.vendeurs.map(link => 
+      link.href === '/devenir-vendeur' ? { ...link, label: `Devenir vendeur (Offre ${trialDays}j)` } : link
+    )
   };
 
   return (
@@ -47,7 +64,7 @@ export default function Footer() {
             Hijabs, Abayas, Boubous Bazin, Ensembles mastour... Rejoignez notre réseau de boutiques et vendez sans commission !
           </p>
           <Link href="/devenir-vendeur" className="btn bg-amber-400 text-gray-950 hover:bg-amber-300 font-extrabold btn-lg shadow-lg">
-            Ouvrir ma boutique (Essai 90 jours offert)
+            Ouvrir ma boutique (Essai {trialDays} jours offert)
           </Link>
         </div>
       </div>
@@ -156,7 +173,7 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-5 text-sm uppercase tracking-wider">Vendeurs</h4>
             <ul className="space-y-3">
-              {footerLinks.vendeurs.map((link) => (
+              {dynamicFooterLinks.vendeurs.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-sm hover:text-emerald-400 transition">
                     {link.label}

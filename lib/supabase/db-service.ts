@@ -629,8 +629,9 @@ export const DBService = {
   }): Promise<Shop> {
     const slug = `${shopData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${Date.now().toString().slice(-4)}`;
     
+    const settings = await this.getPlatformSettings();
     const now = new Date();
-    const trialEnd = new Date(now.getTime() + 90 * 86400000); // 90 jours offerts pour le lancement officiel
+    const trialEnd = new Date(now.getTime() + settings.founder_trial_days * 86400000); // Essai gratuit dynamique
 
     if (isSupabaseConfigured()) {
       try {
@@ -1626,6 +1627,72 @@ export const DBService = {
   async isProductFavorite(userId: string, productId: string): Promise<boolean> {
     const favs = await this.getUserFavorites(userId);
     return favs.includes(productId);
+  },
+
+  // ==========================================
+  // PARAMÈTRES GLOBAUX PLATEFORME
+  // ==========================================
+  async getPlatformSettings(): Promise<PlatformSettings> {
+    const defaultSettings: PlatformSettings = {
+      id: '11111111-1111-1111-1111-111111111111',
+      whatsapp_support: '+225 01 52 18 28 40',
+      wave_phone: '07 77 39 38 13',
+      wave_business_name: 'HIJABMARKET.CI',
+      wave_link: null,
+      support_email: 'support@hijabmarket.ci',
+      founder_trial_days: 90,
+      founder_max_seats: 30,
+      updated_at: new Date().toISOString()
+    };
+
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase
+          .from('platform_settings')
+          .select('*')
+          .single();
+        
+        if (!error && data) {
+          return data as PlatformSettings;
+        }
+      } catch (err) {
+        console.warn('Supabase getPlatformSettings error:', err);
+      }
+    }
+    
+    // Fallback localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        const local = localStorage.getItem('hm_platform_settings_db');
+        if (local) {
+          return { ...defaultSettings, ...JSON.parse(local) };
+        }
+      } catch (e) {}
+    }
+
+    return defaultSettings;
+  },
+
+  async updatePlatformSettings(settings: Partial<PlatformSettings>): Promise<PlatformSettings> {
+    const current = await this.getPlatformSettings();
+    const updated = { ...current, ...settings, updated_at: new Date().toISOString() };
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('platform_settings')
+          .upsert(updated);
+      } catch (err) {
+        console.warn('Supabase updatePlatformSettings error:', err);
+      }
+    }
+
+    // Fallback localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('hm_platform_settings_db', JSON.stringify(updated));
+    }
+
+    return updated;
   },
 
   // ==========================================

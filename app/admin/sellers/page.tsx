@@ -9,12 +9,17 @@ export default function AdminSellersPage() {
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [settings, setSettings] = useState({ founder_trial_days: 90, founder_max_seats: 30 });
 
   const loadShops = async () => {
     setLoading(true);
     try {
-      const data = await DBService.getAllAdminShops();
+      const [data, settingsData] = await Promise.all([
+        DBService.getAllAdminShops(),
+        DBService.getPlatformSettings(),
+      ]);
       setShops(data);
+      setSettings(settingsData);
     } catch (err) {
       console.error(err);
     } finally {
@@ -34,7 +39,7 @@ export default function AdminSellersPage() {
   const handleToggleFounder = async (shop: Shop) => {
     const newFounderStatus = !shop.is_founder;
     try {
-      await DBService.toggleShopFounderStatus(shop.id, newFounderStatus, 90);
+      await DBService.toggleShopFounderStatus(shop.id, newFounderStatus, settings.founder_trial_days);
       setShops(shops.map(s => s.id === shop.id ? { 
         ...s, 
         is_founder: newFounderStatus,
@@ -43,7 +48,7 @@ export default function AdminSellersPage() {
       
       setFeedback(
         newFounderStatus 
-          ? `Boutique "${shop.name}" définie comme BOUTIQUE FONDATRICE (90 jours d'accès offert activés).`
+          ? `Boutique "${shop.name}" définie comme BOUTIQUE FONDATRICE (${settings.founder_trial_days} jours d'accès offert activés).`
           : `Statut Boutique Fondatrice retiré pour "${shop.name}".`
       );
       setTimeout(() => setFeedback(null), 3500);
@@ -74,7 +79,7 @@ export default function AdminSellersPage() {
         <div className="flex items-center gap-2.5">
           <div className="px-3.5 py-2 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Fondatrices : {founderCount} / 30</span>
+            <span>Fondatrices : {founderCount} / {settings.founder_max_seats}</span>
           </div>
 
           <button
@@ -104,7 +109,7 @@ export default function AdminSellersPage() {
         <div className="text-xs text-slate-300 leading-relaxed">
           <p className="font-bold text-white mb-0.5">Comment désigner une Boutique Fondatrice ?</p>
           <p className="text-slate-400">
-            Cliquez sur le bouton doré <strong className="text-amber-300">« ⭐ Définir Fondatrice »</strong> sur n'importe quelle boutique ci-dessous. Elle recevra automatiquement le badge officiel sur sa vitrine et bénéficiera des 90 jours d'essai offerts sans frais.
+            Cliquez sur le bouton doré <strong className="text-amber-300">« ⭐ Définir Fondatrice »</strong> sur n'importe quelle boutique ci-dessous. Elle recevra automatiquement le badge officiel sur sa vitrine et bénéficiera des {settings.founder_trial_days} jours d'essai offerts sans frais.
           </p>
         </div>
       </div>

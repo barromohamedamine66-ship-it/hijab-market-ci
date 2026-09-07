@@ -3,6 +3,18 @@
 // ==============================================================================
 
 // ---- Enums ----
+export interface PlatformSettings {
+  id: string;
+  whatsapp_support: string;
+  wave_phone: string;
+  wave_business_name: string;
+  wave_link: string | null;
+  support_email: string;
+  founder_trial_days: number;
+  founder_max_seats: number;
+  updated_at: string;
+}
+
 export type UserRole = 'customer' | 'seller' | 'admin';
 export type ShopStatus = 'pending' | 'active' | 'suspended' | 'rejected';
 export type ProductStatus = 'draft' | 'pending' | 'approved' | 'rejected' | 'archived';

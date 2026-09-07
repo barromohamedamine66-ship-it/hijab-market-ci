@@ -10,6 +10,7 @@ export default async function AdminDashboardPage() {
   const products = await DBService.getProducts();
   const categories = await DBService.getCategories(true);
   const plans = await DBService.getSubscriptionPlans();
+  const settings = await DBService.getPlatformSettings();
 
   const founderShops = shops.filter(s => s.is_founder);
   const activeShops = shops.filter(s => s.status === 'active');
@@ -62,10 +63,10 @@ export default async function AdminDashboardPage() {
         <div className="bg-[#0f171d] p-6 rounded-3xl border border-slate-800 shadow-sm flex flex-col justify-between">
           <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Boutiques Fondatrices</span>
           <p className="text-2xl font-extrabold text-amber-400 font-heading">
-            {founderCountText(founderShops.length)}
+            {founderShops.length} / {settings.founder_max_seats}
           </p>
           <p className="text-xs text-amber-300/80 font-semibold mt-2 flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" /> 90 jours d'accès offert
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" /> {settings.founder_trial_days} jours d'accès offert
           </p>
         </div>
 

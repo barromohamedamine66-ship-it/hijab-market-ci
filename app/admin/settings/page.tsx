@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Settings, Save, Phone, MessageCircle, CreditCard, ShieldCheck, Award, Sparkles, CheckCircle2 } from 'lucide-react';
 import { WAVE_CI_CONFIG } from '@/lib/payment/wave';
+import { DBService } from '@/lib/supabase/db-service';
 
 export default function AdminSettingsPage() {
   const [whatsappSupport, setWhatsappSupport] = useState('+225 01 52 18 28 40');
@@ -13,38 +14,33 @@ export default function AdminSettingsPage() {
   const [founderTrialDays, setFounderTrialDays] = useState('90');
   const [founderMaxSeats, setFounderMaxSeats] = useState('30');
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Charger d'éventuels réglages sauvegardés localement
-    if (typeof window !== 'undefined') {
-      const savedSettings = localStorage.getItem('hm_platform_settings');
-      if (savedSettings) {
-        try {
-          const parsed = JSON.parse(savedSettings);
-          if (parsed.whatsappSupport) setWhatsappSupport(parsed.whatsappSupport);
-          if (parsed.wavePhone) setWavePhone(parsed.wavePhone);
-          if (parsed.waveBusinessName) setWaveBusinessName(parsed.waveBusinessName);
-          if (parsed.waveLink) setWaveLink(parsed.waveLink);
-          if (parsed.supportEmail) setSupportEmail(parsed.supportEmail);
-          if (parsed.founderTrialDays) setFounderTrialDays(parsed.founderTrialDays);
-        } catch (e) {}
-      }
-    }
+    // Charger les réglages depuis Supabase
+    DBService.getPlatformSettings().then((settings) => {
+      setWhatsappSupport(settings.whatsapp_support);
+      setWavePhone(settings.wave_phone);
+      setWaveBusinessName(settings.wave_business_name);
+      setWaveLink(settings.wave_link || '');
+      setSupportEmail(settings.support_email);
+      setFounderTrialDays(settings.founder_trial_days.toString());
+      setFounderMaxSeats(settings.founder_max_seats.toString());
+      setLoading(false);
+    });
   }, []);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('hm_platform_settings', JSON.stringify({
-        whatsappSupport,
-        wavePhone,
-        waveBusinessName,
-        waveLink,
-        supportEmail,
-        founderTrialDays,
-        founderMaxSeats,
-      }));
-    }
+    await DBService.updatePlatformSettings({
+      whatsapp_support: whatsappSupport,
+      wave_phone: wavePhone,
+      wave_business_name: waveBusinessName,
+      wave_link: waveLink,
+      support_email: supportEmail,
+      founder_trial_days: parseInt(founderTrialDays) || 90,
+      founder_max_seats: parseInt(founderMaxSeats) || 30,
+    });
     setSaved(true);
     setTimeout(() => setSaved(false), 3500);
   };

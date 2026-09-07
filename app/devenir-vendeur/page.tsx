@@ -1,6 +1,7 @@
 'use client';
-
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { DBService } from '@/lib/supabase/db-service';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import {
@@ -19,6 +20,14 @@ import {
 } from 'lucide-react';
 
 export default function DevenirVendeurPage() {
+  const [trialDays, setTrialDays] = useState(90);
+
+  useEffect(() => {
+    DBService.getPlatformSettings().then(settings => {
+      setTrialDays(settings.founder_trial_days);
+    });
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#faf9f6]">
       <Navbar />
@@ -55,7 +64,7 @@ export default function DevenirVendeurPage() {
                 className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-gray-950 font-black text-sm shadow-xl hover:shadow-2xl transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
               >
                 <Store className="w-5 h-5 text-gray-950" />
-                Créer ma Boutique Vendeur (Essai 90 jours Offert)
+                Créer ma Boutique Vendeur (Essai {trialDays} jours Offert)
                 <ArrowRight className="w-4 h-4 text-gray-950" />
               </Link>
 
@@ -82,7 +91,7 @@ export default function DevenirVendeurPage() {
                 <span className="text-emerald-200/80 text-[11px]">Paiement direct à vous</span>
               </div>
               <div className="bg-white/5 border border-white/10 p-3 rounded-2xl backdrop-blur-xs">
-                <span className="text-amber-300 font-extrabold block text-base">90 Jours</span>
+                <span className="text-amber-300 font-extrabold block text-base">{trialDays} Jours</span>
                 <span className="text-emerald-200/80 text-[11px]">Gratuits pour pionniers</span>
               </div>
             </div>
@@ -112,7 +121,7 @@ export default function DevenirVendeurPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                   <div className="flex items-start gap-2 text-xs text-gray-700">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span><strong>90 jours d'essai 100% GRATUIT</strong> sans engagement ni carte bancaire</span>
+                    <span><strong>{trialDays} jours d'essai 100% GRATUIT</strong> sans engagement ni carte bancaire</span>
                   </div>
                   <div className="flex items-start gap-2 text-xs text-gray-700">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
@@ -132,7 +141,7 @@ export default function DevenirVendeurPage() {
               <div className="w-full lg:w-auto flex flex-col items-center justify-center p-6 bg-white rounded-3xl border border-amber-200 shadow-sm text-center flex-shrink-0">
                 <span className="text-3xl mb-2">🎖️</span>
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Offre Pionnière</span>
-                <span className="text-3xl font-extrabold text-amber-600 my-1">90 Jours</span>
+                <span className="text-3xl font-extrabold text-amber-600 my-1">{trialDays} Jours</span>
                 <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 mb-4">
                   100% Gratuit
                 </span>
@@ -479,10 +488,10 @@ export default function DevenirVendeurPage() {
             <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-sm space-y-2">
               <h4 className="font-bold text-gray-900 flex items-center gap-2 text-sm">
                 <HelpCircle className="w-4 h-4 text-emerald-600" />
-                Comment fonctionne l'essai gratuit de 90 jours ?
+                Comment fonctionne l'essai gratuit de {trialDays} jours ?
               </h4>
               <p className="text-gray-600 leading-relaxed">
-                Dans le cadre du Programme Boutiques Fondatrices, vous bénéficiez de 90 jours complets d'accès gratuit à la marketplace sans engagement. Vous pouvez tester la plateforme et réaliser vos premières ventes en toute sérénité.
+                Dans le cadre du Programme Boutiques Fondatrices, vous bénéficiez de {trialDays} jours complets d'accès gratuit à la marketplace sans engagement. Vous pouvez tester la plateforme et réaliser vos premières ventes en toute sérénité.
               </p>
             </div>
           </div>

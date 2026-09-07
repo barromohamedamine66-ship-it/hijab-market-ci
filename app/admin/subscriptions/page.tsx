@@ -8,6 +8,7 @@ import type { SubscriptionPlan, Shop } from '@/lib/supabase/types';
 export default function AdminSubscriptionsPage() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [shops, setShops] = useState<Shop[]>([]);
+  const [settings, setSettings] = useState({ founder_trial_days: 90, founder_max_seats: 30 });
   const [loading, setLoading] = useState(true);
 
   // Edit Plan state
@@ -18,14 +19,16 @@ export default function AdminSubscriptionsPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [plansData, shopsData] = await Promise.all([
+      const [plansData, shopsData, settingsData] = await Promise.all([
         DBService.getSubscriptionPlans(),
         DBService.getAllAdminShops(),
+        DBService.getPlatformSettings(),
       ]);
       setPlans(plansData);
       setShops(shopsData);
-    } catch (err) {
-      console.error(err);
+      setSettings(settingsData);
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -51,7 +54,7 @@ export default function AdminSubscriptionsPage() {
 
   const handleToggleFounder = async (shop: Shop) => {
     const newStatus = !shop.is_founder;
-    await DBService.toggleShopFounderStatus(shop.id, newStatus, 90);
+    await DBService.toggleShopFounderStatus(shop.id, newStatus, settings.founder_trial_days);
     setShops(shops.map(s => s.id === shop.id ? { ...s, is_founder: newStatus } : s));
   };
 
@@ -96,19 +99,19 @@ export default function AdminSubscriptionsPage() {
         <div className="space-y-2 max-w-xl">
           <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">Programme Officiel Pionniers</span>
           <h3 className="text-xl font-bold font-heading text-white">
-            {founderCount} / 30 Boutiques Fondatrices Inscrites
+            {founderCount} / {settings.founder_max_seats} Boutiques Fondatrices Inscrites
           </h3>
           <p className="text-xs text-slate-300 leading-relaxed">
-            Les boutiques fondatrices bénéficient de 90 jours d'accès complet offert, d'un badge exclusif à vie et d'une visibilité prioritaire sur le portail.
+            Les boutiques fondatrices bénéficient de {settings.founder_trial_days} jours d'accès complet offert, d'un badge exclusif à vie et d'une visibilité prioritaire sur le portail.
           </p>
         </div>
 
         <div className="w-full md:w-auto p-4 rounded-2xl bg-[#0a1014] border border-amber-400/30 text-center flex-shrink-0">
           <span className="text-xs font-bold text-slate-400 block">Places Disponibles</span>
           <span className="text-3xl font-extrabold text-amber-400 my-1 block">
-            {Math.max(0, 30 - founderCount)}
+            {Math.max(0, settings.founder_max_seats - founderCount)}
           </span>
-          <span className="text-[10px] text-emerald-400 font-semibold">Sur 30 places initiales</span>
+          <span className="text-[10px] text-emerald-400 font-semibold">Sur {settings.founder_max_seats} places initiales</span>
         </div>
       </div>
 
@@ -280,18 +283,12 @@ export default function AdminSubscriptionsPage() {
                     </td>
                     <td className="py-4 px-6 text-right space-x-2">
                       <button
-                        onClick={() => handleExtendTrial(shop.id, 30)}
-                        className="px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold"
-                        title="Ajouter 30 jours"
+                        onClick={() => handleExtendTrial(shop.id, settings.founder_trial_days)}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold transition flex items-center gap-1"
+                        title={`Ajouter ${settings.founder_trial_days} jours`}
                       >
-                        +30 jours
-                      </button>
-                      <button
-                        onClick={() => handleExtendTrial(shop.id, 90)}
-                        className="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[11px] font-bold"
-                        title="Ajouter 90 jours"
-                      >
-                        +90 jours
+                        <Calendar className="w-3 h-3" />
+                        +{settings.founder_trial_days} jours
                       </button>
                     </td>
                   </tr>
