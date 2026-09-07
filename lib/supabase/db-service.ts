@@ -220,7 +220,8 @@ const DEFAULT_PRODUCTS: Product[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[0],
-    category: DEFAULT_CATEGORIES[0]
+    category: DEFAULT_CATEGORIES[0],
+    images: [{ id: 'img1', image_url: 'https://images.unsplash.com/photo-1585728748178-f75ca8578222?q=80&w=800&auto=format&fit=crop' }]
   },
   {
     id: 'p1000000-0000-0000-0000-000000000002',
@@ -244,7 +245,8 @@ const DEFAULT_PRODUCTS: Product[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[1],
-    category: DEFAULT_CATEGORIES[1]
+    category: DEFAULT_CATEGORIES[1],
+    images: [{ id: 'img2', image_url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80' }]
   },
   {
     id: 'p1000000-0000-0000-0000-000000000003',
@@ -268,7 +270,8 @@ const DEFAULT_PRODUCTS: Product[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[2],
-    category: DEFAULT_CATEGORIES[2]
+    category: DEFAULT_CATEGORIES[2],
+    images: [{ id: 'img3', image_url: 'https://images.unsplash.com/photo-1589465885857-44edb59bbff2?w=800&auto=format&fit=crop&q=80' }]
   },
   {
     id: 'p1000000-0000-0000-0000-000000000004',
@@ -292,7 +295,8 @@ const DEFAULT_PRODUCTS: Product[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[2],
-    category: DEFAULT_CATEGORIES[3]
+    category: DEFAULT_CATEGORIES[3],
+    images: [{ id: 'img4', image_url: 'https://images.unsplash.com/photo-1596455119429-c5cce611a144?w=800&auto=format&fit=crop&q=80' }]
   },
   {
     id: 'p1000000-0000-0000-0000-000000000005',
@@ -316,7 +320,8 @@ const DEFAULT_PRODUCTS: Product[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[1],
-    category: DEFAULT_CATEGORIES[4]
+    category: DEFAULT_CATEGORIES[4],
+    images: [{ id: 'img5', image_url: 'https://images.unsplash.com/photo-1621570168340-e2b8344e1dcb?w=800&auto=format&fit=crop&q=80' }]
   },
   {
     id: 'p1000000-0000-0000-0000-000000000006',
@@ -340,7 +345,8 @@ const DEFAULT_PRODUCTS: Product[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[0],
-    category: DEFAULT_CATEGORIES[7]
+    category: DEFAULT_CATEGORIES[7],
+    images: [{ id: 'img6', image_url: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800&auto=format&fit=crop&q=80' }]
   }
 ];
 
