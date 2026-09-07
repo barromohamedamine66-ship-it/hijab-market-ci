@@ -139,16 +139,7 @@ export default function Navbar() {
                         </>
                       )}
 
-                      {role === 'customer' && (
-                        <>
-                          <Link href="/dashboard" className="flex items-center gap-2 px-4 py-2.5 text-xs text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 font-semibold">
-                            <User className="w-4 h-4 text-emerald-500" /> Mon Espace Client
-                          </Link>
-                          <Link href="/orders" className="flex items-center gap-2 px-4 py-2.5 text-xs text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 font-semibold">
-                            <Package className="w-4 h-4 text-emerald-500" /> Mes Commandes
-                          </Link>
-                        </>
-                      )}
+
 
                       {role === 'admin' && (
                         <Link href="/admin" className="flex items-center gap-2 px-4 py-2.5 text-xs text-purple-700 hover:bg-purple-50 font-bold">
@@ -254,17 +245,12 @@ export default function Navbar() {
                       >
                         🌟 Espace Vendeuse
                       </Link>
-                    ) : (
-                      <Link
-                        href="/dashboard"
-                        onClick={() => setIsOpen(false)}
-                        className="btn btn-primary w-full text-center"
-                      >
-                        🧕 Mon Espace Client
-                      </Link>
-                    )}
+                    ) : null}
                     <button
-                      onClick={() => { signOut(); setIsOpen(false); }}
+                      onClick={() => {
+                        setIsOpen(false);
+                        signOut();
+                      }}
                       className="btn btn-outline text-rose-600 border-rose-200 w-full"
                     >
                       Déconnexion
