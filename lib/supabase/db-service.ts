@@ -1638,7 +1638,7 @@ export const DBService = {
       whatsapp_support: '+225 01 52 18 28 40',
       wave_phone: '07 77 39 38 13',
       wave_business_name: 'HIJABMARKET.CI',
-      wave_link: null,
+      wave_link: 'https://pay.wave.com/m/M_ci_YBdDvRRAwSih/c/ci/',
       support_email: 'support@hijabmarket.ci',
       founder_trial_days: 90,
       founder_max_seats: 30,

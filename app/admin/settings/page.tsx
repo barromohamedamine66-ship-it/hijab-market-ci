@@ -22,7 +22,7 @@ export default function AdminSettingsPage() {
       setWhatsappSupport(settings.whatsapp_support);
       setWavePhone(settings.wave_phone);
       setWaveBusinessName(settings.wave_business_name);
-      setWaveLink(settings.wave_link || '');
+      setWaveLink(settings.wave_link || WAVE_CI_CONFIG.wavePaymentLink);
       setSupportEmail(settings.support_email);
       setFounderTrialDays(settings.founder_trial_days.toString());
       setFounderMaxSeats(settings.founder_max_seats.toString());
