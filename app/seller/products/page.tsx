@@ -113,9 +113,9 @@ export default function SellerProductsPage() {
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/seller/products/${product.id}/edit`}
-                          className="px-3 py-1 rounded-xl bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 font-bold text-[11px] transition flex items-center gap-1"
+                          className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-[11px] transition flex items-center gap-1 shadow-sm border border-amber-200/50"
                         >
-                          Modifier
+                          ✏️ Modifier
                         </Link>
                         <Link
                           href={`/products/${product.slug}`}
@@ -194,16 +194,16 @@ export default function SellerProductsPage() {
                           <div className="flex items-center justify-end gap-2">
                             <Link
                               href={`/seller/products/${product.id}/edit`}
-                              className="p-2 rounded-lg bg-gray-50 hover:bg-emerald-50 hover:text-emerald-600 text-gray-500 transition"
+                              className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold transition flex items-center gap-1.5 shadow-sm border border-amber-200/50"
                               title="Modifier le produit"
                             >
-                              Modifier
+                              ✏️ Modifier
                             </Link>
                             <Link
                               href={`/products/${product.slug}`}
                               target="_blank"
                               className="p-2 rounded-lg bg-gray-50 hover:bg-emerald-50 hover:text-emerald-600 text-gray-500 transition"
-                              title="Voir sur la marketplace"
+                              title="Voir en boutique"
                             >
                               <ExternalLink className="w-4 h-4" />
                             </Link>

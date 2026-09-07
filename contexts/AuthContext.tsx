@@ -110,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const localProds = JSON.parse(localStorage.getItem('hm_products') || '[]');
                 if (Array.isArray(localProds) && localProds.length > 0) {
                   const unsynced = localProds.filter((p: any) => 
-                    p && p.name && (p.id?.startsWith('prod-') || p.store_id !== userShop.id)
+                    p && p.name && p.id?.startsWith('prod-')
                   );
                   for (const p of unsynced) {
                     await DBService.createProduct({
