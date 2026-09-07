@@ -15,7 +15,7 @@ export default function TopBanner() {
           {/* Reassurances & Info Client */}
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1 font-semibold text-white">
-              <span>🚚</span> <strong>Livraison express</strong> à Abidjan & partout en Côte d'Ivoire
+              <span>🚚</span> <strong>Livraison express</strong> partout en Côte d'Ivoire
             </span>
             <span className="hidden lg:inline text-emerald-600">•</span>
             <span className="hidden lg:inline text-emerald-300/80">🌊 Wave & Orange Money acceptés</span>
