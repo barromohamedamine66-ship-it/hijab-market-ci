@@ -754,11 +754,8 @@ export const DBService = {
   async updateShopStatus(shopId: string, status: 'active' | 'pending' | 'suspended' | 'rejected'): Promise<boolean> {
     if (isSupabaseConfigured()) {
       try {
-        const { error } = await supabase
-          .from('stores')
-          .update({ status })
-          .eq('id', shopId);
-        if (!error) return true;
+        await supabase.from('shops').update({ status }).eq('id', shopId);
+        await supabase.from('stores').update({ status }).eq('id', shopId);
       } catch (err) {
         console.warn('Supabase updateShopStatus error:', err);
       }

@@ -28,7 +28,8 @@ export default function SellerDashboardPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    const storeId = shop?.id || (user ? `shop-${user.id}` : 's1000000-0000-0000-0000-000000000001');
+    if (!user) return;
+    const storeId = shop?.id || `shop-${user.id}`;
 
     Promise.all([
       DBService.getProducts({ storeId, limit: 10 }),

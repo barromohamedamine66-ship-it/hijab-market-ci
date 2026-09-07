@@ -40,6 +40,7 @@ export default function SellerShopSettingsPage() {
   const [description, setDescription] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
   const [phone, setPhone] = useState('');
+  const [city, setCity] = useState('');
   const [commune, setCommune] = useState('');
   const [logoUrl, setLogoUrl] = useState('/logo.png');
 
@@ -55,6 +56,7 @@ export default function SellerShopSettingsPage() {
       setDescription(shop.description || '');
       setWhatsapp(shop.whatsapp || shop.phone || '');
       setPhone(shop.phone || '');
+      setCity(shop.city || 'Abidjan');
       setCommune(shop.commune || 'Cocody, Abidjan');
       if (shop.logo_url) {
         setLogoUrl(shop.logo_url);
@@ -62,6 +64,7 @@ export default function SellerShopSettingsPage() {
     } else {
       setName('Boutique Vendeuse');
       setDescription('Spécialiste de la soie de Médine, abayas et accessoires modest fashion en Côte d\'Ivoire.');
+      setCity('Abidjan');
       setCommune('Cocody, Abidjan');
     }
   }, [shop]);
@@ -98,6 +101,7 @@ export default function SellerShopSettingsPage() {
         description: description.trim(),
         whatsapp: whatsapp.trim(),
         phone: phone.trim(),
+        city: city.trim(),
         commune: commune.trim(),
         logo_url: logoUrl,
       });
@@ -268,6 +272,20 @@ export default function SellerShopSettingsPage() {
               onChange={(e) => setName(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none text-sm transition"
               placeholder="ex: Les Voiles de Babi"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+              Ville de Résidence
+            </label>
+            <input
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none text-sm transition"
+              placeholder="ex: Abidjan, Bouaké..."
               required
             />
           </div>
