@@ -22,7 +22,7 @@ CREATE INDEX IF NOT EXISTS idx_product_reviews_user_id ON public.product_reviews
 CREATE TABLE IF NOT EXISTS public.conversations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     client_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-    shop_id TEXT REFERENCES public.shops(id) ON DELETE CASCADE NOT NULL,
+    shop_id UUID REFERENCES public.shops(id) ON DELETE CASCADE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     last_message_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     UNIQUE(client_id, shop_id)
@@ -68,7 +68,7 @@ CREATE POLICY "Lecture conversations par vendeur" ON public.conversations
         EXISTS (
             SELECT 1 FROM shops 
             WHERE shops.id = conversations.shop_id 
-            AND shops.owner_id = auth.uid()::text
+            AND shops.owner_id = auth.uid()
         )
     );
 
@@ -88,7 +88,7 @@ CREATE POLICY "Lecture/Ecriture messages par participants" ON public.messages
                 EXISTS (
                     SELECT 1 FROM shops 
                     WHERE shops.id = conversations.shop_id 
-                    AND shops.owner_id = auth.uid()::text
+                    AND shops.owner_id = auth.uid()
                 )
             )
         )
