@@ -26,6 +26,7 @@ export default function SellerDashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [trialDays, setTrialDays] = useState(90);
 
   useEffect(() => {
     if (!user) return;
@@ -34,9 +35,13 @@ export default function SellerDashboardPage() {
     Promise.all([
       DBService.getProducts({ storeId, limit: 10 }),
       DBService.getSellerOrders(storeId),
-    ]).then(([prods, ords]) => {
+      DBService.getPlatformSettings(),
+    ]).then(([prods, ords, settings]) => {
       setProducts(prods);
       setOrders(ords);
+      if (settings) {
+        setTrialDays(settings.founder_trial_days);
+      }
       setLoading(false);
     });
   }, [user, shop]);
@@ -54,7 +59,7 @@ export default function SellerDashboardPage() {
   };
 
   // Calcul des jours restants d'essai gratuit
-  const trialEnd = shop?.free_trial_end ? new Date(shop.free_trial_end) : new Date(Date.now() + 85 * 86400000);
+  const trialEnd = shop?.created_at ? new Date(new Date(shop.created_at).getTime() + trialDays * 86400000) : new Date(Date.now() + trialDays * 86400000);
   const now = new Date();
   const daysRemaining = Math.max(0, Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
 
@@ -180,7 +185,7 @@ export default function SellerDashboardPage() {
           </div>
           <div>
             <p className="text-2xl font-extrabold text-gray-900 font-heading">
-              {(shop?.views_count || 1280).toLocaleString('fr-FR')} <span className="text-xs font-semibold text-gray-400">vues</span>
+              {(shop?.views_count ?? 0).toLocaleString('fr-FR')} <span className="text-xs font-semibold text-gray-400">vues</span>
             </p>
             <p className="text-xs text-blue-600 font-semibold mt-1">Clients potentiels</p>
           </div>
