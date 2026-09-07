@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, Star, ShieldCheck, Truck } from 'lucide-react';
+import { DBService } from '@/lib/supabase/db-service';
 
 const stats = [
   { value: '500+', label: 'Produits disponibles' },
@@ -13,7 +14,8 @@ const badges = [
   { icon: Truck, label: 'Livraison rapide' },
 ];
 
-export default function Hero() {
+export default async function Hero() {
+  const settings = await DBService.getPlatformSettings();
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-beige-100 via-white to-emerald-50 pt-8 pb-20 md:pt-16 md:pb-32">
       {/* Background orbs */}
@@ -56,7 +58,7 @@ export default function Hero() {
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition" />
               </Link>
               <Link href="/devenir-vendeur" id="hero-vendor-btn" className="btn btn-secondary btn-lg">
-                Ouvrir ma Boutique (90j Offerts)
+                Ouvrir ma Boutique ({settings.founder_trial_days}j Offerts)
               </Link>
             </div>
 
