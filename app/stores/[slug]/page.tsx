@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer';
 import { DBService } from '@/lib/supabase/db-service';
 import { useCart } from '@/contexts/CartContext';
 import type { Shop, Product, Category } from '@/lib/supabase/types';
+import FollowButton from '@/components/ui/FollowButton';
 import {
   Store,
   ShieldCheck,
@@ -195,6 +196,7 @@ export default function StoreDetailPage({ params }: { params: { slug: string } }
 
               {/* Contact Actions */}
               <div className="flex flex-wrap gap-2.5 w-full md:w-auto">
+                <FollowButton shopId={shop.id} className="w-full sm:w-auto" />
                 {whatsappUrl && (
                   <a
                     href={whatsappUrl}

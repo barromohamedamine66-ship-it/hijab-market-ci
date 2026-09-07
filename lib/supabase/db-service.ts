@@ -1833,6 +1833,125 @@ export const DBService = {
         console.warn('Supabase getFlashSales error:', e);
       }
     }
+    }
     return [];
+  },
+
+  // ==========================================
+  // SOCIAL (Likes & Abonnements)
+  // ==========================================
+  async toggleLike(productId: string, userId: string): Promise<boolean> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('product_likes').select('id').eq('product_id', productId).eq('user_id', userId).maybeSingle();
+        if (data) {
+          await supabase.from('product_likes').delete().eq('id', data.id);
+          return false;
+        } else {
+          await supabase.from('product_likes').insert({ product_id: productId, user_id: userId });
+          return true;
+        }
+      } catch (e) {
+        console.warn('toggleLike error:', e);
+      }
+    }
+    const key = `likes_${userId}`;
+    let likes = getLocalData<string[]>(key, []);
+    if (likes.includes(productId)) {
+      likes = likes.filter(id => id !== productId);
+      setLocalData(key, likes);
+      return false;
+    } else {
+      likes.push(productId);
+      setLocalData(key, likes);
+      return true;
+    }
+  },
+
+  async hasLiked(productId: string, userId: string): Promise<boolean> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data } = await supabase.from('product_likes').select('id').eq('product_id', productId).eq('user_id', userId).maybeSingle();
+        return !!data;
+      } catch {}
+    }
+    return getLocalData<string[]>(`likes_${userId}`, []).includes(productId);
+  },
+
+  async toggleFollow(shopId: string, userId: string): Promise<boolean> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data } = await supabase.from('shop_followers').select('id').eq('shop_id', shopId).eq('user_id', userId).maybeSingle();
+        if (data) {
+          await supabase.from('shop_followers').delete().eq('id', data.id);
+          return false;
+        } else {
+          await supabase.from('shop_followers').insert({ shop_id: shopId, user_id: userId });
+          return true;
+        }
+      } catch (e) {
+        console.warn('toggleFollow error:', e);
+      }
+    }
+    const key = `follows_${userId}`;
+    let follows = getLocalData<string[]>(key, []);
+    if (follows.includes(shopId)) {
+      follows = follows.filter(id => id !== shopId);
+      setLocalData(key, follows);
+      return false;
+    } else {
+      follows.push(shopId);
+      setLocalData(key, follows);
+      return true;
+    }
+  },
+
+  async hasFollowed(shopId: string, userId: string): Promise<boolean> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data } = await supabase.from('shop_followers').select('id').eq('shop_id', shopId).eq('user_id', userId).maybeSingle();
+        return !!data;
+      } catch {}
+    }
+    const follows = getLocalData<string[]>(`follows_${userId}`, []);
+    return follows.includes(shopId);
+  },
+
+  async getLikedProducts(userId: string): Promise<Product[]> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data } = await supabase
+          .from('product_likes')
+          .select('product:products(*, store:shops(*))')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false });
+        if (data) {
+          return data.map(d => d.product) as unknown as Product[];
+        }
+      } catch {}
+    }
+    const likes = getLocalData<string[]>(`likes_${userId}`, []);
+    if (likes.length === 0) return [];
+    const allProducts = await this.getProducts();
+    return allProducts.filter(p => likes.includes(p.id));
+  },
+
+  async getFollowedShops(userId: string): Promise<Shop[]> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data } = await supabase
+          .from('shop_followers')
+          .select('shop:shops(*)')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false });
+        if (data) {
+          return data.map(d => d.shop) as unknown as Shop[];
+        }
+      } catch {}
+    }
+    const follows = getLocalData<string[]>(`follows_${userId}`, []);
+    if (follows.length === 0) return [];
+    const allShops = await this.getShops();
+    return allShops.filter(s => follows.includes(s.id));
   }
 };

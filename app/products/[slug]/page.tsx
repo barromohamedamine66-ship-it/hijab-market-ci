@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer';
 import { DBService } from '@/lib/supabase/db-service';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
+import LikeButton from '@/components/ui/LikeButton';
 import type { Product } from '@/lib/supabase/types';
 import {
   ArrowLeft,
@@ -34,7 +35,6 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
-  const [isFavorited, setIsFavorited] = useState(false);
   const [viewers, setViewers] = useState<number>(0);
 
   useEffect(() => {
@@ -51,18 +51,11 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
         DBService.incrementShopViews(prod.store_id);
       }
 
-      if (user && prod) {
-        DBService.isProductFavorite(user.id, prod.id).then(setIsFavorited);
+      if (prod?.store_id) {
+        DBService.incrementShopViews(prod.store_id);
       }
     });
   }, [params.slug, user]);
-
-  const handleToggleFavorite = async () => {
-    if (!product) return;
-    const userId = user?.id || 'guest-user';
-    const result = await DBService.toggleFavorite(userId, product.id);
-    setIsFavorited(result.isFavorited);
-  };
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -161,13 +154,9 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               )}
 
               {/* Bouton Favori */}
-              <button
-                onClick={handleToggleFavorite}
-                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-gray-200 flex items-center justify-center shadow-md hover:scale-110 transition text-rose-500"
-                title={isFavorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-              >
-                <Heart className={`w-5 h-5 ${isFavorited ? 'fill-rose-500 text-rose-500' : 'text-gray-400'}`} />
-              </button>
+              <div className="absolute top-4 right-4 z-10">
+                <LikeButton productId={product.id} className="w-10 h-10 shadow-md bg-white/90" />
+              </div>
 
               {product.badge && (
                 <span className="absolute top-4 left-4 px-3 py-1 bg-emerald-600 text-white font-extrabold text-xs rounded-full shadow-md">

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Heart, Star, ShoppingCart, ArrowRight, Check } from 'lucide-react';
+import LikeButton from '@/components/ui/LikeButton';
 import { DBService } from '@/lib/supabase/db-service';
 import { useCart } from '@/contexts/CartContext';
 import type { Product } from '@/lib/supabase/types';
@@ -113,6 +114,10 @@ export default function FeaturedProducts() {
                     </div>
                   )}
                 </Link>
+                <div className="absolute top-3 right-3 z-10">
+                  <LikeButton productId={product.id} />
+                </div>
+              </div>
 
                 {/* Content */}
                 <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">

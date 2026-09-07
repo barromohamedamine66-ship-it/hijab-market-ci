@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Search, SlidersHorizontal, X, Star, Heart, ShoppingCart, Check } from 'lucide-react';
+import LikeButton from '@/components/ui/LikeButton';
 import Link from 'next/link';
 import { DBService } from '@/lib/supabase/db-service';
 import { useCart } from '@/contexts/CartContext';
@@ -193,33 +194,37 @@ export default function ProductsPage() {
                 const isJustAdded = addedId === product.id;
 
                 return (
-                  <Link
-                    href={`/products/${product.slug}`}
-                    key={product.id}
-                    className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:border-emerald-200 transition group flex flex-col overflow-hidden"
-                  >
-                    <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden">
-                      {coverImage ? (
-                        <img
-                          src={coverImage}
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                        />
-                      ) : (
-                        <span className="text-5xl group-hover:scale-110 transition duration-300">🧕</span>
-                      )}
+                  <div key={product.id} className="relative bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:border-emerald-200 transition group flex flex-col overflow-hidden">
+                    <Link
+                      href={`/products/${product.slug}`}
+                      className="block"
+                    >
+                      <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden">
+                        {coverImage ? (
+                          <img
+                            src={coverImage}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                          />
+                        ) : (
+                          <span className="text-5xl group-hover:scale-110 transition duration-300">🧕</span>
+                        )}
 
-                      {product.badge && (
-                        <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500 text-white shadow-sm">
-                          {product.badge}
-                        </span>
-                      )}
+                        {product.badge && (
+                          <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500 text-white shadow-sm z-10">
+                            {product.badge}
+                          </span>
+                        )}
 
-                      {product.stock <= 0 && (
-                        <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
-                          <span className="px-3 py-1 bg-gray-800 text-white text-xs font-bold rounded-full">Épuisé</span>
-                        </div>
-                      )}
+                        {product.stock <= 0 && (
+                          <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-20">
+                            <span className="px-3 py-1 bg-gray-800 text-white text-xs font-bold rounded-full">Épuisé</span>
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                    <div className="absolute top-3 right-3 z-30">
+                      <LikeButton productId={product.id} />
                     </div>
 
                     <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
@@ -255,7 +260,7 @@ export default function ProductsPage() {
                         </button>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
             </div>
