@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Timer, ArrowRight, Zap, ShoppingCart } from 'lucide-react';
+import { Timer, ArrowRight, Zap, ShoppingCart, Star } from 'lucide-react';
 
 import { DBService } from '@/lib/supabase/db-service';
 import type { Product } from '@/lib/supabase/types';
@@ -104,10 +104,18 @@ export default function FlashSales() {
                   <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
                     {product.store?.name}
                   </p>
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base leading-tight mb-3 line-clamp-1 group-hover:text-rose-600 transition-colors">
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base leading-tight mb-1 line-clamp-1 group-hover:text-rose-600 transition-colors">
                     {product.name}
                   </h3>
                   
+                  {product.rating > 0 && (
+                    <div className="flex items-center gap-1 mb-2">
+                      <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                      <span className="text-xs font-bold text-gray-700">{product.rating.toFixed(1)}</span>
+                      <span className="text-[10px] text-gray-400">({product.reviews_count})</span>
+                    </div>
+                  )}
+
                   <div className="flex items-baseline gap-2 mb-4">
                     <span className="text-xl sm:text-2xl font-extrabold text-rose-600">
                       {product.price.toLocaleString('fr-FR')} F

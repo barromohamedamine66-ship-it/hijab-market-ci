@@ -235,6 +235,18 @@ export default function ProductsPage() {
                         <h3 className="font-bold text-gray-900 text-xs mt-0.5 line-clamp-2">
                           {product.name}
                         </h3>
+                        {product.rating > 0 ? (
+                          <div className="flex items-center gap-1 mt-1">
+                            <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                            <span className="text-[10px] font-bold text-gray-700">{product.rating.toFixed(1)}</span>
+                            <span className="text-[10px] text-gray-400">({product.reviews_count})</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1 mt-1">
+                            <Star className="w-3 h-3 text-gray-300" />
+                            <span className="text-[10px] text-gray-400">Nouveau</span>
+                          </div>
+                        )}
                         <p className="text-[10px] text-gray-400 mt-0.5">{product.material || 'Tissu sélectionné'}</p>
                       </div>
 

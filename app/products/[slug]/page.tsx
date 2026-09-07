@@ -24,7 +24,10 @@ import {
   ExternalLink,
   Award,
   Sparkles,
+  MessageSquareText,
+  Star
 } from 'lucide-react';
+import ReviewsSection from '@/components/ui/ReviewsSection';
 
 export default function ProductDetailPage({ params }: { params: { slug: string } }) {
   const { addItem } = useCart();
@@ -378,18 +381,25 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               </div>
             </div>
 
-            {/* Boutons d'Action (WhatsApp Direct + Panier) */}
             <div className="space-y-3 pt-4 border-t border-gray-100">
-              {/* Bouton WhatsApp Principal */}
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-4 px-6 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-md hover:shadow-lg transition flex items-center justify-center gap-2.5"
-              >
-                <MessageCircle className="w-5 h-5 fill-white text-emerald-600" />
-                Commander via WhatsApp à la boutique
-              </a>
+              <div className="flex gap-3">
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 py-4 px-4 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-extrabold text-xs shadow-md transition flex items-center justify-center gap-2"
+                >
+                  <MessageCircle className="w-4 h-4 fill-white" />
+                  WhatsApp
+                </a>
+                <Link
+                  href={user ? `/chat?shop=${product.store_id}` : '/auth/login?redirect=' + encodeURIComponent(`/chat?shop=${product.store_id}`)}
+                  className="flex-1 py-4 px-4 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-extrabold text-xs shadow-md transition flex items-center justify-center gap-2"
+                >
+                  <MessageSquareText className="w-4 h-4 fill-white" />
+                  Chat Interne
+                </Link>
+              </div>
 
               <div className="flex gap-3">
                 <button
@@ -421,8 +431,8 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
           </div>
         </div>
         
-        {/* Section Commentaires */}
-        <CommentsSection productId={product.id} />
+        {/* Section Avis Clients */}
+        <ReviewsSection productId={product.id} />
       </main>
 
       <Footer />

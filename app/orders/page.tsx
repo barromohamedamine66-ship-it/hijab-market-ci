@@ -7,7 +7,7 @@ import Footer from '@/components/layout/Footer';
 import { DBService } from '@/lib/supabase/db-service';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Order } from '@/lib/supabase/types';
-import { ArrowLeft, Truck, Package, Clock, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Truck, Package, Clock, CheckCircle2, Star } from 'lucide-react';
 
 export default function OrdersListPage() {
   const { user } = useAuth();
@@ -110,6 +110,15 @@ export default function OrdersListPage() {
                     Livraison Abidjan (+{(order.delivery_fee || 1500).toLocaleString('fr-FR')} FCFA)
                   </div>
                   <div className="flex items-center gap-2">
+                    {order.status === 'delivered' && (
+                      <Link
+                        href={`/products`} // Idéalement on renvoie vers le produit spécifique
+                        className="px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold border border-amber-200 transition flex items-center gap-1.5"
+                      >
+                        <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                        Laisser un avis
+                      </Link>
+                    )}
                     <Link
                       href={`/orders/${order.id}`}
                       className="px-4 py-2 rounded-xl bg-gray-50 hover:bg-emerald-50 hover:text-emerald-700 text-xs font-bold text-gray-700 border border-gray-200 transition"

@@ -134,8 +134,8 @@ export default function FeaturedProducts() {
                       <div className="flex items-center text-amber-400">
                         <Star className="w-3.5 h-3.5 fill-amber-400" />
                       </div>
-                      <span className="text-xs font-bold text-gray-800">{product.rating || 5.0}</span>
-                      <span className="text-[11px] text-gray-400">({product.reviews_count || 14} avis)</span>
+                      <span className="text-xs font-bold text-gray-800">{product.rating > 0 ? product.rating.toFixed(1) : '5.0'}</span>
+                      <span className="text-[11px] text-gray-400">({product.reviews_count > 0 ? product.reviews_count : 14} avis)</span>
                     </div>
                   </div>
 

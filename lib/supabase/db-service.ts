@@ -2111,5 +2111,141 @@ export const DBService = {
     }
     const notifs = getLocalData<any[]>(`notifs_${userId}`, []);
     setLocalData(`notifs_${userId}`, [notif, ...notifs]);
+  },
+
+  // --- Ratings & Reviews ---
+  async getProductReviews(productId: string): Promise<any[]> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data } = await supabase
+          .from('product_reviews')
+          .select('*, user:profiles(id, full_name, avatar_url)')
+          .eq('product_id', productId)
+          .order('created_at', { ascending: false });
+        if (data) return data;
+      } catch {}
+    }
+    return getLocalData<any[]>(`reviews_${productId}`, []);
+  },
+
+  async addReview(productId: string, userId: string, rating: number, comment?: string): Promise<boolean> {
+    const review = {
+      id: Math.random().toString(36).substr(2, 9),
+      product_id: productId,
+      user_id: userId,
+      rating,
+      comment,
+      created_at: new Date().toISOString()
+    };
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabase.from('product_reviews').insert({
+          product_id: productId,
+          user_id: userId,
+          rating,
+          comment
+        });
+        if (!error) return true;
+      } catch {}
+    }
+    const reviews = getLocalData<any[]>(`reviews_${productId}`, []);
+    setLocalData(`reviews_${productId}`, [review, ...reviews]);
+    return true;
+  },
+
+  // --- Chat (Conversations & Messages) ---
+  async getConversations(userId: string, isSeller: boolean = false): Promise<any[]> {
+    if (isSupabaseConfigured()) {
+      try {
+        let query = supabase.from('conversations').select('*, client:profiles(*), shop:shops(*)');
+        if (isSeller) {
+          // get shops for this seller
+          const { data: shops } = await supabase.from('shops').select('id').eq('owner_id', userId);
+          const shopIds = shops?.map(s => s.id) || [];
+          if (shopIds.length > 0) {
+            query = query.in('shop_id', shopIds);
+          } else {
+            return [];
+          }
+        } else {
+          query = query.eq('client_id', userId);
+        }
+        const { data } = await query.order('last_message_at', { ascending: false });
+        if (data) return data;
+      } catch {}
+    }
+    return getLocalData<any[]>(`convs_${userId}`, []);
+  },
+
+  async getMessages(conversationId: string): Promise<any[]> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('conversation_id', conversationId)
+          .order('created_at', { ascending: true });
+        if (data) return data;
+      } catch {}
+    }
+    return getLocalData<any[]>(`msgs_${conversationId}`, []);
+  },
+
+  async sendMessage(conversationId: string, senderId: string, content: string): Promise<any> {
+    const message = {
+      id: Math.random().toString(36).substr(2, 9),
+      conversation_id: conversationId,
+      sender_id: senderId,
+      content,
+      is_read: false,
+      created_at: new Date().toISOString()
+    };
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('messages').insert({
+          conversation_id: conversationId,
+          sender_id: senderId,
+          content
+        }).select().single();
+        if (!error && data) {
+          await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', conversationId);
+          return data;
+        }
+      } catch {}
+    }
+    const messages = getLocalData<any[]>(`msgs_${conversationId}`, []);
+    setLocalData(`msgs_${conversationId}`, [...messages, message]);
+    return message;
+  },
+
+  async getOrCreateConversation(clientId: string, shopId: string): Promise<any> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data: existing } = await supabase
+          .from('conversations')
+          .select('*')
+          .eq('client_id', clientId)
+          .eq('shop_id', shopId)
+          .maybeSingle();
+        if (existing) return existing;
+
+        const { data: created, error } = await supabase
+          .from('conversations')
+          .insert({ client_id: clientId, shop_id: shopId })
+          .select()
+          .single();
+        if (!error && created) return created;
+      } catch {}
+    }
+    
+    // local fallback
+    const id = `${clientId}_${shopId}`;
+    return {
+      id,
+      client_id: clientId,
+      shop_id: shopId,
+      created_at: new Date().toISOString(),
+      last_message_at: new Date().toISOString()
+    };
   }
 };
