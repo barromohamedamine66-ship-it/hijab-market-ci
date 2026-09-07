@@ -1833,7 +1833,6 @@ export const DBService = {
         console.warn('Supabase getFlashSales error:', e);
       }
     }
-    }
     return [];
   },
 
