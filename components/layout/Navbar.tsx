@@ -10,6 +10,7 @@ const navLinks = [
   { href: '/#categories', label: 'Catégories' },
   { href: '/products', label: 'Produits' },
   { href: '/stores', label: 'Boutiques' },
+  { href: '/feed', label: 'Feed' },
   { href: '/devenir-vendeur', label: 'Devenir Vendeur' },
 ];
 

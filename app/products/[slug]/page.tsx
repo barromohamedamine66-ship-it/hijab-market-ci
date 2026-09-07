@@ -8,6 +8,7 @@ import { DBService } from '@/lib/supabase/db-service';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import LikeButton from '@/components/ui/LikeButton';
+import CommentsSection from '@/components/ui/CommentsSection';
 import type { Product } from '@/lib/supabase/types';
 import {
   ArrowLeft,
@@ -419,6 +420,9 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             </div>
           </div>
         </div>
+        
+        {/* Section Commentaires */}
+        <CommentsSection productId={product.id} />
       </main>
 
       <Footer />

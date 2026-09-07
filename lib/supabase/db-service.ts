@@ -1953,5 +1953,71 @@ export const DBService = {
     if (follows.length === 0) return [];
     const allShops = await this.getShops();
     return allShops.filter(s => follows.includes(s.id));
+  },
+
+  async getFeedProducts(userId: string): Promise<Product[]> {
+    const followedShops = await this.getFollowedShops(userId);
+    if (followedShops.length === 0) return [];
+    const shopIds = followedShops.map(s => s.id);
+    
+    if (isSupabaseConfigured()) {
+      try {
+        const { data } = await supabase
+          .from('products')
+          .select('*, store:shops(*)')
+          .in('store_id', shopIds)
+          .order('created_at', { ascending: false });
+        if (data) return data as unknown as Product[];
+      } catch {}
+    }
+    
+    const allProducts = await this.getProducts();
+    return allProducts.filter(p => p.store_id && shopIds.includes(p.store_id)).sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+  },
+
+  async getComments(productId: string): Promise<any[]> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data } = await supabase
+          .from('product_comments')
+          .select('*')
+          .eq('product_id', productId)
+          .order('created_at', { ascending: false });
+        if (data) return data;
+      } catch {}
+    }
+    return getLocalData<any[]>(`comments_${productId}`, []);
+  },
+
+  async addComment(productId: string, userId: string, userName: string, content: string): Promise<any> {
+    const comment = {
+      id: Math.random().toString(36).substr(2, 9),
+      product_id: productId,
+      user_id: userId,
+      user_name: userName,
+      content,
+      created_at: new Date().toISOString()
+    };
+
+    if (isSupabaseConfigured()) {
+      try {
+        const { data } = await supabase
+          .from('product_comments')
+          .insert({
+            product_id: productId,
+            user_id: userId,
+            user_name: userName,
+            content
+          })
+          .select()
+          .single();
+        if (data) return data;
+      } catch {}
+    }
+    
+    const comments = getLocalData<any[]>(`comments_${productId}`, []);
+    const newComments = [comment, ...comments];
+    setLocalData(`comments_${productId}`, newComments);
+    return comment;
   }
 };

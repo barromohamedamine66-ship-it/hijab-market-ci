@@ -36,3 +36,29 @@ CREATE POLICY "Un utilisateur peut retirer son like" ON product_likes FOR DELETE
 CREATE POLICY "Les abonnements sont publics" ON shop_followers FOR SELECT USING (true);
 CREATE POLICY "Un utilisateur peut s'abonner" ON shop_followers FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Un utilisateur peut se désabonner" ON shop_followers FOR DELETE USING (auth.uid() = user_id);
+
+-- Create product_comments table
+CREATE TABLE IF NOT EXISTS public.product_comments (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    product_id UUID REFERENCES public.products(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    user_name TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Enable RLS
+ALTER TABLE public.product_comments ENABLE ROW LEVEL SECURITY;
+
+-- Policies for comments
+CREATE POLICY "Les commentaires sont visibles par tout le monde" ON public.product_comments
+    FOR SELECT USING (true);
+
+CREATE POLICY "Les utilisateurs peuvent commenter" ON public.product_comments
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Les utilisateurs peuvent supprimer leurs commentaires" ON public.product_comments
+    FOR DELETE USING (auth.uid() = user_id);
+
+GRANT ALL ON product_comments TO authenticated;
+GRANT SELECT ON product_comments TO anon;

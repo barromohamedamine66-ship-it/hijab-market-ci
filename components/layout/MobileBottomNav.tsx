@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Search, Store, ShoppingBag, User } from 'lucide-react';
+import { Home, Search, Store, ShoppingBag, User, Sparkles } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -32,6 +32,12 @@ export default function MobileBottomNav() {
       href: '/products',
       icon: Search,
       isActive: pathname.startsWith('/products'),
+    },
+    {
+      label: 'Feed',
+      href: '/feed',
+      icon: Sparkles,
+      isActive: pathname.startsWith('/feed'),
     },
     {
       label: 'Boutiques',
