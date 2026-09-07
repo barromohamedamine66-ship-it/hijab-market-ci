@@ -12,14 +12,18 @@ export default async function AdminAnalyticsPage() {
 
   // Simulation de données mensuelles pour le graphique de croissance (Évolution)
   // Normalement, ces données viendraient d'une agrégation par date sur la table `orders`.
+  // Si la DB est vide (0 vente), on affiche de belles données fictives pour montrer le rendu.
+  const baseViews = totalViews > 0 ? totalViews : 8500;
+  const baseSales = totalSales > 0 ? totalSales : 2450000;
+
   const months = ['Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil'];
   const simulatedGrowthData = [
-    { month: 'Fév', views: Math.floor(totalViews * 0.1), sales: Math.floor(totalSales * 0.05) },
-    { month: 'Mar', views: Math.floor(totalViews * 0.2), sales: Math.floor(totalSales * 0.1) },
-    { month: 'Avr', views: Math.floor(totalViews * 0.35), sales: Math.floor(totalSales * 0.2) },
-    { month: 'Mai', views: Math.floor(totalViews * 0.5), sales: Math.floor(totalSales * 0.4) },
-    { month: 'Juin', views: Math.floor(totalViews * 0.75), sales: Math.floor(totalSales * 0.7) },
-    { month: 'Juil', views: totalViews, sales: totalSales },
+    { month: 'Fév', views: Math.floor(baseViews * 0.1), sales: Math.floor(baseSales * 0.05) },
+    { month: 'Mar', views: Math.floor(baseViews * 0.2), sales: Math.floor(baseSales * 0.1) },
+    { month: 'Avr', views: Math.floor(baseViews * 0.35), sales: Math.floor(baseSales * 0.2) },
+    { month: 'Mai', views: Math.floor(baseViews * 0.5), sales: Math.floor(baseSales * 0.4) },
+    { month: 'Juin', views: Math.floor(baseViews * 0.75), sales: Math.floor(baseSales * 0.7) },
+    { month: 'Juil', views: baseViews, sales: baseSales },
   ];
 
   // Calcul du max pour la hauteur des barres du graphique CSS
