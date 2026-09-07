@@ -783,6 +783,31 @@ export const DBService = {
     return shops;
   },
 
+  async getAdminAnalytics(): Promise<{ totalSales: number; totalViews: number; topShops: Shop[] }> {
+    const shops = await this.getAllAdminShops();
+    const activeShops = shops.filter(s => s.status === 'active');
+    
+    // Total sales across all shops
+    const totalSales = activeShops.reduce((sum, shop) => sum + (shop.total_sales || 0), 0);
+    
+    // Total views across all shops
+    const totalViews = activeShops.reduce((sum, shop) => sum + (shop.views_count || 0), 0);
+    
+    // Top 5 shops by sales (then views if tie)
+    const topShops = [...activeShops].sort((a, b) => {
+      if ((b.total_sales || 0) !== (a.total_sales || 0)) {
+        return (b.total_sales || 0) - (a.total_sales || 0);
+      }
+      return (b.views_count || 0) - (a.views_count || 0);
+    }).slice(0, 5);
+    
+    return {
+      totalSales,
+      totalViews,
+      topShops
+    };
+  },
+
   async updateShopStatus(shopId: string, status: 'active' | 'pending' | 'suspended' | 'rejected'): Promise<boolean> {
     if (isSupabaseConfigured()) {
       try {

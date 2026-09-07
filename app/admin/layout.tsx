@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import {
   ShieldCheck, Users, Store, Package, ShoppingCart,
-  Percent, ArrowDownCircle, AlertTriangle, Settings, LogOut, Truck, Tag, Award
+  Percent, ArrowDownCircle, AlertTriangle, Settings, LogOut, Truck, Tag, Award, TrendingUp
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -17,6 +17,7 @@ const adminNavItems = [
   { href: '/admin/subscriptions', icon: Award, label: 'Abonnements & Formules' },
   { href: '/admin/products', icon: Package, label: 'Modération Produits' },
   { href: '/admin/orders', icon: ShoppingCart, label: 'Commandes Globales' },
+  { href: '/admin/analytics', icon: TrendingUp, label: 'Analytiques' },
   { href: '/admin/settings', icon: Settings, label: 'Paramètres Plateforme' },
 ];
 
