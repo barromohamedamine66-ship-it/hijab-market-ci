@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/components/auth/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { DBService } from '@/lib/supabase/db-service';
 import { Play, Image as ImageIcon, Plus, Trash2, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 import type { Product, Shop, Story } from '@/lib/supabase/types';

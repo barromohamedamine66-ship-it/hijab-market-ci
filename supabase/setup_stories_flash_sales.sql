@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS stories (
 );
 
 -- Index pour la recherche rapide des stories actives
-CREATE INDEX IF NOT EXISTS stories_active_idx ON stories (expires_at) WHERE expires_at > now();
+CREATE INDEX IF NOT EXISTS stories_active_idx ON stories (expires_at);
 
 -- 2. Ajout des colonnes Flash Sale à la table 'products'
 ALTER TABLE products ADD COLUMN IF NOT EXISTS is_flash_sale BOOLEAN DEFAULT false;

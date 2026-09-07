@@ -18,6 +18,7 @@ export default function FlashSales() {
       setLoading(false);
     });
   }, []);
+  useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev.seconds > 0) {
