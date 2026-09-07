@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { ArrowRight, Star, ShieldCheck, Truck } from 'lucide-react';
 import { DBService } from '@/lib/supabase/db-service';
 
@@ -14,8 +17,15 @@ const badges = [
   { icon: Truck, label: 'Livraison rapide' },
 ];
 
-export default async function Hero() {
-  const settings = await DBService.getPlatformSettings();
+export default function Hero() {
+  const [trialDays, setTrialDays] = useState(90);
+
+  useEffect(() => {
+    DBService.getPlatformSettings().then(settings => {
+      setTrialDays(settings.founder_trial_days);
+    });
+  }, []);
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-beige-100 via-white to-emerald-50 pt-8 pb-20 md:pt-16 md:pb-32">
       {/* Background orbs */}
@@ -58,7 +68,7 @@ export default async function Hero() {
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition" />
               </Link>
               <Link href="/devenir-vendeur" id="hero-vendor-btn" className="btn btn-secondary btn-lg">
-                Ouvrir ma Boutique ({settings.founder_trial_days}j Offerts)
+                Ouvrir ma Boutique ({trialDays}j Offerts)
               </Link>
             </div>
 
