@@ -69,22 +69,41 @@ export default function SellerShopSettingsPage() {
     }
   }, [shop]);
 
-  // Gestion de l'import de fichier image depuis l'appareil / smartphone
+  // Gestion de l'import de fichier image depuis l'appareil / smartphone avec compression
   const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      setError('La photo est trop volumineuse (maximum 5 Mo).');
+    if (file.size > 15 * 1024 * 1024) {
+      setError('La photo est trop volumineuse (maximum 15 Mo).');
       return;
     }
 
     setError('');
     const reader = new FileReader();
     reader.onloadend = () => {
-      const result = reader.result as string;
-      setLogoUrl(result);
-      setSaved(false);
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const max_size = 500; // Logos can be smaller (500x500 is plenty)
+        if (width > height && width > max_size) {
+          height *= max_size / width;
+          width = max_size;
+        } else if (height > max_size) {
+          width *= max_size / height;
+          height = max_size;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        setLogoUrl(dataUrl);
+        setSaved(false);
+      };
+      img.src = reader.result as string;
     };
     reader.readAsDataURL(file);
   };
