@@ -346,11 +346,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { role: targetRole };
   };
 
-  // Inscription (réservée aux vendeuses et boutiques)
   const signUp = async (data: SignUpData): Promise<{ error?: string; role?: UserRole }> => {
-    if (data.role && data.role === 'customer') {
-      return { error: "L'inscription est réservée aux vendeuses partenaires. Aucun compte n'est requis pour les clientes." };
-    }
 
     const rawEmail = (data.email || '').trim().toLowerCase();
     const cleanPhone = normalizePhoneDigits(data.phone || '');

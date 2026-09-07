@@ -5,7 +5,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, Phone, MapPin, Mail, Save, ArrowLeft, Lock, LogOut, Store, Heart, UserCheck, Settings } from 'lucide-react';
+import { User, Phone, MapPin, Mail, Save, ArrowLeft, Lock, LogOut, Store, Heart, UserCheck, Settings, Calendar, Bell } from 'lucide-react';
 import { DBService } from '@/lib/supabase/db-service';
 import type { Product, Shop } from '@/lib/supabase/types';
 import LikeButton from '@/components/ui/LikeButton';
@@ -28,6 +28,9 @@ export default function ProfilePage() {
   const [city, setCity] = useState('');
   const [commune, setCommune] = useState('');
   const [address, setAddress] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [pushEnabled, setPushEnabled] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -41,6 +44,9 @@ export default function ProfilePage() {
       setCity(profile.city || 'Abidjan');
       setCommune(profile.commune || '');
       setAddress(profile.address || '');
+      setBirthDate(profile.birth_date || '');
+      setAvatarUrl(profile.avatar_url || '');
+      setPushEnabled(profile.push_enabled || false);
     } else if (user) {
       const raw = user.email || '';
       setEmail(raw.endsWith('@client.hijabmarket.ci') ? '' : raw);
@@ -71,6 +77,9 @@ export default function ProfilePage() {
         city: city.trim(),
         commune: commune.trim(),
         address: address.trim(),
+        birth_date: birthDate || null,
+        avatar_url: avatarUrl || null,
+        push_enabled: pushEnabled,
       });
 
       if (res?.error) {
@@ -163,8 +172,25 @@ export default function ProfilePage() {
         {activeTab === 'infos' && (
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 md:p-8">
             <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-100">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 font-extrabold flex items-center justify-center text-2xl border border-emerald-200">
-                {initials}
+              <div className="relative group cursor-pointer">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 font-extrabold flex items-center justify-center text-2xl border border-emerald-200 overflow-hidden relative">
+                  {avatarUrl ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" /> : initials}
+                </div>
+                <div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                  <span className="text-[10px] font-bold text-white uppercase tracking-wider text-center leading-tight">Changer<br/>Avatar</span>
+                </div>
+                {/* Avatar selection dropdown overlay (simplified for now) */}
+                <select 
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                  value={avatarUrl}
+                  onChange={(e) => setAvatarUrl(e.target.value)}
+                >
+                  <option value="">Aucun avatar (Initiales)</option>
+                  <option value="https://api.dicebear.com/7.x/adventurer/svg?seed=Awa">Avatar 1 (Awa)</option>
+                  <option value="https://api.dicebear.com/7.x/adventurer/svg?seed=Binta">Avatar 2 (Binta)</option>
+                  <option value="https://api.dicebear.com/7.x/adventurer/svg?seed=Mariam">Avatar 3 (Mariam)</option>
+                  <option value="https://api.dicebear.com/7.x/adventurer/svg?seed=Fatou">Avatar 4 (Fatou)</option>
+                </select>
               </div>
               <div>
                 <h1 className="text-xl font-bold font-heading text-gray-900">Mon Profil Personnel</h1>
@@ -267,6 +293,35 @@ export default function ProfilePage() {
                     rows={2}
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none text-sm transition resize-none"
                   />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Date de naissance</label>
+                  <div className="relative">
+                    <Calendar className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="date"
+                      value={birthDate}
+                      onChange={(e) => setBirthDate(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none text-sm transition"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                    <Bell className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-sm font-bold text-gray-900">Notifications Push</h4>
+                    <p className="text-[10px] text-gray-500">Recevoir des alertes pour vos commandes et favoris</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" checked={pushEnabled} onChange={(e) => setPushEnabled(e.target.checked)} className="sr-only peer" />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                  </label>
                 </div>
               </div>
 

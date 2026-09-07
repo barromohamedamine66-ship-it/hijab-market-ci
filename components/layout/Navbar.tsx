@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Menu, X, Search, ShoppingCart, User, LogOut, Package, Store, ChevronDown } from 'lucide-react';
+import { Menu, Search, ShoppingCart, X, ChevronDown, LogOut, Store, Package, Heart, Bell } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 
@@ -81,6 +81,18 @@ export default function Navbar() {
               >
                 <Search className="w-5 h-5" />
               </button>
+
+              {/* Notifications */}
+              {user && (
+                <Link
+                  href="/profile"
+                  className="relative p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition hidden sm:flex"
+                  aria-label="Notifications"
+                >
+                  <Bell className="w-5 h-5" />
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full"></span>
+                </Link>
+              )}
 
               {/* Cart button */}
               <Link

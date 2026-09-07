@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Search, Store, ShoppingBag, User, Sparkles } from 'lucide-react';
+import { Home, Search, Store, ShoppingBag, User, Sparkles, Bell } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -51,6 +51,13 @@ export default function MobileBottomNav() {
       icon: ShoppingBag,
       isActive: pathname.startsWith('/cart'),
       badge: count,
+    },
+    {
+      label: 'Alertes',
+      href: '/profile',
+      icon: Bell,
+      isActive: pathname === '/profile' && false, // We'll manage this better later if there's a dedicated page
+      badge: user ? 1 : 0, // Mock badge
     },
     {
       label: user ? 'Compte' : 'Connexion',

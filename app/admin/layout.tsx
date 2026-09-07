@@ -13,6 +13,7 @@ const adminNavItems = [
   { href: '/admin', icon: ShieldCheck, label: 'Vue d\'ensemble' },
   { href: '/admin/categories', icon: Tag, label: 'Gestion Catégories' },
   { href: '/admin/sellers', icon: Store, label: 'Boutiques & Vendeurs' },
+  { href: '/admin/users', icon: Users, label: 'Clients & Utilisateurs' },
   { href: '/admin/subscriptions', icon: Award, label: 'Abonnements & Formules' },
   { href: '/admin/products', icon: Package, label: 'Modération Produits' },
   { href: '/admin/orders', icon: ShoppingCart, label: 'Commandes Globales' },

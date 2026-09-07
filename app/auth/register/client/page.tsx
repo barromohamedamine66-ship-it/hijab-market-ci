@@ -47,7 +47,7 @@ export default function ClientRegisterPage() {
         full_name: formData.full_name.trim(),
         phone: formData.phone.trim(),
         password: formData.password,
-        role: 'client',
+        role: 'customer',
         city: formData.city,
         commune: formData.commune
       });

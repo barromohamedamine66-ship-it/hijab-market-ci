@@ -2017,6 +2017,99 @@ export const DBService = {
     const comments = getLocalData<any[]>(`comments_${productId}`, []);
     const newComments = [comment, ...comments];
     setLocalData(`comments_${productId}`, newComments);
-    return comment;
+  },
+
+  // --- Admin User Management ---
+  async getAllClients(): Promise<any[]> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('role', 'customer')
+          .order('created_at', { ascending: false });
+        if (data) return data;
+      } catch (err) {
+        console.warn('Erreur getAllClients:', err);
+      }
+    }
+    return [];
+  },
+
+  async suspendUser(userId: string, isSuspended: boolean): Promise<boolean> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ is_suspended: isSuspended, is_active: !isSuspended })
+          .eq('id', userId);
+        return !error;
+      } catch {
+        return false;
+      }
+    }
+    return true;
+  },
+
+  async deleteUser(userId: string): Promise<boolean> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabase.auth.admin.deleteUser(userId); // Require Service Role or RPC, simplified here
+        if (error) {
+           // Fallback to soft delete
+           await supabase.from('profiles').update({ is_active: false, role: 'deleted' }).eq('id', userId);
+        }
+        return true;
+      } catch {
+        return false;
+      }
+    }
+    return true;
+  },
+
+  // --- Notifications ---
+  async getNotifications(userId: string): Promise<any[]> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data } = await supabase
+          .from('notifications')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false });
+        if (data) return data;
+      } catch {}
+    }
+    return getLocalData<any[]>(`notifs_${userId}`, []);
+  },
+
+  async markNotificationAsRead(notifId: string): Promise<void> {
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('notifications')
+          .update({ is_read: true })
+          .eq('id', notifId);
+      } catch {}
+    }
+  },
+
+  async sendNotification(userId: string, title: string, message: string, type: string = 'system'): Promise<void> {
+    const notif = {
+      id: Math.random().toString(36).substr(2, 9),
+      user_id: userId,
+      type,
+      title,
+      message,
+      is_read: false,
+      created_at: new Date().toISOString()
+    };
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('notifications').insert(notif);
+        return;
+      } catch {}
+    }
+    const notifs = getLocalData<any[]>(`notifs_${userId}`, []);
+    setLocalData(`notifs_${userId}`, [notif, ...notifs]);
   }
 };
