@@ -35,6 +35,31 @@ export default function SellerProductsPage() {
     }
   };
 
+  const handleCleanDuplicates = async () => {
+    const demoNames = [
+      'Hijab Soie de Médine — Vert Émeraude',
+      'Abaya Kimono Dubaï Broderie Or',
+      'Boubou Bazin Riche Homme',
+      'Ensemble Tailleur Modeste 3 Pièces',
+      'Pashmina Cachemire Tissé à la Main',
+      'Qamis Saoudien Blanc'
+    ];
+    const duplicates = products.filter(p => demoNames.includes(p.name));
+    if (duplicates.length === 0) {
+      alert("Aucun doublon trouvé !");
+      return;
+    }
+    
+    if (confirm(`Voulez-vous supprimer les ${duplicates.length} produits fantômes de votre boutique ?`)) {
+      setLoading(true);
+      for (const p of duplicates) {
+        await DBService.deleteProduct(p.id);
+      }
+      await loadProducts();
+      alert("Nettoyage terminé !");
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-6xl">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -43,12 +68,22 @@ export default function SellerProductsPage() {
           <p className="text-xs text-gray-500 mt-1">Gérez vos articles, prix, stocks et disponibilités sur HIJAB MARKET CI.</p>
         </div>
 
-        <Link
-          href="/seller/products/new"
-          className="w-full sm:w-auto justify-center px-5 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5"
-        >
-          <Plus className="w-4 h-4" /> Nouveau Produit
-        </Link>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          {products.some(p => ['Hijab Soie de Médine — Vert Émeraude', 'Abaya Kimono Dubaï Broderie Or'].includes(p.name)) && (
+            <button
+              onClick={handleCleanDuplicates}
+              className="flex-1 sm:flex-none justify-center px-4 py-2.5 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-xs shadow-sm transition flex items-center gap-1.5"
+            >
+              <Trash2 className="w-4 h-4" /> Nettoyer les fantômes
+            </button>
+          )}
+          <Link
+            href="/seller/products/new"
+            className="flex-1 sm:flex-none justify-center px-5 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5"
+          >
+            <Plus className="w-4 h-4" /> Nouveau Produit
+          </Link>
+        </div>
       </div>
 
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
