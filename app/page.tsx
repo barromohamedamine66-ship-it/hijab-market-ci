@@ -2,8 +2,10 @@ export const dynamic = 'force-dynamic';
 
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import VideoStories from '@/components/home/VideoStories';
 import Hero from '@/components/home/Hero';
 import Categories from '@/components/home/Categories';
+import FlashSales from '@/components/home/FlashSales';
 import FeaturedProducts from '@/components/home/FeaturedProducts';
 import FeaturedStores from '@/components/home/FeaturedStores';
 import HowItWorks from '@/components/home/HowItWorks';
@@ -15,11 +17,17 @@ export default function HomePage() {
       {/* Navbar with Official Logo */}
       <Navbar />
 
+      {/* Stories Vidéo (Format Instagram/TikTok) */}
+      <VideoStories />
+
       {/* Hero with Radiant Logo Showcase */}
       <Hero />
 
       {/* Categories Grid */}
       <Categories />
+
+      {/* Ventes Flash avec compte à rebours */}
+      <FlashSales />
 
       {/* Featured Products */}
       <FeaturedProducts />
