@@ -2,7 +2,7 @@
 // HIJAB MARKET CI — Service Worker PWA Haute Performance & Sécurisé
 // ==============================================================================
 
-const CACHE_VERSION = 'hm-ci-pwa-v1.0.3';
+const CACHE_VERSION = 'hm-ci-pwa-v1.0.4';
 const STATIC_CACHE = `hm-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `hm-images-${CACHE_VERSION}`;
 const PAGES_CACHE = `hm-pages-${CACHE_VERSION}`;
