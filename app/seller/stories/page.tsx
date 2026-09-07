@@ -7,8 +7,7 @@ import { Play, Image as ImageIcon, Plus, Trash2, Loader2, Sparkles, AlertCircle 
 import type { Product, Shop, Story } from '@/lib/supabase/types';
 
 export default function SellerStoriesPage() {
-  const { user } = useAuth();
-  const [store, setStore] = useState<Shop | null>(null);
+  const { user, shop } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,33 +20,38 @@ export default function SellerStoriesPage() {
   const [selectedProductId, setSelectedProductId] = useState('');
 
   useEffect(() => {
-    if (user) {
+    if (user && shop) {
       loadData();
+    } else if (user && shop === null) {
+      // If we know there's no shop
+      setLoading(false);
     }
-  }, [user]);
+  }, [user, shop]);
 
   const loadData = async () => {
     setLoading(true);
-    const userStore = await DBService.getShopByOwner(user!.id);
-    if (userStore) {
-      setStore(userStore);
-      const [storeProducts, allStories] = await Promise.all([
-        DBService.getProducts({ store_id: userStore.id }),
-        DBService.getStories()
-      ]);
-      setProducts(storeProducts);
-      setStories(allStories.filter(s => s.shop_id === userStore.id));
+    if (shop) {
+      try {
+        const [storeProducts, allStories] = await Promise.all([
+          DBService.getProducts({ store_id: shop.id }),
+          DBService.getStories()
+        ]);
+        setProducts(storeProducts || []);
+        setStories((allStories || []).filter(s => s.shop_id === shop.id));
+      } catch (error) {
+        console.error('Error loading stories data:', error);
+      }
     }
     setLoading(false);
   };
 
   const handleCreateStory = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!store || !mediaUrl) return;
+    if (!shop || !mediaUrl) return;
 
     setSubmitting(true);
     const newStory = await DBService.createStory({
-      shop_id: store.id,
+      shop_id: shop.id,
       product_id: selectedProductId || null,
       media_url: mediaUrl,
       media_type: mediaType
