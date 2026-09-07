@@ -433,6 +433,24 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
       </main>
 
       <Footer />
+
+      {/* Widget WhatsApp Flottant Vendeur */}
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={`Discuter avec ${store?.name || 'la boutique'} sur WhatsApp`}
+        className="fixed bottom-24 right-4 sm:bottom-6 sm:right-6 z-40 bg-[#25D366] hover:bg-[#20bd5a] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all duration-300 border-2 border-white group"
+        aria-label="Contacter la boutique sur WhatsApp"
+      >
+        <MessageCircle className="w-7 h-7 fill-white" />
+        <span className="absolute -top-1 -right-1 bg-rose-500 animate-pulse text-white text-[10px] font-extrabold w-4 h-4 flex items-center justify-center rounded-full border border-white shadow-sm">
+          1
+        </span>
+        <span className="absolute right-16 bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-xl whitespace-nowrap shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none hidden sm:block">
+          Discuter avec la boutique 💬
+        </span>
+      </a>
     </div>
   );
 }

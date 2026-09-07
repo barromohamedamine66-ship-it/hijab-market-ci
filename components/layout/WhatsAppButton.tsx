@@ -1,8 +1,16 @@
 'use client';
 
 import { MessageCircle } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 export default function WhatsAppButton() {
+  const pathname = usePathname();
+
+  // Ne pas afficher le widget global sur les pages produits ou le dashboard vendeur
+  if (pathname?.startsWith('/products/') || pathname?.startsWith('/seller/')) {
+    return null;
+  }
+
   return (
     <a
       href="https://wa.me/2250152182840?text=Bonjour%20Service%20Client%20HIJAB%20MARKET%20CI%2C%20j%27ai%20besoin%20d%27assistance"
