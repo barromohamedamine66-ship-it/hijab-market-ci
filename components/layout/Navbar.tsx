@@ -174,15 +174,6 @@ export default function Navbar() {
                 </div>
               )}
 
-              {/* Mobile menu button */}
-              <button
-                id="mobile-menu-btn"
-                onClick={() => setIsOpen(!isOpen)}
-                className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition"
-                aria-label="Menu"
-              >
-                {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
             </div>
           </div>
         </div>
@@ -200,94 +191,6 @@ export default function Navbar() {
                   className="input pl-12 bg-gray-50"
                   autoFocus
                 />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Mobile menu */}
-        {isOpen && (
-          <div className="md:hidden border-t border-gray-100 bg-white py-4 shadow-lg">
-            <div className="container space-y-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className="block px-4 py-3 text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-xl transition font-medium"
-                >
-                  {link.label}
-                </Link>
-              ))}
-
-              <div className="pt-3 border-t border-gray-100 mt-3 flex flex-col gap-2">
-                {user ? (
-                  <>
-                    <div className="px-4 py-2 bg-gray-50 rounded-xl">
-                      <p className="text-xs font-bold text-gray-900">
-                        {profile?.full_name || (user.email?.endsWith('@client.hijabmarket.ci') ? (profile?.phone || 'Compte Cliente') : user.email)}
-                      </p>
-                      <p className="text-[10px] text-emerald-600 font-bold uppercase">{role}</p>
-                    </div>
-                    {role === 'admin' ? (
-                      <Link
-                        href="/admin"
-                        onClick={() => setIsOpen(false)}
-                        className="btn w-full text-center bg-purple-600 hover:bg-purple-700 text-white font-bold"
-                      >
-                        🛡️ Administration
-                      </Link>
-                    ) : role === 'seller' ? (
-                      <Link
-                        href="/seller/dashboard"
-                        onClick={() => setIsOpen(false)}
-                        className="btn btn-primary w-full text-center"
-                      >
-                        🌟 Espace Vendeuse
-                      </Link>
-                    ) : null}
-                    <button
-                      onClick={() => {
-                        setIsOpen(false);
-                        signOut();
-                      }}
-                      className="btn btn-outline text-rose-600 border-rose-200 w-full"
-                    >
-                      Déconnexion
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      href="/auth/login"
-                      onClick={() => setIsOpen(false)}
-                      className="btn btn-outline w-full"
-                    >
-                      Connexion Espace Pro / Vendeuse
-                    </Link>
-                    <Link
-                      href="/auth/register/vendor"
-                      onClick={() => setIsOpen(false)}
-                      className="btn btn-primary w-full"
-                    >
-                      🏪 Devenir Vendeuse Partenaire
-                    </Link>
-                  </>
-                )}
-                {/* PWA Install trigger */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsOpen(false);
-                    if (typeof window !== 'undefined') {
-                      window.dispatchEvent(new CustomEvent('open-pwa-install'));
-                    }
-                  }}
-                  className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center justify-center gap-2 hover:bg-emerald-100 transition shadow-sm mt-1"
-                >
-                  <span className="text-base">📲</span>
-                  <span>Installer l'application mobile</span>
-                </button>
               </div>
             </div>
           </div>

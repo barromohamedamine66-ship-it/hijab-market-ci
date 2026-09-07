@@ -35,8 +35,12 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
+  const [viewers, setViewers] = useState<number>(0);
 
   useEffect(() => {
+    // Générer un faux nombre de visiteurs en direct pour la preuve sociale
+    setViewers(Math.floor(Math.random() * (45 - 12 + 1) + 12));
+    
     DBService.getProductBySlug(params.slug).then((prod) => {
       setProduct(prod);
       if (prod?.colors && prod.colors.length > 0) setSelectedColor(prod.colors[0]);
@@ -270,16 +274,31 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                 </div>
               </div>
 
-              {/* Prix */}
-              <div className="flex items-baseline gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                <span className="text-3xl font-extrabold text-emerald-600">
-                  {product.price.toLocaleString('fr-FR')} FCFA
-                </span>
-                {product.old_price && (
-                  <span className="text-base text-gray-400 line-through">
-                    {product.old_price.toLocaleString('fr-FR')} FCFA
+              {/* Prix & Preuve Sociale */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-baseline gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100 relative overflow-hidden">
+                  <span className="text-3xl font-extrabold text-emerald-600">
+                    {product.price.toLocaleString('fr-FR')} FCFA
                   </span>
-                )}
+                  {product.old_price && (
+                    <span className="text-base text-gray-400 line-through">
+                      {product.old_price.toLocaleString('fr-FR')} FCFA
+                    </span>
+                  )}
+                  <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl pointer-events-none" />
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-bold shadow-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                    🔥 {viewers} personnes regardent cet article
+                  </div>
+                  {product.stock > 0 && product.stock <= 5 && (
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-bold shadow-sm">
+                      ⚡ Plus que {product.stock} en stock !
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Description */}
