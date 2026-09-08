@@ -1872,7 +1872,7 @@ export const DBService = {
       try {
         const { data, error } = await supabase
           .from('products')
-          .select('*, store:shops(*)')
+          .select('*, store:shops(*), images:product_images(*)')
           .eq('is_flash_sale', true)
           .gt('flash_sale_end', new Date().toISOString())
           .order('created_at', { ascending: false });
@@ -2042,13 +2042,21 @@ export const DBService = {
     
     if (isSupabaseConfigured()) {
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('products')
-          .select('*, store:shops(*)')
+          .select('*, store:shops(*), category:categories(*), images:product_images(*)')
           .in('store_id', shopIds)
           .order('created_at', { ascending: false });
-        if (data) return data as unknown as Product[];
-      } catch {}
+        if (!error && data && data.length > 0) {
+          const enriched = data.map((p: any) => ({
+            ...p,
+            store: p.store || followedShops.find(s => s.id === p.store_id) || null
+          }));
+          return enriched as unknown as Product[];
+        }
+      } catch (err) {
+        console.warn('Erreur getFeedProducts Supabase:', err);
+      }
     }
     
     const allProducts = await this.getProducts();
