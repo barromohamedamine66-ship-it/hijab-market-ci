@@ -761,6 +761,23 @@ export const DBService = {
     return shops.find(s => s.slug === slug) || null;
   },
 
+  async getShopById(id: string): Promise<Shop | null> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase
+          .from('shops')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+        if (!error && data) return data as Shop;
+      } catch (err) {
+        console.warn('Supabase getShopById error:', err);
+      }
+    }
+    const shops = getLocalData<Shop[]>(STORAGE_KEYS.SHOPS, DEFAULT_SHOPS);
+    return shops.find(s => s.id === id) || null;
+  },
+
   async createShop(shopData: {
     owner_id: string;
     name: string;
