@@ -1824,19 +1824,145 @@ export const DBService = {
           .select(`*, store:shops(*), product:products(*)`)
           .gt('expires_at', new Date().toISOString())
           .order('created_at', { ascending: false });
-        if (!error && data) return data;
+
+        if (!error && data && data.length > 0) {
+          // Si certaines stories ont un store manquant, enrichir
+          const enriched = await Promise.all(
+            data.map(async (st: any) => {
+              let store = st.store || null;
+              if (!store && st.shop_id) {
+                try {
+                  store = await DBService.getShopById(st.shop_id);
+                } catch {}
+              }
+              return { ...st, store };
+            })
+          );
+          return enriched;
+        }
+
+        // Si la requête avec alias store:shops a échoué, faire une requête robuste sans jointure complexe
+        const { data: rawStories, error: rawError } = await supabase
+          .from('stories')
+          .select('*')
+          .gt('expires_at', new Date().toISOString())
+          .order('created_at', { ascending: false });
+
+        if (!rawError && rawStories && rawStories.length > 0) {
+          const enriched = await Promise.all(
+            rawStories.map(async (st: any) => {
+              let store = null;
+              if (st.shop_id) {
+                try {
+                  store = await DBService.getShopById(st.shop_id);
+                } catch {}
+              }
+              let product = null;
+              if (st.product_id) {
+                try {
+                  product = await DBService.getProductById(st.product_id);
+                } catch {}
+              }
+              return { ...st, store, product };
+            })
+          );
+          return enriched;
+        }
       } catch (e) {
         console.warn('Supabase getStories error:', e);
       }
     }
-    // Fallback: Return empty array for now if no DB
     return [];
+  },
+
+  async uploadStoryMedia(file: File, shopId: string): Promise<string | null> {
+    if (!file) return null;
+
+    // 1. Pour une image : tentative stockage Supabase avec fallback DataURL compressé
+    if (file.type.startsWith('image/')) {
+      try {
+        if (isSupabaseConfigured()) {
+          const ext = file.name.split('.').pop() || 'jpg';
+          const path = `stories/${shopId}_${Date.now()}.${ext}`;
+          const { error: upErr } = await supabase.storage.from('product-images').upload(path, file, {
+            contentType: file.type,
+            upsert: true,
+          });
+          if (!upErr) {
+            const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+            if (data?.publicUrl) return data.publicUrl;
+          }
+        }
+      } catch (e) {
+        console.warn('Storage image upload error, using local fallback:', e);
+      }
+
+      // Fallback DataURL compressé via canvas (haute qualité, taille réduite)
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width;
+            let h = img.height;
+            const max = 1200;
+            if (w > h && w > max) {
+              h = Math.round((h * max) / w);
+              w = max;
+            } else if (h > max) {
+              w = Math.round((w * max) / h);
+              h = max;
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
+          };
+          img.onerror = () => resolve(reader.result as string);
+          img.src = reader.result as string;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // 2. Pour une vidéo : téléversement direct vers Supabase Storage
+    if (file.type.startsWith('video/')) {
+      try {
+        if (isSupabaseConfigured()) {
+          const ext = file.name.split('.').pop() || 'mp4';
+          const path = `stories/videos/${shopId}_${Date.now()}.${ext}`;
+          const { error: upErr } = await supabase.storage.from('product-images').upload(path, file, {
+            contentType: file.type,
+            upsert: true,
+          });
+          if (!upErr) {
+            const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+            if (data?.publicUrl) return data.publicUrl;
+          }
+        }
+      } catch (e) {
+        console.warn('Storage video upload error:', e);
+      }
+
+      // Si la vidéo fait moins de 25 Mo, encoder en DataURL
+      if (file.size <= 25 * 1024 * 1024) {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+      }
+    }
+
+    return null;
   },
 
   async createStory(storyData: any): Promise<any | null> {
     if (!isSupabaseConfigured()) return null;
     
-    // Set expiry to 7 days from now
+    // Durée de validité de 7 jours
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
     
@@ -1851,6 +1977,9 @@ export const DBService = {
         .single();
       
       if (!error && data) return data;
+      if (error) {
+        console.error('Supabase createStory insert error:', error);
+      }
     } catch (e) {
       console.warn('Supabase createStory error:', e);
     }
