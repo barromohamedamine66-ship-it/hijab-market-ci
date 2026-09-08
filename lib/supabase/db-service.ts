@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from './client';
-import type { Product, Shop, Category, Order, OrderItem, SellerWallet, Address, PaymentMethod, SubscriptionPlan, StoreSubscription } from './types';
+import type { Product, Shop, Category, Order, OrderItem, SellerWallet, Address, PaymentMethod, SubscriptionPlan, StoreSubscription, PlatformSettings } from './types';
 
 // 12 Catégories officielles de Mode Modeste & Traditionnelle en Côte d'Ivoire
 const DEFAULT_CATEGORIES: Category[] = [
@@ -221,7 +221,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[0],
     category: DEFAULT_CATEGORIES[0],
-    images: [{ id: 'img1', image_url: 'https://images.unsplash.com/photo-1585728748178-f75ca8578222?q=80&w=800&auto=format&fit=crop' }]
+    images: [{ id: 'img1', product_id: 'p1000000-0000-0000-0000-000000000001', image_url: 'https://images.unsplash.com/photo-1585728748178-f75ca8578222?q=80&w=800&auto=format&fit=crop', position: 0, is_cover: true, created_at: new Date().toISOString() }]
   },
   {
     id: 'p1000000-0000-0000-0000-000000000002',
@@ -246,7 +246,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[1],
     category: DEFAULT_CATEGORIES[1],
-    images: [{ id: 'img2', image_url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80' }]
+    images: [{ id: 'img2', product_id: 'p1000000-0000-0000-0000-000000000002', image_url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80', position: 0, is_cover: true, created_at: new Date().toISOString() }]
   },
   {
     id: 'p1000000-0000-0000-0000-000000000003',
@@ -271,7 +271,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[2],
     category: DEFAULT_CATEGORIES[2],
-    images: [{ id: 'img3', image_url: 'https://images.unsplash.com/photo-1589465885857-44edb59bbff2?w=800&auto=format&fit=crop&q=80' }]
+    images: [{ id: 'img3', product_id: 'p1000000-0000-0000-0000-000000000003', image_url: 'https://images.unsplash.com/photo-1589465885857-44edb59bbff2?w=800&auto=format&fit=crop&q=80', position: 0, is_cover: true, created_at: new Date().toISOString() }]
   },
   {
     id: 'p1000000-0000-0000-0000-000000000004',
@@ -296,7 +296,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[2],
     category: DEFAULT_CATEGORIES[3],
-    images: [{ id: 'img4', image_url: 'https://images.unsplash.com/photo-1596455119429-c5cce611a144?w=800&auto=format&fit=crop&q=80' }]
+    images: [{ id: 'img4', product_id: 'p1000000-0000-0000-0000-000000000004', image_url: 'https://images.unsplash.com/photo-1596455119429-c5cce611a144?w=800&auto=format&fit=crop&q=80', position: 0, is_cover: true, created_at: new Date().toISOString() }]
   },
   {
     id: 'p1000000-0000-0000-0000-000000000005',
@@ -321,7 +321,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[1],
     category: DEFAULT_CATEGORIES[4],
-    images: [{ id: 'img5', image_url: 'https://images.unsplash.com/photo-1621570168340-e2b8344e1dcb?w=800&auto=format&fit=crop&q=80' }]
+    images: [{ id: 'img5', product_id: 'p1000000-0000-0000-0000-000000000005', image_url: 'https://images.unsplash.com/photo-1621570168340-e2b8344e1dcb?w=800&auto=format&fit=crop&q=80', position: 0, is_cover: true, created_at: new Date().toISOString() }]
   },
   {
     id: 'p1000000-0000-0000-0000-000000000006',
@@ -346,7 +346,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[0],
     category: DEFAULT_CATEGORIES[7],
-    images: [{ id: 'img6', image_url: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800&auto=format&fit=crop&q=80' }]
+    images: [{ id: 'img6', product_id: 'p1000000-0000-0000-0000-000000000006', image_url: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800&auto=format&fit=crop&q=80', position: 0, is_cover: true, created_at: new Date().toISOString() }]
   }
 ];
 
@@ -1227,11 +1227,12 @@ export const DBService = {
     let updatedProd: Product | null = null;
     const updatedLocal = currentProds.map(p => {
       if (p.id === productId) {
-        updatedProd = { ...p, ...supabaseUpdates, updated_at: new Date().toISOString() };
+        const newProd = { ...p, ...supabaseUpdates, updated_at: new Date().toISOString() };
         if (newImageUrl) {
-          updatedProd.images = [{ id: `img-${Date.now()}`, product_id: productId, image_url: newImageUrl, position: 0, is_cover: true, created_at: new Date().toISOString() }];
+          newProd.images = [{ id: `img-${Date.now()}`, product_id: productId, image_url: newImageUrl, position: 0, is_cover: true, created_at: new Date().toISOString() }];
         }
-        return updatedProd;
+        updatedProd = newProd;
+        return newProd;
       }
       return p;
     });
@@ -1548,7 +1549,7 @@ export const DBService = {
 
     return {
       id: `w-${shopId}`,
-      shop_id: shopId,
+      store_id: shopId,
       available_balance: totalEarned > 0 ? Math.round(totalEarned * 0.93) : 0, // Moins commission marketplace 7%
       pending_balance: 0,
       total_earned: totalEarned,
@@ -1865,118 +1866,145 @@ export const DBService = {
   // SOCIAL (Likes & Abonnements)
   // ==========================================
   async toggleLike(productId: string, userId: string): Promise<boolean> {
+    const isCurrentlyLiked = await this.hasLiked(productId, userId);
+    const newLikedState = !isCurrentlyLiked;
+    
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('product_likes').select('id').eq('product_id', productId).eq('user_id', userId).maybeSingle();
-        if (data) {
-          await supabase.from('product_likes').delete().eq('id', data.id);
-          return false;
-        } else {
+        if (newLikedState) {
           await supabase.from('product_likes').insert({ product_id: productId, user_id: userId });
-          return true;
+        } else {
+          await supabase.from('product_likes').delete().eq('product_id', productId).eq('user_id', userId);
         }
       } catch (e) {
         console.warn('toggleLike error:', e);
       }
     }
+
     const key = `likes_${userId}`;
     let likes = getLocalData<string[]>(key, []);
-    if (likes.includes(productId)) {
+    if (newLikedState) {
+      if (!likes.includes(productId)) {
+        likes.push(productId);
+        setLocalData(key, likes);
+      }
+    } else {
       likes = likes.filter(id => id !== productId);
       setLocalData(key, likes);
-      return false;
-    } else {
-      likes.push(productId);
-      setLocalData(key, likes);
-      return true;
     }
+    
+    return newLikedState;
   },
 
   async hasLiked(productId: string, userId: string): Promise<boolean> {
+    let isLiked = false;
     if (isSupabaseConfigured()) {
       try {
-        const { data } = await supabase.from('product_likes').select('id').eq('product_id', productId).eq('user_id', userId).maybeSingle();
-        return !!data;
+        const { data, error } = await supabase.from('product_likes').select('id').eq('product_id', productId).eq('user_id', userId).maybeSingle();
+        if (!error && data) isLiked = true;
       } catch {}
     }
-    return getLocalData<string[]>(`likes_${userId}`, []).includes(productId);
+    const localLiked = getLocalData<string[]>(`likes_${userId}`, []).includes(productId);
+    return isLiked || localLiked;
   },
 
   async toggleFollow(shopId: string, userId: string): Promise<boolean> {
+    const isCurrentlyFollowed = await this.hasFollowed(shopId, userId);
+    const newFollowedState = !isCurrentlyFollowed;
+    
     if (isSupabaseConfigured()) {
       try {
-        const { data } = await supabase.from('shop_followers').select('id').eq('shop_id', shopId).eq('user_id', userId).maybeSingle();
-        if (data) {
-          await supabase.from('shop_followers').delete().eq('id', data.id);
-          return false;
-        } else {
+        if (newFollowedState) {
           await supabase.from('shop_followers').insert({ shop_id: shopId, user_id: userId });
-          return true;
+        } else {
+          await supabase.from('shop_followers').delete().eq('shop_id', shopId).eq('user_id', userId);
         }
       } catch (e) {
         console.warn('toggleFollow error:', e);
       }
     }
+
     const key = `follows_${userId}`;
     let follows = getLocalData<string[]>(key, []);
-    if (follows.includes(shopId)) {
+    if (newFollowedState) {
+      if (!follows.includes(shopId)) {
+        follows.push(shopId);
+        setLocalData(key, follows);
+      }
+    } else {
       follows = follows.filter(id => id !== shopId);
       setLocalData(key, follows);
-      return false;
-    } else {
-      follows.push(shopId);
-      setLocalData(key, follows);
-      return true;
     }
+    
+    return newFollowedState;
   },
 
   async hasFollowed(shopId: string, userId: string): Promise<boolean> {
+    let isFollowed = false;
     if (isSupabaseConfigured()) {
       try {
-        const { data } = await supabase.from('shop_followers').select('id').eq('shop_id', shopId).eq('user_id', userId).maybeSingle();
-        return !!data;
+        const { data, error } = await supabase.from('shop_followers').select('id').eq('shop_id', shopId).eq('user_id', userId).maybeSingle();
+        if (!error && data) isFollowed = true;
       } catch {}
     }
-    const follows = getLocalData<string[]>(`follows_${userId}`, []);
-    return follows.includes(shopId);
+    const localFollowed = getLocalData<string[]>(`follows_${userId}`, []).includes(shopId);
+    return isFollowed || localFollowed;
   },
 
   async getLikedProducts(userId: string): Promise<Product[]> {
+    let supabaseProducts: Product[] = [];
     if (isSupabaseConfigured()) {
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('product_likes')
           .select('product:products(*, store:shops(*))')
           .eq('user_id', userId)
           .order('created_at', { ascending: false });
-        if (data) {
-          return data.map(d => d.product) as unknown as Product[];
+        if (!error && data) {
+          supabaseProducts = data.map(d => d.product).filter(Boolean) as unknown as Product[];
         }
       } catch {}
     }
-    const likes = getLocalData<string[]>(`likes_${userId}`, []);
-    if (likes.length === 0) return [];
+    const localLikes = getLocalData<string[]>(`likes_${userId}`, []);
+    if (localLikes.length === 0) return supabaseProducts;
+    
     const allProducts = await this.getProducts();
-    return allProducts.filter(p => likes.includes(p.id));
+    const localProducts = allProducts.filter(p => localLikes.includes(p.id));
+    
+    const combined = [...supabaseProducts];
+    const existingIds = new Set(combined.map(p => p.id));
+    for (const lp of localProducts) {
+      if (!existingIds.has(lp.id)) combined.push(lp);
+    }
+    return combined;
   },
 
   async getFollowedShops(userId: string): Promise<Shop[]> {
+    let supabaseShops: Shop[] = [];
     if (isSupabaseConfigured()) {
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('shop_followers')
           .select('shop:shops(*)')
           .eq('user_id', userId)
           .order('created_at', { ascending: false });
-        if (data) {
-          return data.map(d => d.shop) as unknown as Shop[];
+        if (!error && data) {
+          supabaseShops = data.map(d => d.shop).filter(Boolean) as unknown as Shop[];
         }
       } catch {}
     }
-    const follows = getLocalData<string[]>(`follows_${userId}`, []);
-    if (follows.length === 0) return [];
+    const localFollows = getLocalData<string[]>(`follows_${userId}`, []);
+    if (localFollows.length === 0) return supabaseShops;
+    
     const allShops = await this.getShops();
-    return allShops.filter(s => follows.includes(s.id));
+    const localShops = allShops.filter(s => localFollows.includes(s.id));
+    
+    const combined = [...supabaseShops];
+    const existingIds = new Set(combined.map(s => s.id));
+    for (const ls of localShops) {
+      if (!existingIds.has(ls.id)) combined.push(ls);
+    }
+    return combined;
   },
 
   async getFeedProducts(userId: string): Promise<Product[]> {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -9,7 +9,7 @@ import { DBService } from '@/lib/supabase/db-service';
 import { MessageSquareText, Send, Store, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
-export default function ChatPage() {
+function ChatContent() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const shopIdParam = searchParams.get('shop');
@@ -233,5 +233,23 @@ export default function ChatPage() {
       
       <Footer />
     </div>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex flex-col bg-[#faf9f6]">
+          <Navbar />
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <Footer />
+        </div>
+      }
+    >
+      <ChatContent />
+    </Suspense>
   );
 }
