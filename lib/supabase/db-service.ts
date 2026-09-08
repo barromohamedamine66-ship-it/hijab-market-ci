@@ -127,13 +127,13 @@ const DEFAULT_SHOPS: Shop[] = [
     free_trial_start: new Date(Date.now() - 15 * 86400000).toISOString(),
     free_trial_end: new Date(Date.now() + 75 * 86400000).toISOString(),
     subscription_status: 'trial',
-    views_count: 1480,
+    views_count: 0,
     opening_hours: 'Lun - Sam : 08h30 - 19h30',
     social_instagram: 'lesvoilesdebabi',
     commission_rate: 0,
-    rating: 4.9,
-    total_reviews: 128,
-    total_sales: 540,
+    rating: 0,
+    total_reviews: 0,
+    total_sales: 0,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -156,13 +156,13 @@ const DEFAULT_SHOPS: Shop[] = [
     free_trial_start: new Date(Date.now() - 10 * 86400000).toISOString(),
     free_trial_end: new Date(Date.now() + 80 * 86400000).toISOString(),
     subscription_status: 'trial',
-    views_count: 1120,
+    views_count: 0,
     opening_hours: 'Lun - Dim : 09h00 - 20h00',
     social_instagram: 'modestyle_ci',
     commission_rate: 0,
-    rating: 4.8,
-    total_reviews: 94,
-    total_sales: 380,
+    rating: 0,
+    total_reviews: 0,
+    total_sales: 0,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -185,13 +185,13 @@ const DEFAULT_SHOPS: Shop[] = [
     free_trial_start: new Date(Date.now() - 5 * 86400000).toISOString(),
     free_trial_end: new Date(Date.now() + 85 * 86400000).toISOString(),
     subscription_status: 'trial',
-    views_count: 890,
+    views_count: 0,
     opening_hours: 'Lun - Sam : 08h00 - 18h30',
     social_instagram: 'khadija_couture_ci',
     commission_rate: 0,
-    rating: 5.0,
-    total_reviews: 62,
-    total_sales: 215,
+    rating: 0,
+    total_reviews: 0,
+    total_sales: 0,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   }
@@ -214,8 +214,8 @@ const DEFAULT_PRODUCTS: Product[] = [
     material: 'Soie de Médine',
     colors: ['Vert Émeraude', 'Noir', 'Beige', 'Bleu Nuit'],
     sizes: ['Standard 190x75cm'],
-    rating: 4.9,
-    reviews_count: 42,
+    rating: 0,
+    reviews_count: 0,
     admin_notes: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -239,8 +239,8 @@ const DEFAULT_PRODUCTS: Product[] = [
     material: 'Nida Royal Dubaï',
     colors: ['Noir & Or', 'Vert Sapin & Or', 'Bleu Roi & Or'],
     sizes: ['54 (S/M)', '56 (L)', '58 (XL)'],
-    rating: 4.9,
-    reviews_count: 28,
+    rating: 0,
+    reviews_count: 0,
     admin_notes: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -264,8 +264,8 @@ const DEFAULT_PRODUCTS: Product[] = [
     material: 'Bazin Riche Getzner 100% Coton',
     colors: ['Bleu Ciel & Or', 'Jaune Impérial', 'Blanc Pur'],
     sizes: ['Taille Unique (Ample)'],
-    rating: 5.0,
-    reviews_count: 19,
+    rating: 0,
+    reviews_count: 0,
     admin_notes: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -289,8 +289,8 @@ const DEFAULT_PRODUCTS: Product[] = [
     material: 'Bazin Supérieur Brillant',
     colors: ['Blanc Pur Brodé Ton sur Ton', 'Beige Doré'],
     sizes: ['M', 'L', 'XL', 'XXL'],
-    rating: 4.9,
-    reviews_count: 14,
+    rating: 0,
+    reviews_count: 0,
     admin_notes: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -314,8 +314,8 @@ const DEFAULT_PRODUCTS: Product[] = [
     material: 'Crêpe Premium Léger',
     colors: ['Kaki', 'Chocolat', 'Beige Sable'],
     sizes: ['S', 'M', 'L', 'XL'],
-    rating: 4.8,
-    reviews_count: 11,
+    rating: 0,
+    reviews_count: 0,
     admin_notes: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -339,8 +339,8 @@ const DEFAULT_PRODUCTS: Product[] = [
     material: 'Aimant néodyme & Coton stretch',
     colors: ['Pack Nude & Métallisé'],
     sizes: ['Standard'],
-    rating: 5.0,
-    reviews_count: 53,
+    rating: 0,
+    reviews_count: 0,
     admin_notes: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -352,12 +352,11 @@ const DEFAULT_PRODUCTS: Product[] = [
 
 const DEFAULT_ORDERS: Order[] = [];
 
-
 // Helper pour stockage persistant local (client-side)
 const STORAGE_KEYS = {
-  SHOPS: 'hm_shops',
-  PRODUCTS: 'hm_products',
-  ORDERS: 'hm_orders',
+  SHOPS: 'hm_shops_v5',
+  PRODUCTS: 'hm_products_v5',
+  ORDERS: 'hm_orders_v5',
   CATEGORIES: 'hm_categories',
   PLANS: 'hm_subscription_plans',
   FAVORITES: 'hm_favorites',
@@ -1621,13 +1620,42 @@ export const DBService = {
     return this.updateShop(shopId, { free_trial_end: trialEndIso });
   },
 
-  async incrementShopViews(shopId: string): Promise<void> {
-    const shops = getLocalData<Shop[]>(STORAGE_KEYS.SHOPS, DEFAULT_SHOPS);
-    const shop = shops.find(s => s.id === shopId);
-    if (shop) {
-      const newCount = (shop.views_count || 0) + 1;
-      this.updateShop(shopId, { views_count: newCount });
+  async incrementShopViews(shopId: string): Promise<number> {
+    let newCount = 0;
+    if (isSupabaseConfigured()) {
+      try {
+        const { data: shop } = await supabase
+          .from('shops')
+          .select('views_count')
+          .eq('id', shopId)
+          .maybeSingle();
+
+        if (shop !== null && shop !== undefined) {
+          newCount = ((shop as any).views_count || 0) + 1;
+          await supabase
+            .from('shops')
+            .update({ views_count: newCount })
+            .eq('id', shopId);
+        }
+      } catch (err) {
+        console.warn('Erreur incrementShopViews Supabase:', err);
+      }
     }
+
+    const shops = getLocalData<Shop[]>(STORAGE_KEYS.SHOPS, DEFAULT_SHOPS);
+    const shopIndex = shops.findIndex(s => s.id === shopId);
+    if (shopIndex !== -1) {
+      if (!newCount) {
+        newCount = (shops[shopIndex].views_count || 0) + 1;
+      }
+      shops[shopIndex] = {
+        ...shops[shopIndex],
+        views_count: newCount,
+      };
+      setLocalData(STORAGE_KEYS.SHOPS, shops);
+    }
+
+    return newCount;
   },
 
   // ==========================================
@@ -2181,6 +2209,23 @@ export const DBService = {
     return getLocalData<any[]>(`reviews_${productId}`, []);
   },
 
+  async getRecentReviews(limit: number = 6): Promise<any[]> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase
+          .from('product_reviews')
+          .select('id, rating, comment, created_at, user:profiles(id, full_name, avatar_url), product:products(id, name, slug)')
+          .not('comment', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(limit);
+        if (!error && data && data.length > 0) return data;
+      } catch (err) {
+        console.warn('Erreur getRecentReviews Supabase:', err);
+      }
+    }
+    return [];
+  },
+
   async addReview(productId: string, userId: string, rating: number, comment?: string): Promise<boolean> {
     const review = {
       id: Math.random().toString(36).substr(2, 9),
@@ -2190,6 +2235,7 @@ export const DBService = {
       comment,
       created_at: new Date().toISOString()
     };
+
     if (isSupabaseConfigured()) {
       try {
         const { error } = await supabase.from('product_reviews').insert({
@@ -2198,11 +2244,81 @@ export const DBService = {
           rating,
           comment
         });
-        if (!error) return true;
-      } catch {}
+        if (!error) {
+          // Recalculer la note moyenne et le nombre d'avis réels du produit dans Supabase
+          const { data: allReviews } = await supabase
+            .from('product_reviews')
+            .select('rating')
+            .eq('product_id', productId);
+
+          if (allReviews && allReviews.length > 0) {
+            const count = allReviews.length;
+            const avg = Number((allReviews.reduce((sum, r) => sum + (r.rating || 0), 0) / count).toFixed(2));
+            await supabase
+              .from('products')
+              .update({ rating: avg, reviews_count: count })
+              .eq('id', productId);
+
+            // Mettre à jour aussi la note et le nombre d'avis de la boutique
+            const { data: prod } = await supabase
+              .from('products')
+              .select('store_id')
+              .eq('id', productId)
+              .maybeSingle();
+
+            if (prod?.store_id) {
+              const { data: storeProds } = await supabase
+                .from('products')
+                .select('rating, reviews_count')
+                .eq('store_id', prod.store_id);
+
+              if (storeProds && storeProds.length > 0) {
+                const totalRevs = storeProds.reduce((sum, p) => sum + (p.reviews_count || 0), 0);
+                const prodsWithRatings = storeProds.filter(p => (p.reviews_count || 0) > 0);
+                const storeAvg = prodsWithRatings.length > 0
+                  ? Number((prodsWithRatings.reduce((sum, p) => sum + (p.rating || 0), 0) / prodsWithRatings.length).toFixed(2))
+                  : 5.0;
+                await supabase
+                  .from('shops')
+                  .update({ rating: storeAvg, total_reviews: totalRevs })
+                  .eq('id', prod.store_id);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Erreur addReview Supabase:', err);
+      }
     }
+
+    // Mise à jour locale
     const reviews = getLocalData<any[]>(`reviews_${productId}`, []);
-    setLocalData(`reviews_${productId}`, [review, ...reviews]);
+    const updatedReviews = [review, ...reviews];
+    setLocalData(`reviews_${productId}`, updatedReviews);
+
+    // Mettre à jour les produits locaux
+    const products = getLocalData<Product[]>(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
+    const pIndex = products.findIndex(p => p.id === productId);
+    if (pIndex !== -1) {
+      const count = updatedReviews.length;
+      const avg = Number((updatedReviews.reduce((sum, r) => sum + (r.rating || 0), 0) / count).toFixed(2));
+      products[pIndex].rating = avg;
+      products[pIndex].reviews_count = count;
+      setLocalData(STORAGE_KEYS.PRODUCTS, products);
+
+      // Mettre à jour la boutique locale
+      const storeId = products[pIndex].store_id;
+      const shops = getLocalData<Shop[]>(STORAGE_KEYS.SHOPS, DEFAULT_SHOPS);
+      const sIndex = shops.findIndex(s => s.id === storeId);
+      if (sIndex !== -1) {
+        const storeProds = products.filter(p => p.store_id === storeId);
+        const totalRevs = storeProds.reduce((sum, p) => sum + (p.reviews_count || 0), 0);
+        shops[sIndex].total_reviews = totalRevs;
+        shops[sIndex].rating = avg;
+        setLocalData(STORAGE_KEYS.SHOPS, shops);
+      }
+    }
+
     return true;
   },
 

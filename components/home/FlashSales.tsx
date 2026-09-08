@@ -80,8 +80,6 @@ export default function FlashSales() {
             const coverImage = product.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1589465885857-44edb59bbff2?auto=format&fit=crop&q=80&w=400&h=400';
             const oldPrice = product.old_price || (product.price * 1.5); // Fallback promotionnel
             const discount = Math.round(((oldPrice - product.price) / oldPrice) * 100);
-            const fakeSoldPercentage = 75 + Math.floor(Math.random() * 20); // Génère un taux aléatoire pour l'urgence
-
             return (
               <div key={product.id} className="bg-white rounded-3xl p-3 sm:p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
                 <div className="relative aspect-[4/5] rounded-2xl overflow-hidden mb-4 bg-gray-50">
@@ -108,15 +106,15 @@ export default function FlashSales() {
                     {product.name}
                   </h3>
                   
-                  {product.rating > 0 && (
+                  {product.reviews_count && product.reviews_count > 0 ? (
                     <div className="flex items-center gap-1 mb-2">
                       <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                      <span className="text-xs font-bold text-gray-700">{product.rating.toFixed(1)}</span>
-                      <span className="text-[10px] text-gray-400">({product.reviews_count})</span>
+                      <span className="text-xs font-bold text-gray-700">{(product.rating || 5).toFixed(1)}</span>
+                      <span className="text-[10px] text-gray-400">({product.reviews_count} avis)</span>
                     </div>
-                  )}
+                  ) : null}
 
-                  <div className="flex items-baseline gap-2 mb-4">
+                  <div className="flex items-baseline gap-2 mb-3">
                     <span className="text-xl sm:text-2xl font-extrabold text-rose-600">
                       {product.price.toLocaleString('fr-FR')} F
                     </span>
@@ -125,20 +123,10 @@ export default function FlashSales() {
                     </span>
                   </div>
 
-                  {/* Progress Bar Stocks */}
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-[10px] sm:text-xs font-bold">
-                      <span className="text-rose-600">Déjà vendu à {fakeSoldPercentage}%</span>
-                      <span className="text-gray-400">Restant : {100 - fakeSoldPercentage}%</span>
-                    </div>
-                    <div className="h-2 sm:h-2.5 w-full bg-rose-100 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-rose-400 to-rose-600 rounded-full relative"
-                        style={{ width: `${fakeSoldPercentage}%` }}
-                      >
-                        <div className="absolute top-0 right-0 bottom-0 left-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgMjBMMjAgMEwyMCAyMEgwWiIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjIpIi8+PC9zdmc+')] opacity-50" />
-                      </div>
-                    </div>
+                  {/* Stock réel */}
+                  <div className="flex items-center justify-between text-[11px] font-bold py-1.5 px-3 bg-rose-50 text-rose-700 rounded-xl border border-rose-100">
+                    <span>⚡ Stock</span>
+                    <span>{product.stock > 0 ? `${product.stock} pièces en stock` : 'Épuisé'}</span>
                   </div>
                 </div>
               </div>

@@ -1,36 +1,28 @@
-import { Star, Quote } from 'lucide-react';
+'use client';
 
-const testimonials = [
-  {
-    id: 1,
-    name: 'Aminata K.',
-    role: 'Cliente',
-    emoji: '👩🏿',
-    text: 'J\'ai trouvé le hijab parfait pour mon mariage en 5 minutes. La qualité est exceptionnelle et la livraison était rapide !',
-    rating: 5,
-    date: 'il y a 2 jours',
-  },
-  {
-    id: 2,
-    name: 'Fatoumata D.',
-    role: 'Vendeuse — Boutique Fatou',
-    emoji: '👩🏿‍💼',
-    text: 'Depuis que j\'ai ouvert ma boutique sur HIJAB MARKET CI, mes ventes ont triplé. La plateforme est très simple à utiliser.',
-    rating: 5,
-    date: 'il y a 1 semaine',
-  },
-  {
-    id: 3,
-    name: 'Mariame T.',
-    role: 'Cliente fidèle',
-    emoji: '🧕🏿',
-    text: 'Enfin une plateforme dédiée aux hijabs en Côte d\'Ivoire ! Les boutiques sont sérieuses et les produits correspondent aux photos.',
-    rating: 5,
-    date: 'il y a 3 jours',
-  },
-];
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { Star, Quote, MessageSquare } from 'lucide-react';
+import { DBService } from '@/lib/supabase/db-service';
 
 export default function Testimonials() {
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    DBService.getRecentReviews(3)
+      .then((data) => {
+        setReviews(data || []);
+      })
+      .catch(() => setReviews([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Ne rien afficher si aucun avis client réel n'a encore été posté
+  if (loading || reviews.length === 0) {
+    return null;
+  }
+
   return (
     <section className="py-20 bg-african-pattern relative border-b border-gray-100">
       <div className="container">
@@ -39,44 +31,72 @@ export default function Testimonials() {
             💬 Avis Vérifiés
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-950 font-heading">
-            Ce qu'elles disent de nous
+            Ce qu'elles disent de nos articles
           </h2>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            La confiance de milliers de clientes et créatrices en Côte d'Ivoire
+            Les derniers retours d'expérience authentiques laissés par nos clientes
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((t) => (
-            <div
-              key={t.id}
-              className="bg-white/95 backdrop-blur-sm rounded-3xl border border-amber-100/70 p-6 relative shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between"
-            >
-              <div>
-                <Quote className="w-8 h-8 text-amber-200/60 absolute top-5 right-5" />
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-emerald-100 rounded-full flex items-center justify-center text-2xl shadow-inner">
-                    {t.emoji}
+          {reviews.map((rev) => {
+            const authorName = rev.user?.full_name || 'Cliente vérifiée';
+            const initial = authorName[0]?.toUpperCase() || 'C';
+            const dateStr = rev.created_at
+              ? new Date(rev.created_at).toLocaleDateString('fr-FR', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                })
+              : 'Récemment';
+
+            return (
+              <div
+                key={rev.id}
+                className="bg-white/95 backdrop-blur-sm rounded-3xl border border-amber-100/70 p-6 relative shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between"
+              >
+                <div>
+                  <Quote className="w-8 h-8 text-amber-200/60 absolute top-5 right-5" />
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-emerald-100 rounded-full flex items-center justify-center text-lg font-bold text-emerald-800 shadow-inner overflow-hidden">
+                      {rev.user?.avatar_url ? (
+                        <img
+                          src={rev.user.avatar_url}
+                          alt={authorName}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        initial
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-950 text-sm">{authorName}</p>
+                      {rev.product?.name && (
+                        <Link
+                          href={`/products/${rev.product.slug}`}
+                          className="text-xs text-emerald-700 font-semibold hover:underline block truncate max-w-[200px]"
+                        >
+                          Sur : {rev.product.name}
+                        </Link>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-gray-950 text-sm">{t.name}</p>
-                    <p className="text-xs text-emerald-700 font-semibold">{t.role}</p>
+                  <p className="text-gray-700 text-xs sm:text-sm leading-relaxed mb-4 italic">
+                    « {rev.comment} »
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between pt-3 border-t border-gray-100/80">
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: rev.rating || 5 }).map((_, i) => (
+                      <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    ))}
                   </div>
+                  <span className="text-[11px] text-gray-400 font-medium">{dateStr}</span>
                 </div>
-                <p className="text-gray-700 text-xs sm:text-sm leading-relaxed mb-4 italic">
-                  « {t.text} »
-                </p>
               </div>
-              <div className="flex items-center justify-between pt-3 border-t border-gray-100/80">
-                <div className="flex gap-0.5">
-                  {Array.from({ length: t.rating }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
-                  ))}
-                </div>
-                <span className="text-[11px] text-gray-400 font-medium">{t.date}</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

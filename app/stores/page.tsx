@@ -130,8 +130,8 @@ export default function StoresPage() {
                     <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100 text-xs">
                       <div className="flex items-center gap-1 text-amber-500 font-bold">
                         <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                        <span>{store.rating || 4.9}</span>
-                        <span className="text-[10px] text-gray-400 font-normal">({store.total_reviews || 120} avis)</span>
+                        <span>{store.total_reviews && store.total_reviews > 0 ? (store.rating || 5).toFixed(1) : '—'}</span>
+                        <span className="text-[10px] text-gray-400 font-normal">({store.total_reviews || 0} avis)</span>
                       </div>
 
                       <div className="flex items-center gap-1 text-emerald-600 font-bold group-hover:translate-x-1 transition">

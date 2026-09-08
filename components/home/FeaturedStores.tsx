@@ -91,8 +91,10 @@ export default function FeaturedStores() {
                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 text-xs">
                   <div className="flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                    <span className="font-bold text-gray-700">{store.rating || 4.9}</span>
-                    <span className="text-[10px] text-gray-400">({store.total_reviews || 95})</span>
+                    <span className="font-bold text-gray-700">
+                      {store.total_reviews && store.total_reviews > 0 ? (store.rating || 5).toFixed(1) : '—'}
+                    </span>
+                    <span className="text-[10px] text-gray-400">({store.total_reviews || 0} avis)</span>
                   </div>
                   <span className="text-[11px] text-emerald-600 font-bold group-hover:translate-x-0.5 transition">
                     Voir la vitrine →

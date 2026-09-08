@@ -45,12 +45,21 @@ export default function StoreDetailPage({ params }: { params: { slug: string } }
       DBService.getShopBySlug(params.slug),
       DBService.getCategories()
     ]).then(async ([foundShop, cats]) => {
-      setShop(foundShop);
       setCategories(cats);
 
       if (foundShop) {
+        setShop(foundShop);
+        // Incrémenter les vues réelles de la boutique
+        DBService.incrementShopViews(foundShop.id).then((newViews) => {
+          if (newViews) {
+            setShop((prev) => (prev ? { ...prev, views_count: newViews } : prev));
+          }
+        });
+
         const storeProducts = await DBService.getProducts({ storeId: foundShop.id });
         setProducts(storeProducts);
+      } else {
+        setShop(null);
       }
       setLoading(false);
     });
@@ -172,11 +181,13 @@ export default function StoreDetailPage({ params }: { params: { slug: string } }
 
                     <span className="flex items-center gap-1 text-amber-400 font-bold">
                       <Star className="w-3.5 h-3.5 fill-amber-400" />
-                      {shop.rating || 4.9} ({shop.total_reviews || 120} avis)
+                      {shop.total_reviews && shop.total_reviews > 0
+                        ? `${(shop.rating || 5).toFixed(1)} (${shop.total_reviews} avis)`
+                        : 'Nouveau (0 avis)'}
                     </span>
 
                     <span className="text-gray-400">
-                      • {shop.views_count || 1200} vues
+                      • {shop.views_count || 0} {(shop.views_count || 0) <= 1 ? 'vue' : 'vues'}
                     </span>
                   </div>
 
