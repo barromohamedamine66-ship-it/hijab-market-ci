@@ -526,6 +526,44 @@ export const DBService = {
 
         const { data, error } = await query;
         if (!error && data && data.length > 0) {
+          // Vérifier si des catégories par défaut manquent en base Supabase
+          const existingSlugs = new Set((data as Category[]).map(c => c.slug));
+          const missingCategories = DEFAULT_CATEGORIES.filter(c => !existingSlugs.has(c.slug));
+
+          if (missingCategories.length > 0) {
+            // Synchronisation automatique en arrière-plan vers Supabase
+            supabase
+              .from('categories')
+              .upsert(
+                missingCategories.map(c => ({
+                  id: c.id,
+                  name: c.name,
+                  slug: c.slug,
+                  emoji: c.emoji,
+                  icon: c.icon,
+                  description: c.description,
+                  image_url: c.image_url,
+                  order_index: c.order_index,
+                  is_active: c.is_active,
+                })),
+                { onConflict: 'slug' }
+              )
+              .then(({ error: upsertErr }) => {
+                if (upsertErr) {
+                  console.warn('Auto-sync categories to Supabase note:', upsertErr.message);
+                } else {
+                  console.log('✅ Nouvelles catégories synchronisées avec succès dans Supabase !');
+                }
+              });
+
+            // Combiner les catégories de la base avec les nouvelles pour un affichage immédiat
+            const combined = [...(data as Category[]), ...missingCategories].sort(
+              (a, b) => (a.order_index || 0) - (b.order_index || 0)
+            );
+            setCached(cacheKey, combined, 300000);
+            return combined;
+          }
+
           setCached(cacheKey, data as Category[], 300000); // 5 minutes
           return data as Category[];
         }
