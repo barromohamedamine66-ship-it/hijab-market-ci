@@ -39,7 +39,7 @@ export default function Hero() {
             {/* Tag */}
             <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold">
               <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-              ✨ Le 1<sup>er</sup> Portail de Mode Modeste & Traditionnelle en Côte d'Ivoire
+              ✨ Le 1<sup>er</sup> Portail de Mode Modeste, Parfumerie & Lifestyle en Côte d'Ivoire
             </div>
 
             {/* Title */}
@@ -48,17 +48,17 @@ export default function Hero() {
                 HIJAB MARKET <span className="text-emerald-600">CI</span>
               </h1>
               <p className="text-lg sm:text-xl font-bold text-gray-800 mt-1">
-                La Marketplace de Référence du Modest Wear Ivoirien
+                La Marketplace de Référence du Modest Wear & Lifestyle Ivoirien
               </p>
             </div>
 
             {/* Slogan */}
             <p className="text-base md:text-xl text-gray-600 font-medium italic border-l-4 border-emerald-500 pl-4">
-              « Hijabs, Abayas, Boubous & Tenues Traditionnelles,<br />toutes les boutiques réunies en un seul endroit. »
+              « Hijabs, Abayas, Parfumerie, Lunettes & Spiritualité,<br />les meilleures créatrices de Côte d'Ivoire réunies. »
             </p>
 
             <p className="text-xs sm:text-sm text-gray-500 leading-relaxed max-w-lg">
-              Soie de Médine, mousseline, abayas Dubaï, boubous en Bazin riche Getzner brodé, ensembles mastour et accessoires. Commandez directement auprès des créatrices sur WhatsApp, sans intermédiaire !
+              Soie de Médine, abayas Dubaï, montures chic, muscs précieux, tapis de prière à mémoire de forme et boubous Bazin. Commandez directement en boutique ou sur WhatsApp avec livraison rapide partout en Côte d'Ivoire !
             </p>
 
             {/* CTAs */}

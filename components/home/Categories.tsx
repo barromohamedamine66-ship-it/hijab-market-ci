@@ -25,13 +25,13 @@ export default function Categories() {
           <div>
             <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold mb-2">
               <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              Rayons Officiels de Mode Modeste & Traditionnelle
+              Rayons Officiels & Univers Islamiques
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-950 font-heading">
               Explorez par Catégorie
             </h2>
             <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              Hijabs, abayas, boubous en Bazin, tenues de prière, prêt-à-porter mastour et accessoires
+              Hijabs, abayas, parfumerie & muscs, lunettes chic, tapis de prière, soins Sunnah et coffrets
             </p>
           </div>
           <Link

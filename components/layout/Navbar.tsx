@@ -53,7 +53,7 @@ export default function Navbar() {
                   HIJAB MARKET <span className="text-emerald-500">CI</span>
                 </span>
                 <span className="text-[10px] text-gray-500 font-medium tracking-wider uppercase hidden sm:block">
-                  Mode Modeste & Traditionnelle
+                  Mode Modeste, Parfumerie & Lifestyle
                 </span>
               </div>
             </Link>

@@ -11,9 +11,11 @@ import type { Category } from '@/lib/supabase/types';
 // Images d'exemple élégantes et ultra-qualitatives pour démonstration si pas de fichier local
 const PRESET_IMAGES = [
   { label: 'Soie Émeraude', url: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&auto=format&fit=crop&q=80' },
-  { label: 'Mousseline Rose', url: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800&auto=format&fit=crop&q=80' },
-  { label: 'Jersey Noir', url: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&auto=format&fit=crop&q=80' },
-  { label: 'Abaya Dubaï Broderie', url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80' },
+  { label: 'Abaya Dubaï', url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80' },
+  { label: 'Monture Lunettes', url: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&auto=format&fit=crop&q=80' },
+  { label: 'Parfum & Musc', url: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=800&auto=format&fit=crop&q=80' },
+  { label: 'Tapis & Spiritualité', url: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?w=800&auto=format&fit=crop&q=80' },
+  { label: 'Coffret Cadeau', url: 'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=800&auto=format&fit=crop&q=80' },
 ];
 
 export default function NewProductPage() {
