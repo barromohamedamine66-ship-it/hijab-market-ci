@@ -56,7 +56,7 @@ export default async function AdminOrdersPage() {
                       })}
                     </td>
                     <td className="py-4 px-6 text-slate-200 font-medium">
-                      {o.customer_name || o.delivery_address?.full_name || 'Cliente'}
+                      {o.customer_name || o.customer?.full_name || o.delivery_address?.full_name || 'Cliente'}
                     </td>
                     <td className="py-4 px-6 text-slate-400">
                       {o.delivery_address?.commune || o.delivery_address?.city || 'Côte d\'Ivoire'}
@@ -66,7 +66,7 @@ export default async function AdminOrdersPage() {
                     </td>
                     <td className="py-4 px-6">
                       <span className="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-bold text-slate-300">
-                        {o.payment_method.toUpperCase()}
+                        {(o.payment_method || 'WAVE').toUpperCase()}
                       </span>
                     </td>
                     <td className="py-4 px-6">

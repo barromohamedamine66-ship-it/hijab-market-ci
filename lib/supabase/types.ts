@@ -299,6 +299,8 @@ export interface Order {
   status: OrderStatus;
   payment_status: PaymentStatus;
   payment_method?: PaymentMethod | string;
+  customer_name?: string;
+  customer_phone?: string;
   subtotal: number;
   delivery_fee: number;
   total_amount: number;
