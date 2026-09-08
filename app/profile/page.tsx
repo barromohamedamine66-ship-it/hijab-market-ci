@@ -137,9 +137,42 @@ export default function ProfilePage() {
       <Navbar />
       
       <main className="container py-10 flex-1 max-w-4xl">
-        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-emerald-600 font-semibold mb-6">
-          <ArrowLeft className="w-4 h-4" /> Retour au tableau de bord
-        </Link>
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-emerald-600 font-semibold">
+            <ArrowLeft className="w-4 h-4" /> Retour au tableau de bord
+          </Link>
+          {role === 'seller' && (
+            <Link
+              href="/seller/shop"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl border border-emerald-200 transition"
+            >
+              <Store className="w-3.5 h-3.5" /> Gérer Photo & Nom Boutique →
+            </Link>
+          )}
+        </div>
+
+        {/* Bannière d'accès direct pour les vendeuses */}
+        {role === 'seller' && (
+          <div className="mb-6 bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-4 sm:p-5 text-white shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl flex-shrink-0">
+                🏪
+              </div>
+              <div>
+                <h2 className="text-sm sm:text-base font-black">Espace Vendeuse : Photo & Nom de Boutique</h2>
+                <p className="text-xs text-emerald-100">
+                  Vous souhaitez changer le logo, le nom, la description ou le WhatsApp de votre boutique ?
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/seller/shop"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white text-emerald-800 font-extrabold text-xs shadow-sm hover:bg-emerald-50 transition whitespace-nowrap flex-shrink-0"
+            >
+              ⚙️ Modifier ma Boutique
+            </Link>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex items-center overflow-x-auto hide-scrollbar gap-2 mb-6 pb-2">

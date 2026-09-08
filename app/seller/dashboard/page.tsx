@@ -18,6 +18,7 @@ import {
   Calendar,
   Award,
   LogOut,
+  Settings,
 } from 'lucide-react';
 
 export default function SellerDashboardPage() {
@@ -93,17 +94,18 @@ export default function SellerDashboardPage() {
 
         <div className="flex flex-wrap gap-2.5 w-full md:w-auto">
           <Link
+            href="/seller/shop"
+            className="flex-1 md:flex-initial justify-center px-5 py-3 rounded-full bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5"
+          >
+            <Settings className="w-4 h-4" /> Modifier Photo & Nom
+          </Link>
+
+          <Link
             href="/seller/products/new"
             className="flex-1 md:flex-initial justify-center px-5 py-3 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4" /> Ajouter un article
           </Link>
-          <button
-            onClick={signOut}
-            className="flex-1 md:flex-initial justify-center px-5 py-3 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 font-bold text-xs shadow-md transition flex items-center gap-1.5"
-          >
-            <LogOut className="w-4 h-4" /> Déconnexion
-          </button>
 
           <Link
             href={`/boutique/${shopSlug}`}
@@ -113,6 +115,13 @@ export default function SellerDashboardPage() {
             <Store className="w-4 h-4 text-emerald-400" /> Voir ma vitrine
             <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
           </Link>
+
+          <button
+            onClick={signOut}
+            className="flex-1 md:flex-initial justify-center px-4 py-3 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 font-bold text-xs shadow-md transition flex items-center gap-1.5"
+          >
+            <LogOut className="w-4 h-4" /> Déconnexion
+          </button>
         </div>
       </div>
 
@@ -140,6 +149,37 @@ export default function SellerDashboardPage() {
           className="px-4 py-2 bg-white hover:bg-amber-50 text-amber-900 border border-amber-300 text-xs font-bold rounded-full transition shadow-xs whitespace-nowrap"
         >
           Voir les Formules 2026
+        </Link>
+      </div>
+
+      {/* Edit Shop Identity Card */}
+      <div className="bg-white p-5 sm:p-6 rounded-3xl border border-amber-200/70 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-amber-50/40 via-white to-emerald-50/30">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-gray-950 overflow-hidden border-2 border-emerald-500/40 flex-shrink-0 flex items-center justify-center shadow-md">
+            {shop?.logo_url ? (
+              <img src={shop.logo_url} alt={shopName} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-2xl">🏪</span>
+            )}
+          </div>
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md inline-block mb-1">
+              Identité Boutique
+            </span>
+            <h3 className="text-base font-bold text-gray-900">
+              {shopName}
+            </h3>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Changez votre photo de profil / logo, le nom de votre boutique et vos numéros WhatsApp.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href="/seller/shop"
+          className="px-5 py-2.5 rounded-full bg-gray-900 hover:bg-emerald-600 text-white font-bold text-xs shadow transition flex items-center gap-2 flex-shrink-0"
+        >
+          <Settings className="w-4 h-4" /> Modifier Photo & Nom
         </Link>
       </div>
 

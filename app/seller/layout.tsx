@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
   { href: '/seller/dashboard', icon: LayoutDashboard, label: 'Tableau de bord' },
-  { href: '/seller/shop', icon: Store, label: 'Ma Boutique' },
+  { href: '/seller/shop', icon: Store, label: 'Profil & Logo Boutique' },
   { href: '/seller/products', icon: Package, label: 'Mes Produits' },
   { href: '/seller/stories', icon: PlayCircle, label: 'Mes Stories' },
   { href: '/seller/orders', icon: ShoppingCart, label: 'Commandes WhatsApp' },
@@ -201,6 +201,9 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
             </div>
           </div>
           <div className="flex flex-col gap-1">
+            <Link href="/seller/shop" className="flex items-center gap-2 w-full px-3 py-1.5 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition">
+              ⚙️ Modifier photo & nom
+            </Link>
             <Link href="/" className="flex items-center gap-2 w-full px-3 py-1.5 rounded-xl text-xs font-medium text-gray-500 hover:text-emerald-600 transition">
               🏬 Voir la boutique
             </Link>
@@ -219,8 +222,8 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
       <div className="flex-1 md:ml-64 flex flex-col min-h-screen w-full max-w-full overflow-x-hidden">
         {/* Top bar */}
         <header className="bg-white border-b border-gray-100 px-3.5 py-3 sm:px-6 sm:py-4 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-          <div className="md:hidden flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gray-950 overflow-hidden border border-emerald-500/40 flex-shrink-0 shadow-xs">
+          <Link href="/seller/shop" className="md:hidden flex items-center gap-2 group" title="Modifier le profil boutique">
+            <div className="w-8 h-8 rounded-xl bg-gray-950 overflow-hidden border border-emerald-500/40 flex-shrink-0 shadow-xs group-hover:border-emerald-500 transition">
               {shop?.logo_url ? (
                 <img src={shop.logo_url} alt={shopDisplayName} className="w-full h-full object-cover" />
               ) : (
@@ -229,9 +232,9 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
             </div>
             <div className="truncate max-w-[150px]">
               <span className="text-xs font-extrabold text-gray-900 block truncate">{shopDisplayName}</span>
-              <span className="text-[9px] text-emerald-600 font-bold uppercase tracking-wider block">Vendeuse CI</span>
+              <span className="text-[9px] text-emerald-600 font-bold uppercase tracking-wider block">Modifier profil ⚙️</span>
             </div>
-          </div>
+          </Link>
 
           <div className="hidden md:block">
             <span className="text-xs text-gray-500 font-semibold">
