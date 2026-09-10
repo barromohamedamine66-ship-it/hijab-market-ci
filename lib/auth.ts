@@ -1,7 +1,13 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { prisma } from './prisma';
+import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
+
+// Supabase admin client (côté serveur uniquement)
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,15 +22,18 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Email et mot de passe requis');
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
-        });
+        // Récupérer l'utilisateur depuis Supabase
+        const { data: user, error } = await supabaseAdmin
+          .from('users')
+          .select('id, email, password, first_name, last_name, role, is_active')
+          .eq('email', credentials.email)
+          .single();
 
-        if (!user) {
+        if (error || !user) {
           throw new Error('Aucun utilisateur trouvé avec cet email');
         }
 
-        if (!user.isActive) {
+        if (!user.is_active) {
           throw new Error('Ce compte a été désactivé');
         }
 
@@ -37,7 +46,7 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user.id,
           email: user.email,
-          name: user.firstName ? `${user.firstName} ${user.lastName}` : null,
+          name: user.first_name ? `${user.first_name} ${user.last_name}` : null,
           role: user.role
         };
       }
@@ -67,4 +76,3 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET || 'hijab-market-ci-jwt-secret-production-2024-secure',
 };
-
