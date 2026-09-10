@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 // Ce webhook serait appelé par le prestataire de paiement (ex: CinetPay, Paystack)
 // après qu'un client ait validé ou échoué son paiement via Wave, Orange Money ou MTN.
@@ -11,77 +16,72 @@ export async function POST(req: Request) {
     // const signature = req.headers.get('x-provider-signature');
     // if (!verifySignature(body, signature, process.env.PAYMENT_PROVIDER_SECRET)) return 401;
 
-    // Structure fictive basée sur un prestataire type
     const { transaction_id, order_id, status, amount, currency } = body;
 
     // 2. Trouver le paiement correspondant
-    const payment = await prisma.payment.findUnique({
-      where: { internalRef: order_id } // On suppose que order_id envoyé au prestataire est notre internalRef
-    });
+    const { data: payment } = await supabaseAdmin
+      .from('payments')
+      .select('id, status, order_id')
+      .eq('internal_ref', order_id)
+      .single();
 
     if (!payment) {
       return NextResponse.json({ message: 'Paiement introuvable' }, { status: 404 });
     }
 
-    // 3. Idempotence : si le paiement est déjà success/failed, on ne fait rien
+    // 3. Idempotence
     if (payment.status === 'SUCCESS' || payment.status === 'FAILED') {
       return NextResponse.json({ message: 'Déjà traité' }, { status: 200 });
     }
 
-    // 4. Enregistrer l'événement de webhook (Audit log)
-    await prisma.paymentEvent.create({
-      data: {
-        paymentId: payment.id,
+    // 4. Enregistrer l'événement webhook
+    await supabaseAdmin
+      .from('payment_events')
+      .insert({
+        payment_id: payment.id,
         status: status,
         payload: JSON.stringify(body)
-      }
-    });
-
-    // 5. Mettre à jour le paiement et la commande selon le statut
-    if (status === 'ACCEPTED' || status === 'SUCCESS') {
-      
-      // Utilisation d'une transaction Prisma pour garantir l'intégrité
-      await prisma.$transaction(async (tx) => {
-        
-        // MàJ Paiement
-        await tx.payment.update({
-          where: { id: payment.id },
-          data: { 
-            status: 'SUCCESS',
-            externalRef: transaction_id,
-            providerResponse: JSON.stringify(body),
-            confirmedAt: new Date()
-          }
-        });
-
-        // MàJ Commande Principale
-        await tx.order.update({
-          where: { id: payment.orderId },
-          data: { paymentStatus: 'SUCCESS' }
-        });
-
-        // MàJ Sous-commandes (Vendeurs)
-        await tx.sellerOrder.updateMany({
-          where: { orderId: payment.orderId },
-          data: { status: 'PAYEE' } // Passe du statut EN_ATTENTE_PAIEMENT à PAYEE
-        });
-
-        // Générer les codes OTP pour les livraisons à cette étape ou plus tard lors de la préparation
       });
+
+    // 5. Mettre à jour selon le statut
+    if (status === 'ACCEPTED' || status === 'SUCCESS') {
+      // MàJ Paiement
+      await supabaseAdmin
+        .from('payments')
+        .update({ 
+          status: 'SUCCESS',
+          external_ref: transaction_id,
+          provider_response: JSON.stringify(body),
+          confirmed_at: new Date().toISOString()
+        })
+        .eq('id', payment.id);
+
+      // MàJ Commande Principale
+      await supabaseAdmin
+        .from('orders')
+        .update({ payment_status: 'SUCCESS' })
+        .eq('id', payment.order_id);
+
+      // MàJ Sous-commandes
+      await supabaseAdmin
+        .from('seller_orders')
+        .update({ status: 'PAYEE' })
+        .eq('order_id', payment.order_id);
 
       // TODO: Envoyer Notification (Email/SMS) au client et aux vendeurs
       
       return NextResponse.json({ message: 'Paiement validé avec succès' }, { status: 200 });
       
     } else if (status === 'REFUSED' || status === 'FAILED') {
-      await prisma.payment.update({
-        where: { id: payment.id },
-        data: { 
+      await supabaseAdmin
+        .from('payments')
+        .update({ 
           status: 'FAILED',
-          externalRef: transaction_id,
-          providerResponse: JSON.stringify(body)
-        }
-      });
+          external_ref: transaction_id,
+          provider_response: JSON.stringify(body)
+        })
+        .eq('id', payment.id);
+
       return NextResponse.json({ message: 'Paiement échoué enregistré' }, { status: 200 });
     }
 
