@@ -90,12 +90,14 @@ export default function CheckoutPage() {
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [city, setCity] = useState('Abidjan');
-  const [commune, setCommune] = useState('Cocody');
+  const [city, setCity] = useState('Bouaké');
+  const [commune, setCommune] = useState('Bouaké Centre');
   const [neighborhood, setNeighborhood] = useState('');
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('wave');
+  // Mode de réception : 'pickup' = Retrait en boutique (défaut), 'delivery' = Livraison
+  const [deliveryMode, setDeliveryMode] = useState<'pickup' | 'delivery'>('pickup');
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -161,7 +163,8 @@ export default function CheckoutPage() {
 
   // Tarification dynamique selon la zone logistique
   const currentShippingZone = getShippingZoneAndFee(city, commune);
-  const shippingFee = items.length > 0 ? currentShippingZone.defaultFee : 0;
+  // Frais de livraison = 0 si retrait en boutique
+  const shippingFee = items.length > 0 && deliveryMode === 'delivery' ? currentShippingZone.defaultFee : 0;
   const grandTotal = total + shippingFee;
 
   const handleCopyOrangePhone = () => {
@@ -220,6 +223,8 @@ export default function CheckoutPage() {
         subtotal: total,
         delivery_fee: shippingFee,
         total_amount: grandTotal,
+        delivery_mode: deliveryMode,
+        pickup_code: `HM-${Math.floor(1000 + Math.random() * 9000)}`,
       });
 
       clearCart();
@@ -269,16 +274,18 @@ export default function CheckoutPage() {
     const returnUnlockUrl = `${originUrl}/checkout?order=${confirmedOrder.order_number}&unlock=1`;
 
     // Message pré-rempli pour WhatsApp officiel (01 52 18 28 40)
+    const isPickupOrder = confirmedOrder.delivery_mode === 'pickup' || deliveryMode === 'pickup';
+    const pickupCodeValue = confirmedOrder.pickup_code || `HM-${confirmedOrder.order_number?.replace(/\D/g, '').slice(-4) || '2026'}`;
     const waText = `Bonjour Service Client HIJAB MARKET CI,
 Je viens d'effectuer le paiement de ma commande.
 📦 N° Commande : #${confirmedOrder.order_number}
+🏪 Mode : ${isPickupOrder ? `Retrait en Boutique (Code : ${pickupCodeValue})` : 'Livraison à domicile'}
 💰 Montant exact : ${grandTotal.toLocaleString('fr-FR')} FCFA (${payTab === 'wave' ? 'Wave Marchand' : 'Orange Money Business'})
 👤 Client(e) : ${confirmedOrder.customer_name || fullName}
-📞 Téléphone : ${confirmedOrder.customer_phone || phone}
-📍 Livraison : ${commune}, ${address}
+📞 Téléphone : ${confirmedOrder.customer_phone || phone}${!isPickupOrder ? `\n📍 Livraison : ${commune}, ${address}` : ''}
 
 Voici ci-joint ma capture de paiement.
-Merci de valider mon paiement pour débloquer mon code OTP :
+Merci de valider mon paiement pour confirmer la commande :
 🔗 ${returnUnlockUrl}`;
 
     const waHref = `https://wa.me/${PLATFORM_CONFIG.whatsappSupportDigits}?text=${encodeURIComponent(waText)}`;
@@ -628,21 +635,41 @@ Merci de valider mon paiement pour débloquer mon code OTP :
             {/* Récapitulatif commande */}
             <div className="bg-gray-50 rounded-2xl p-5 text-left text-xs space-y-2 border border-gray-100">
               <div className="flex justify-between">
+                <span className="text-gray-500">Mode :</span>
+                <span className="font-bold text-emerald-700">
+                  {confirmedOrder.delivery_mode === 'pickup' || deliveryMode === 'pickup' ? '🏪 Retrait direct en boutique' : '🛵 Livraison à domicile'}
+                </span>
+              </div>
+              {(confirmedOrder.pickup_code || confirmedOrder.delivery_mode === 'pickup' || deliveryMode === 'pickup') && (
+                <div className="flex justify-between items-center py-1.5 px-3 bg-emerald-50 rounded-xl border border-emerald-200">
+                  <span className="text-emerald-800 font-bold">Code de Retrait Boutique :</span>
+                  <span className="font-mono font-extrabold text-sm text-emerald-900 bg-white px-2.5 py-0.5 rounded-lg border border-emerald-300">
+                    {confirmedOrder.pickup_code || `HM-${confirmedOrder.order_number?.replace(/\D/g, '').slice(-4) || '2026'}`}
+                  </span>
+                </div>
+              )}
+              <div className="flex justify-between">
                 <span className="text-gray-500">Destinataire :</span>
                 <span className="font-bold text-gray-900">{fullName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Téléphone de livraison :</span>
+                <span className="text-gray-500">Téléphone de contact :</span>
                 <span className="font-bold text-gray-900">{phone}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Lieu de livraison :</span>
-                <span className="font-bold text-gray-900">{commune}, {city}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Repères habituels :</span>
-                <span className="font-medium text-gray-700 text-right max-w-[240px] truncate">{address}</span>
-              </div>
+              {(deliveryMode === 'delivery' && confirmedOrder.delivery_mode !== 'pickup') && (
+                <>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Lieu de livraison :</span>
+                    <span className="font-bold text-gray-900">{commune}, {city}</span>
+                  </div>
+                  {address && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Repères :</span>
+                      <span className="font-medium text-gray-700 text-right max-w-[240px] truncate">{address}</span>
+                    </div>
+                  )}
+                </>
+              )}
               <div className="flex justify-between pt-2 border-t border-gray-200 font-bold text-sm">
                 <span>Total de la commande :</span>
                 <span className="text-emerald-600">{grandTotal.toLocaleString('fr-FR')} FCFA</span>
@@ -675,7 +702,62 @@ Merci de valider mon paiement pour débloquer mon code OTP :
 
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900">Finaliser ma commande</h1>
-          <p className="text-xs text-gray-500 mt-1">Renseignez vos coordonnées de livraison et réglez par Mobile Money en toute sécurité.</p>
+          <p className="text-xs text-gray-500 mt-1">Choisissez votre mode de réception et règlez directement auprès de la boutique.</p>
+        </div>
+
+        {/* Sélecteur de mode de réception */}
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 sm:p-6 mb-6">
+          <p className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">Mode de réception</p>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setDeliveryMode('pickup')}
+              id="checkout-pickup-mode"
+              className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition cursor-pointer ${
+                deliveryMode === 'pickup'
+                  ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
+                  : 'border-gray-200 bg-white text-gray-700 hover:border-emerald-300'
+              }`}
+            >
+              <span className="text-2xl">🏪</span>
+              <div className="text-center">
+                <p className="font-bold text-xs">Retrait en Boutique</p>
+                <p className="text-[10px] text-gray-500 mt-0.5">Gratuit • Je présente mon code</p>
+              </div>
+              {deliveryMode === 'pickup' && (
+                <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">✓ Sélectionné</span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setDeliveryMode('delivery')}
+              id="checkout-delivery-mode"
+              className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition cursor-pointer ${
+                deliveryMode === 'delivery'
+                  ? 'border-blue-500 bg-blue-50 text-blue-800'
+                  : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300'
+              }`}
+            >
+              <span className="text-2xl">🚚</span>
+              <div className="text-center">
+                <p className="font-bold text-xs">Livraison à domicile</p>
+                <p className="text-[10px] text-gray-500 mt-0.5">Frais selon zone</p>
+              </div>
+              {deliveryMode === 'delivery' && (
+                <span className="text-[9px] font-extrabold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">✓ Sélectionné</span>
+              )}
+            </button>
+          </div>
+
+          {deliveryMode === 'pickup' && (
+            <div className="mt-3 flex items-start gap-2 bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+              <span className="text-base">ℹ️</span>
+              <p className="text-[11px] text-emerald-800 leading-relaxed">
+                <strong>Retrait en boutique :</strong> Vous recevrez un code de retrait unique (format HM-XXXX) à présenter directement à la boutique. Payez sur place au moment du retrait.
+              </p>
+            </div>
+          )}
         </div>
 
         {error && (
@@ -687,13 +769,15 @@ Merci de valider mon paiement pour débloquer mon code OTP :
         <form onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Formulaire Adresse & Paiement */}
           <div className="lg:col-span-2 space-y-6">
-            {/* 1. Coordonnées de livraison */}
+            {/* 1. Coordonnées */}
             <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-4">
               <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
                 <div className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 font-bold text-xs flex items-center justify-center">
                   1
                 </div>
-                <h2 className="font-bold text-gray-900 text-base font-heading">Adresse de Livraison en Côte d&apos;Ivoire</h2>
+                <h2 className="font-bold text-gray-900 text-base font-heading">
+                  {deliveryMode === 'pickup' ? 'Vos coordonnées' : 'Adresse de Livraison en Côte d’Ivoire'}
+                </h2>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -726,136 +810,141 @@ Merci de valider mon paiement pour débloquer mon code OTP :
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                    Ville / Région
-                  </label>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none text-sm transition"
-                    placeholder="Abidjan"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                    Commune / Destination
-                  </label>
-                  <select
-                    value={commune}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setCommune(val);
-                      const interieurCities = ['Yamoussoukro', 'Bouaké', 'San-Pédro', 'Korhogo', 'Daloa', 'Man', 'Gagnoa', 'Soubré', 'Divo', 'Abengourou', 'Agboville', 'Grand-Bassam'];
-                      const matched = interieurCities.find(c => val.includes(c));
-                      if (matched) {
-                        setCity(matched);
-                      } else {
-                        setCity('Abidjan');
-                      }
-                    }}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none text-sm transition bg-white"
-                  >
-                    <optgroup label="📍 Zone 1 : Abidjan Centre (1 500 FCFA • 2h à 4h)">
-                      <option value="Cocody">Cocody (Angré, Riviera, Deux-Plateaux...)</option>
-                      <option value="Marcory">Marcory (Zone 4, Biétry, Résidentiel...)</option>
-                      <option value="Plateau">Plateau</option>
-                      <option value="Treichville">Treichville</option>
-                      <option value="Adjamé">Adjamé</option>
-                      <option value="Koumassi">Koumassi</option>
-                    </optgroup>
-
-                    <optgroup label="📍 Zone 2 : Abidjan Périphérie (2 000 FCFA • 24h)">
-                      <option value="Yopougon">Yopougon (Maroc, Niangon, Toits Rouges...)</option>
-                      <option value="Abobo">Abobo (Sogefiha, Samaké, PK18...)</option>
-                      <option value="Port-Bouët">Port-Bouët (Aéroport, Vridi...)</option>
-                      <option value="Attécoubé">Attécoubé</option>
-                    </optgroup>
-
-                    <optgroup label="📍 Zone 3 : Grand Abidjan & Banlieue (2 500 FCFA • 24h-48h)">
-                      <option value="Bingerville">Bingerville</option>
-                      <option value="Anyama">Anyama</option>
-                      <option value="Songon">Songon</option>
-                      <option value="Grand-Bassam">Grand-Bassam</option>
-                    </optgroup>
-
-                    <optgroup label="🚌 Zone 4 : Intérieur du Pays (3 000 FCFA • 48h-72h Car/Relais)">
-                      <option value="Yamoussoukro">Yamoussoukro</option>
-                      <option value="Bouaké">Bouaké</option>
-                      <option value="San-Pédro">San-Pédro</option>
-                      <option value="Korhogo">Korhogo</option>
-                      <option value="Daloa">Daloa</option>
-                      <option value="Man">Man</option>
-                      <option value="Gagnoa">Gagnoa</option>
-                      <option value="Soubré">Soubré</option>
-                      <option value="Divo">Divo</option>
-                      <option value="Abengourou">Abengourou</option>
-                      <option value="Agboville">Agboville</option>
-                      <option value="Autre ville de l'intérieur">Autre ville de l&apos;intérieur</option>
-                    </optgroup>
-                  </select>
-                </div>
-              </div>
-
-              {/* Badge d'information de livraison en direct */}
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs shadow-xs">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xl">{currentShippingZone.transportType === 'moto' ? '🛵' : '🚌'}</span>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-bold text-gray-900">{currentShippingZone.name}</span>
-                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-full">
-                        {currentShippingZone.transportType === 'moto' ? 'Moto Express' : 'Expédition Car'}
-                      </span>
+              {/* Champs de livraison — uniquement en mode livraison */}
+              {deliveryMode === 'delivery' && (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Ville / Région
+                      </label>
+                      <input
+                        type="text"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none text-sm transition"
+                        placeholder="Bouaké"
+                        required
+                      />
                     </div>
-                    <span className="text-[11px] text-gray-500 block">
-                      Délai de livraison estimé : <strong>{currentShippingZone.delay}</strong>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Commune / Destination
+                      </label>
+                      <select
+                        value={commune}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setCommune(val);
+                          const interieurCities = ['Yamoussoukro', 'Bouaké', 'San-Pédro', 'Korhogo', 'Daloa', 'Man', 'Gagnoa', 'Soubré', 'Divo', 'Abengourou', 'Agboville', 'Grand-Bassam'];
+                          const matched = interieurCities.find(c => val.includes(c));
+                          if (matched) {
+                            setCity(matched);
+                          } else {
+                            setCity('Abidjan');
+                          }
+                        }}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none text-sm transition bg-white"
+                      >
+                        <optgroup label="📍 Zone 1 : Abidjan Centre (1 500 FCFA • 2h à 4h)">
+                          <option value="Cocody">Cocody (Angré, Riviera, Deux-Plateaux...)</option>
+                          <option value="Marcory">Marcory (Zone 4, Biétry, Résidentiel...)</option>
+                          <option value="Plateau">Plateau</option>
+                          <option value="Treichville">Treichville</option>
+                          <option value="Adjamé">Adjamé</option>
+                          <option value="Koumassi">Koumassi</option>
+                        </optgroup>
+
+                        <optgroup label="📍 Zone 2 : Abidjan Périphérie (2 000 FCFA • 24h)">
+                          <option value="Yopougon">Yopougon (Maroc, Niangon, Toits Rouges...)</option>
+                          <option value="Abobo">Abobo (Sogefiha, Samaké, PK18...)</option>
+                          <option value="Port-Bouët">Port-Bouët (Aéroport, Vridi...)</option>
+                          <option value="Attécoubé">Attécoubé</option>
+                        </optgroup>
+
+                        <optgroup label="📍 Zone 3 : Grand Abidjan & Banlieue (2 500 FCFA • 24h-48h)">
+                          <option value="Bingerville">Bingerville</option>
+                          <option value="Anyama">Anyama</option>
+                          <option value="Songon">Songon</option>
+                          <option value="Grand-Bassam">Grand-Bassam</option>
+                        </optgroup>
+
+                        <optgroup label="🚌 Zone 4 : Intérieur du Pays (3 000 FCFA • 48h-72h Car/Relais)">
+                          <option value="Yamoussoukro">Yamoussoukro</option>
+                          <option value="Bouaké">Bouaké</option>
+                          <option value="San-Pédro">San-Pédro</option>
+                          <option value="Korhogo">Korhogo</option>
+                          <option value="Daloa">Daloa</option>
+                          <option value="Man">Man</option>
+                          <option value="Gagnoa">Gagnoa</option>
+                          <option value="Soubré">Soubré</option>
+                          <option value="Divo">Divo</option>
+                          <option value="Abengourou">Abengourou</option>
+                          <option value="Agboville">Agboville</option>
+                          <option value="Autre ville de l'intérieur">Autre ville de l&apos;intérieur</option>
+                        </optgroup>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Badge d'information de livraison en direct */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">{currentShippingZone.transportType === 'moto' ? '🛵' : '🚌'}</span>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-gray-900">{currentShippingZone.name}</span>
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-full">
+                            {currentShippingZone.transportType === 'moto' ? 'Moto Express' : 'Expédition Car'}
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-gray-500 block">
+                          Délai de livraison estimé : <strong>{currentShippingZone.delay}</strong>
+                        </span>
+                      </div>
+                    </div>
+                    <span className="font-extrabold text-sm text-emerald-700 bg-white px-3 py-1.5 rounded-xl border border-emerald-200 shadow-xs">
+                      {shippingFee.toLocaleString('fr-FR')} FCFA
                     </span>
                   </div>
-                </div>
-                <span className="font-extrabold text-sm text-emerald-700 bg-white px-3 py-1.5 rounded-xl border border-emerald-200 shadow-xs">
-                  {shippingFee.toLocaleString('fr-FR')} FCFA
-                </span>
-              </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Quartier, Repères habituels & Adresse <span className="text-emerald-600">*</span>
-                  </label>
-                  <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-medium border border-emerald-200">
-                    Mémorisé pour vos achats
-                  </span>
-                </div>
-                <input
-                  type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none text-sm transition"
-                  placeholder="ex: Angré 8e Tranche, en face de la Pharmacie des Allées, près du Terminus 81..."
-                  required
-                />
-                <p className="text-[11px] text-gray-400 mt-1">
-                  📍 Indiquez un repère connu (pharmacie, carrefour, maquis, supermarché, école) pour orienter facilement le livreur.
-                </p>
-              </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Quartier, Repères habituels & Adresse <span className="text-emerald-600">*</span>
+                      </label>
+                      <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-medium border border-emerald-200">
+                        Mémorisé pour vos achats
+                      </span>
+                    </div>
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none text-sm transition"
+                      placeholder="ex: Angré 8e Tranche, en face de la Pharmacie des Allées, près du Terminus 81..."
+                      required
+                    />
+                    <p className="text-[11px] text-gray-400 mt-1">
+                      📍 Indiquez un repère connu (pharmacie, carrefour, maquis, supermarché, école) pour orienter facilement le livreur.
+                    </p>
+                  </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                  Indications spéciales pour le livreur (Optionnel)
-                </label>
-                <input
-                  type="text"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none text-sm transition"
-                  placeholder="ex: M'appeler 15 min avant d'arriver, sonner au portail noir, livraison au bureau 2e étage..."
-                />
-              </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                      Indications spéciales pour le livreur (Optionnel)
+                    </label>
+                    <input
+                      type="text"
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none text-sm transition"
+                      placeholder="ex: M'appeler 15 min avant d'arriver, sonner au portail noir, livraison au bureau 2e étage..."
+                    />
+                  </div>
+                </>
+              )}
             </div>
 
             {/* 2. Moyen de paiement */}

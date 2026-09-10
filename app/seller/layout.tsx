@@ -14,7 +14,7 @@ const navItems = [
   { href: '/seller/shop', icon: Store, label: 'Profil & Logo Boutique' },
   { href: '/seller/products', icon: Package, label: 'Mes Produits' },
   { href: '/seller/stories', icon: PlayCircle, label: 'Mes Stories' },
-  { href: '/seller/orders', icon: ShoppingCart, label: 'Commandes WhatsApp' },
+  { href: '/seller/orders', icon: ShoppingCart, label: 'Commandes Reçues' },
   { href: '/seller/messages', icon: MessageSquareText, label: 'Messagerie' },
 ];
 

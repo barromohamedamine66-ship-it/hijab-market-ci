@@ -306,6 +306,8 @@ export interface Order {
   total_amount: number;
   delivery_address_id: string | null;
   customer_notes: string | null;
+  delivery_mode?: 'pickup' | 'delivery';
+  pickup_code?: string;
   receipt_confirmed_at: string | null;
   created_at: string;
   updated_at: string;

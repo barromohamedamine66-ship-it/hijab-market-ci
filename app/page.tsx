@@ -2,46 +2,45 @@ export const dynamic = 'force-dynamic';
 
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import VideoStories from '@/components/home/VideoStories';
 import Hero from '@/components/home/Hero';
 import Categories from '@/components/home/Categories';
-import FlashSales from '@/components/home/FlashSales';
 import FeaturedProducts from '@/components/home/FeaturedProducts';
 import FeaturedStores from '@/components/home/FeaturedStores';
 import HowItWorks from '@/components/home/HowItWorks';
 import Testimonials from '@/components/home/Testimonials';
+import JoinAsBoutique from '@/components/home/JoinAsBoutique';
+
+// VideoStories et FlashSales sont conservés en fichiers mais désactivés pour le MVP
+// Ils seront réactivés après validation du marché
 
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col bg-[#fcfaf6]">
-      {/* Navbar with Official Logo */}
+      {/* Navbar */}
       <Navbar />
 
-      {/* Stories Vidéo (Format Instagram/TikTok) */}
-      <VideoStories />
-
-      {/* Hero with Radiant Logo Showcase */}
+      {/* Hero — Positionnement Bouaké */}
       <Hero />
 
-      {/* Categories Grid */}
+      {/* Catégories */}
       <Categories />
 
-      {/* Ventes Flash avec compte à rebours */}
-      <FlashSales />
-
-      {/* Featured Products */}
+      {/* Produits vedettes */}
       <FeaturedProducts />
 
-      {/* Verified Partner Stores in Abidjan */}
+      {/* Boutiques partenaires */}
       <FeaturedStores />
 
-      {/* How it Works (3 easy steps) */}
+      {/* Comment ça marche */}
       <HowItWorks />
 
-      {/* Customer Testimonials */}
+      {/* Appel aux premières boutiques */}
+      <JoinAsBoutique />
+
+      {/* Témoignages */}
       <Testimonials />
 
-      {/* Footer with Payment Methods and Official Logo */}
+      {/* Footer */}
       <Footer />
     </div>
   );

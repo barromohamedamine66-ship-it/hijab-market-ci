@@ -15,17 +15,15 @@ import {
   ShoppingCart,
   Check,
   ShieldCheck,
-  Truck,
   MessageCircle,
-  Heart,
   Store,
   MapPin,
   Clock,
   ExternalLink,
   Award,
   Sparkles,
-  MessageSquareText,
-  Star
+  Star,
+  Share2
 } from 'lucide-react';
 import ReviewsSection from '@/components/ui/ReviewsSection';
 
@@ -209,20 +207,20 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
 
             {/* Badges de confiance */}
             <div className="grid grid-cols-3 gap-2 text-center pt-1">
-              <div className="p-2.5 rounded-2xl bg-gray-50 border border-gray-100">
-                <Truck className="w-4 h-4 text-emerald-600 mx-auto mb-1" />
-                <span className="text-[10px] font-bold text-gray-700 block">Livraison Directe</span>
-                <span className="text-[9px] text-gray-400">Expédition par le vendeur</span>
+              <div className="p-2.5 rounded-2xl bg-emerald-50 border border-emerald-100">
+                <Store className="w-4 h-4 text-emerald-600 mx-auto mb-1" />
+                <span className="text-[10px] font-bold text-gray-700 block">Retrait Boutique</span>
+                <span className="text-[9px] text-gray-400">Présentez votre code</span>
               </div>
               <div className="p-2.5 rounded-2xl bg-gray-50 border border-gray-100">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 mx-auto mb-1" />
-                <span className="text-[10px] font-bold text-gray-700 block">Vendeur Vérifié</span>
-                <span className="text-[9px] text-gray-400">Modeste & Traditionnel</span>
+                <span className="text-[10px] font-bold text-gray-700 block">Boutique Vérifiée</span>
+                <span className="text-[9px] text-gray-400">Profil certifié</span>
               </div>
               <div className="p-2.5 rounded-2xl bg-gray-50 border border-gray-100">
                 <Award className="w-4 h-4 text-emerald-600 mx-auto mb-1" />
-                <span className="text-[10px] font-bold text-gray-700 block">Zéro Frais Cachés</span>
-                <span className="text-[9px] text-gray-400">Prix direct boutique</span>
+                <span className="text-[10px] font-bold text-gray-700 block">Prix Direct</span>
+                <span className="text-[9px] text-gray-400">Zéro frais cachés</span>
               </div>
             </div>
           </div>
@@ -373,29 +371,24 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             </div>
 
             <div className="space-y-3 pt-4 border-t border-gray-100">
-              <div className="flex gap-3">
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 py-4 px-4 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-extrabold text-xs shadow-md transition flex items-center justify-center gap-2"
-                >
-                  <MessageCircle className="w-4 h-4 fill-white" />
-                  WhatsApp
-                </a>
-                <Link
-                  href={user ? `/chat?shop=${product.store_id}` : '/auth/login?redirect=' + encodeURIComponent(`/chat?shop=${product.store_id}`)}
-                  className="flex-1 py-4 px-4 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-extrabold text-xs shadow-md transition flex items-center justify-center gap-2"
-                >
-                  <MessageSquareText className="w-4 h-4 fill-white" />
-                  Chat Interne
-                </Link>
-              </div>
+              {/* Action principale : Commander sur WhatsApp */}
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                id="product-whatsapp-order-btn"
+                className="w-full py-4 px-4 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-extrabold text-sm shadow-md transition flex items-center justify-center gap-2 active:scale-95"
+              >
+                <MessageCircle className="w-5 h-5 fill-white" />
+                Commander via WhatsApp
+              </a>
 
               <div className="flex gap-3">
+                {/* Ajouter au panier */}
                 <button
                   type="button"
                   onClick={handleAddToCart}
+                  id="product-add-cart-btn"
                   className={`flex-1 py-3 px-4 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition shadow-sm ${
                     added
                       ? 'bg-emerald-600 text-white'
@@ -403,21 +396,37 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                   }`}
                 >
                   {added ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
-                  {added ? 'Ajouté au panier !' : 'Ajouter au panier'}
+                  {added ? 'Ajouté !' : 'Ajouter au panier'}
                 </button>
 
-                <Link
-                  href={storeUrl}
-                  className="py-3 px-5 rounded-full bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 text-xs font-bold transition flex items-center justify-center gap-1.5"
+                {/* Partager le produit */}
+                <button
+                  type="button"
+                  id="product-share-btn"
+                  onClick={() => {
+                    const url = typeof window !== 'undefined' ? window.location.href : '';
+                    const shareText = `Découvrez ${product.name} (${product.price.toLocaleString('fr-FR')} FCFA) sur HIJAB MARKET CI :\n${url}`;
+                    if (navigator.share) {
+                      navigator.share({ title: product.name, text: shareText, url });
+                    } else {
+                      navigator.clipboard?.writeText(url);
+                      alert('Lien de l\'article copié !');
+                    }
+                  }}
+                  className="py-3 px-4 rounded-full bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                 >
-                  <Store className="w-4 h-4 text-emerald-600" />
-                  Boutique
-                </Link>
+                  <Share2 className="w-4 h-4 text-emerald-600" />
+                  Partager
+                </button>
               </div>
 
-              <p className="text-center text-[11px] text-gray-500 leading-relaxed">
-                Contactez directement la boutique sur WhatsApp pour convenir de l'adresse de livraison et du mode de paiement (Wave, Orange Money ou à la livraison).
-              </p>
+              {/* Info retrait en boutique */}
+              <div className="flex items-start gap-2 bg-emerald-50 border border-emerald-100 rounded-xl p-3">
+                <Store className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                <p className="text-[11px] text-emerald-800 leading-relaxed">
+                  <strong>Retrait en boutique disponible.</strong> Commandez et récupérez directement chez {store?.name || 'la boutique'}. Payez sur place (Wave, Orange Money, cash).
+                </p>
+              </div>
             </div>
           </div>
         </div>

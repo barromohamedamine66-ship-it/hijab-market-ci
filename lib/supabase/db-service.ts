@@ -1,21 +1,29 @@
 import { supabase, isSupabaseConfigured } from './client';
 import type { Product, Shop, Category, Order, OrderItem, SellerWallet, Address, PaymentMethod, SubscriptionPlan, StoreSubscription, PlatformSettings } from './types';
 
-// Catégories officielles de Mode Modeste, Parfumerie & Lifestyle Islamique en Côte d'Ivoire
+// Catégories officielles Hijab Market CI — Mode Modeste & Lifestyle Ivoirien
+// Couvre les priorités du prompt maître : Hijabs, Abayas, Bazins, Robes, Ensembles, etc.
 const DEFAULT_CATEGORIES: Category[] = [
+  // Priorités 1 — Cœur de marché Bouaké
   { id: 'c1000000-0000-0000-0000-000000000001', name: 'Hijabs & Voiles', slug: 'hijabs-voiles', emoji: '🧕', icon: 'sparkles', image_url: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&auto=format&fit=crop&q=80', description: 'Soie de Médine, mousseline, jersey, plissé, turbans', order_index: 1, is_active: true, created_at: new Date().toISOString() },
   { id: 'c1000000-0000-0000-0000-000000000002', name: 'Abayas & Robes', slug: 'abayas-robes', emoji: '👑', icon: 'crown', image_url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80', description: 'Abayas Dubaï, robes longues, kimonos chics et tenues de fête', order_index: 2, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000013', name: 'Lunettes & Montures', slug: 'lunettes-montures', emoji: '👓', icon: 'eye', image_url: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&auto=format&fit=crop&q=80', description: 'Montures tendance hijabi, lunettes anti-lumière bleue et solaires UV400', order_index: 3, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000010', name: 'Parfums & Muscs', slug: 'parfumerie-muscs', emoji: '✨', icon: 'sparkles', image_url: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=800&auto=format&fit=crop&q=80', description: 'Musc Tahara pur, Oud de Dubaï, huiles précieuses et encens Bakhour', order_index: 4, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000014', name: 'Chapelets & Tapis', slug: 'spiritualite-tapis', emoji: '📿', icon: 'moon', image_url: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?w=800&auto=format&fit=crop&q=80', description: 'Tapis de prière orthopédiques, chapelets Tasbih en cristal et Corans de luxe', order_index: 5, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000015', name: 'Soins Sunnah', slug: 'soins-sunnah', emoji: '🌿', icon: 'heart', image_url: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800&auto=format&fit=crop&q=80', description: 'Huile et savons de Nigelle pure, bâtons de Siwak frais et Henné naturel', order_index: 6, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000016', name: 'Coffrets Cadeaux', slug: 'coffrets-cadeaux', emoji: '🎁', icon: 'gift', image_url: 'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=800&auto=format&fit=crop&q=80', description: 'Coffrets mariage, dot, Aïd, coffrets prestige Coran, tapis & muscs', order_index: 7, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000004', name: 'Qamis & Homme', slug: 'boubous-homme', emoji: '👔', icon: 'shirt', image_url: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&auto=format&fit=crop&q=80', description: 'Qamis émiratis, grands boubous 3 pièces et chéchias brodées', order_index: 8, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000003', name: 'Boubous Femme', slug: 'boubous-femme', emoji: '🌸', icon: 'gem', image_url: 'https://images.unsplash.com/photo-1516223725307-6f76b9ec8742?w=800&auto=format&fit=crop&q=80', description: 'Bazin riche Getzner, soie, broderies raffinées et coupes modernes', order_index: 9, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000005', name: 'Ensembles & Prêt-à-porter', slug: 'ensembles-pret-a-porter', emoji: '👗', icon: 'layout', image_url: 'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=800&auto=format&fit=crop&q=80', description: 'Ensembles modestes, tailleurs amples, tuniques et pantalons', order_index: 10, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000008', name: 'Accessoires & Sous-hijabs', slug: 'accessoires-sous-hijabs', emoji: '💎', icon: 'sparkles', image_url: 'https://images.unsplash.com/photo-1611080313621-e946a36c4bba?w=800&auto=format&fit=crop&q=80', description: 'Épingles magnétiques, bonnets croisés, cagoules et bandeaux', order_index: 11, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000011', name: 'Autres & Artisanat', slug: 'autres', emoji: '🏷️', icon: 'tag', image_url: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=800&auto=format&fit=crop&q=80', description: 'Autres articles de mode modeste et lifestyle islamique', order_index: 12, is_active: true, created_at: new Date().toISOString() },
+  // Bazins — Priorité spéciale marché ivoirien
+  { id: 'c1000000-0000-0000-0000-000000000020', name: 'Bazins & Tissus', slug: 'bazins-tissus', emoji: '🪡', icon: 'layers', image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop&q=80', description: 'Bazin riche Getzner, bazin imprimé, bazin brodé, tissus pagne et wax', order_index: 3, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000003', name: 'Boubous Femme', slug: 'boubous-femme', emoji: '🌸', icon: 'gem', image_url: 'https://images.unsplash.com/photo-1516223725307-6f76b9ec8742?w=800&auto=format&fit=crop&q=80', description: 'Bazin riche Getzner, soie, broderies raffinées et coupes modernes', order_index: 4, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000005', name: 'Ensembles & Prêt-à-porter', slug: 'ensembles-pret-a-porter', emoji: '👗', icon: 'layout', image_url: 'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=800&auto=format&fit=crop&q=80', description: 'Ensembles modestes, tailleurs amples, tuniques et pantalons', order_index: 5, is_active: true, created_at: new Date().toISOString() },
+  // Homme & Enfants
+  { id: 'c1000000-0000-0000-0000-000000000004', name: 'Qamis & Tenues Homme', slug: 'tenues-homme', emoji: '👔', icon: 'shirt', image_url: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&auto=format&fit=crop&q=80', description: 'Qamis émiratis, grands boubous 3 pièces et chéchias brodées', order_index: 6, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000021', name: 'Mode Enfants', slug: 'mode-enfants', emoji: '👶', icon: 'heart', image_url: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=800&auto=format&fit=crop&q=80', description: 'Tenues modestes pour filles et garçons, robes de fête enfant', order_index: 7, is_active: true, created_at: new Date().toISOString() },
+  // Accessoires
+  { id: 'c1000000-0000-0000-0000-000000000008', name: 'Bonnets & Accessoires Hijab', slug: 'bonnets-accessoires-hijab', emoji: '💎', icon: 'sparkles', image_url: 'https://images.unsplash.com/photo-1611080313621-e946a36c4bba?w=800&auto=format&fit=crop&q=80', description: 'Épingles magnétiques, bonnets croisés, cagoules et bandeaux', order_index: 8, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000022', name: 'Sacs & Chaussures', slug: 'sacs-chaussures', emoji: '👜', icon: 'shopping-bag', image_url: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80', description: 'Sacs à main, sacoches, sandales et chaussures mode modeste', order_index: 9, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000023', name: 'Bijoux & Accessoires', slug: 'bijoux-accessoires', emoji: '✨', icon: 'gem', image_url: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&auto=format&fit=crop&q=80', description: 'Bijoux, bracelets, colliers et accessoires mode', order_index: 10, is_active: true, created_at: new Date().toISOString() },
+  // Beauté & Lifestyle
+  { id: 'c1000000-0000-0000-0000-000000000010', name: 'Beauté & Cosmétiques', slug: 'beaute-cosmetiques', emoji: '🌿', icon: 'heart', image_url: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800&auto=format&fit=crop&q=80', description: 'Soins naturels, cosmétiques halal, henné et parfums islamiques', order_index: 11, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000016', name: 'Cadeaux & Coffrets', slug: 'cadeaux-coffrets', emoji: '🎁', icon: 'gift', image_url: 'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=800&auto=format&fit=crop&q=80', description: 'Coffrets mariage, dot, Aïd et cadeaux islamiques', order_index: 12, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000011', name: 'Autres & Artisanat', slug: 'autres', emoji: '🏷️', icon: 'tag', image_url: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=800&auto=format&fit=crop&q=80', description: 'Autres articles de mode modeste et lifestyle islamique', order_index: 13, is_active: true, created_at: new Date().toISOString() },
 ];
+
 
 // Plans d'abonnements officiels
 const DEFAULT_SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
@@ -1471,12 +1479,15 @@ export const DBService = {
     subtotal: number;
     delivery_fee: number;
     total_amount: number;
+    delivery_mode?: 'pickup' | 'delivery';
+    pickup_code?: string;
   }): Promise<Order> {
+    const pickupCode = params.pickup_code || `HM-${Math.floor(1000 + Math.random() * 9000)}`;
     const orderNumber = `HM-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
 
     if (isSupabaseConfigured()) {
       try {
-        // 1. Sauvegarder l'adresse de livraison
+        // 1. Sauvegarder l'adresse de livraison (si mode livraison)
         const { data: addressData } = await supabase
           .from('addresses')
           .insert({
@@ -1534,7 +1545,11 @@ export const DBService = {
             transaction_reference: `TRX-${Date.now()}`,
           });
 
-          return orderData as Order;
+          return {
+            ...orderData,
+            delivery_mode: params.delivery_mode || 'pickup',
+            pickup_code: pickupCode,
+          } as Order;
         }
       } catch (err) {
         console.warn('Supabase createOrder error, using local fallback:', err);
@@ -1566,6 +1581,8 @@ export const DBService = {
       subtotal: params.subtotal,
       delivery_fee: params.delivery_fee,
       total_amount: params.total_amount,
+      delivery_mode: params.delivery_mode || 'pickup',
+      pickup_code: pickupCode,
       delivery_address_id: `addr-${Date.now()}`,
       customer_notes: params.customer_notes || null,
       receipt_confirmed_at: null,
@@ -1675,6 +1692,25 @@ export const DBService = {
     }
     const orders = getLocalData<Order[]>(STORAGE_KEYS.ORDERS, DEFAULT_ORDERS);
     return orders.find(o => o.id === orderId || o.order_number === orderId) || null;
+  },
+
+  async updateOrderStatus(orderId: string, status: OrderStatus): Promise<boolean> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabase
+          .from('orders')
+          .update({ status, updated_at: new Date().toISOString() })
+          .eq('id', orderId);
+        if (!error) return true;
+      } catch (err) {
+        console.warn('Supabase updateOrderStatus error:', err);
+      }
+    }
+
+    const orders = getLocalData<Order[]>(STORAGE_KEYS.ORDERS, DEFAULT_ORDERS);
+    const updated = orders.map(o => o.id === orderId || o.order_number === orderId ? { ...o, status, updated_at: new Date().toISOString() } : o);
+    setLocalData(STORAGE_KEYS.ORDERS, updated);
+    return true;
   },
 
   // ==========================================

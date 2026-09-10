@@ -18,13 +18,17 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   applicationName: 'HIJAB MARKET CI',
   title: {
-    default: 'HIJAB MARKET CI — Toutes les boutiques de hijabs en un seul endroit',
+    default: 'HIJAB MARKET CI — Les boutiques de mode modeste, réunies au même endroit',
     template: '%s | HIJAB MARKET CI',
   },
   description:
-    'Découvrez la plus grande marketplace multi-vendeurs de hijabs en Côte d\'Ivoire. Des centaines de boutiques vérifiées, des milliers de produits de qualité.',
+    'Découvrez, comparez et commandez vos hijabs, abayas et tenues modestes auprès des boutiques physiques de Bouaké et de toute la Côte d\'Ivoire. Retrait en boutique ou livraison.',
   manifest: '/manifest.json',
-  keywords: ['hijab', 'marketplace', 'boutique hijab', 'vente hijab', 'mode hijab', 'Côte d\'Ivoire', 'Abidjan', 'abaya', 'foulard'],
+  keywords: [
+    'hijab', 'abaya', 'mode modeste', 'boutique hijab', 'hijab Bouaké',
+    'hijab Côte d\'Ivoire', 'marketplace hijab', 'tenue modeste', 'bazin',
+    'boubou femme', 'mode islamique Côte d\'Ivoire', 'Bouaké mode'
+  ],
   authors: [{ name: 'HIJAB MARKET CI' }],
   appleWebApp: {
     capable: true,
@@ -44,11 +48,27 @@ export const metadata: Metadata = {
       { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
   },
+  metadataBase: new URL('https://hijabmarket.ci'),
   openGraph: {
-    title: 'HIJAB MARKET CI',
-    description: 'Toutes les boutiques de hijabs, en un seul endroit.',
+    title: 'HIJAB MARKET CI — Découvrez. Comparez. Commandez.',
+    description: 'Toutes les boutiques de mode modeste de Bouaké et de Côte d\'Ivoire, réunies au même endroit. Hijabs, abayas, bazins et tenues chics avec retrait boutique ou livraison.',
     type: 'website',
     locale: 'fr_CI',
+    siteName: 'HIJAB MARKET CI',
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1200&auto=format&fit=crop&q=80',
+        width: 1200,
+        height: 630,
+        alt: 'HIJAB MARKET CI — Marketplace Mode Modeste',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'HIJAB MARKET CI — Mode Modeste & Lifestyle',
+    description: 'Les boutiques de mode modeste de Bouaké et de Côte d\'Ivoire, réunies au même endroit.',
+    images: ['https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1200&auto=format&fit=crop&q=80'],
   },
 };
 

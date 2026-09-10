@@ -11,7 +11,7 @@ export default function SellerWithdrawalsPage() {
   const { user, shop } = useAuth();
   const [wallet, setWallet] = useState<SellerWallet>({
     id: 'wallet',
-    shop_id: '',
+    store_id: '',
     available_balance: 0,
     pending_balance: 0,
     total_earned: 0,

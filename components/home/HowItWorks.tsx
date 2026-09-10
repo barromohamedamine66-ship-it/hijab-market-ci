@@ -1,4 +1,4 @@
-import { Search, Sparkles, MessageCircle, Truck } from 'lucide-react';
+import { Search, Sparkles, MessageCircle, Store } from 'lucide-react';
 
 const steps = [
   {
@@ -6,7 +6,7 @@ const steps = [
     step: '01',
     title: 'Explorez les boutiques',
     description:
-      'Parcourez les rayons : hijabs, abayas Dubaï, boubous femme & homme, ensembles mastour. Aucun compte client n’est requis.',
+      'Parcourez les catalogues des boutiques physiques de Bouaké et de Côte d\'Ivoire. Hijabs, abayas, bazins, robes et tenues modestes.',
     color: 'bg-emerald-500',
     lightColor: 'bg-emerald-50',
     textColor: 'text-emerald-600',
@@ -16,7 +16,7 @@ const steps = [
     step: '02',
     title: 'Choisissez votre tenue',
     description:
-      'Consultez les photos réelles, le tissu, les couleurs et les dimensions disponibles chez nos boutiques vérifiées.',
+      'Consultez les photos réelles, le tissu, les couleurs et les tailles disponibles. Comparez plusieurs boutiques en un seul endroit.',
     color: 'bg-purple-500',
     lightColor: 'bg-purple-50',
     textColor: 'text-purple-600',
@@ -24,19 +24,19 @@ const steps = [
   {
     icon: MessageCircle,
     step: '03',
-    title: 'Commandez sur WhatsApp',
+    title: 'Passez commande',
     description:
-      'Cliquez sur "Commander via WhatsApp". Votre message pré-rempli s’ouvre directement avec la boutique vendeuse.',
+      'Commandez en quelques clics. Votre nom et téléphone suffisent. Vous recevez un code de retrait unique.',
     color: 'bg-amber-500',
     lightColor: 'bg-amber-50',
     textColor: 'text-amber-600',
   },
   {
-    icon: Truck,
+    icon: Store,
     step: '04',
-    title: 'Livraison & Paiement Direct',
+    title: 'Retirez en boutique',
     description:
-      'Convenez de l’adresse de livraison avec le vendeur et réglez en direct via Wave, Orange Money ou à la livraison.',
+      'Présentez votre code à la boutique pour récupérer votre commande. Payez directement sur place (Wave, Orange Money ou cash).',
     color: 'bg-blue-500',
     lightColor: 'bg-blue-50',
     textColor: 'text-blue-600',

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { DBService } from '@/lib/supabase/db-service';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Product } from '@/lib/supabase/types';
-import { Plus, Trash2, ExternalLink, Zap, X } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, Zap, X, Copy } from 'lucide-react';
 
 export default function SellerProductsPage() {
   const { user, shop } = useAuth();
@@ -39,6 +39,37 @@ export default function SellerProductsPage() {
     if (confirm(`Confirmez-vous la suppression de "${name}" ?`)) {
       await DBService.deleteProduct(productId);
       setProducts(prev => prev.filter(p => p.id !== productId));
+    }
+  };
+
+  const handleDuplicate = async (product: Product) => {
+    const storeId = shop?.id || user?.id;
+    if (!storeId) return;
+
+    try {
+      setLoading(true);
+      const newProd = await DBService.createProduct({
+        store_id: storeId,
+        category_id: product.category_id || undefined,
+        name: `${product.name} (Copie)`,
+        description: product.description || '',
+        price: product.price,
+        old_price: product.old_price || undefined,
+        stock: product.stock,
+        material: product.material || undefined,
+        colors: product.colors || [],
+        sizes: product.sizes || [],
+        badge: product.badge || undefined,
+        imageUrl: product.images?.[0]?.image_url || undefined,
+      });
+      if (newProd) {
+        setProducts(prev => [newProd, ...prev]);
+      }
+    } catch (err) {
+      console.error('Erreur duplication:', err);
+      alert('Une erreur est survenue lors de la duplication.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -164,6 +195,13 @@ export default function SellerProductsPage() {
                         >
                           <Zap className="w-3.5 h-3.5 fill-rose-600" /> Flash
                         </button>
+                        <button
+                          onClick={() => handleDuplicate(product)}
+                          className="px-2 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[11px] transition flex items-center gap-1 shadow-sm border border-blue-200/50"
+                          title="Dupliquer l'article"
+                        >
+                          <Copy className="w-3.5 h-3.5" /> Dupliquer
+                        </button>
                         <Link
                           href={`/seller/products/${product.id}/edit`}
                           className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-[11px] transition flex items-center gap-1 shadow-sm border border-amber-200/50"
@@ -255,6 +293,13 @@ export default function SellerProductsPage() {
                               title="Mettre en Vente Flash"
                             >
                               <Zap className="w-4 h-4 fill-rose-600" /> Flash
+                            </button>
+                            <button
+                              onClick={() => handleDuplicate(product)}
+                              className="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold transition flex items-center gap-1 shadow-sm border border-blue-200/50"
+                              title="Dupliquer le produit en 1 clic"
+                            >
+                              <Copy className="w-3.5 h-3.5" /> Dupliquer
                             </button>
                             <Link
                               href={`/seller/products/${product.id}/edit`}

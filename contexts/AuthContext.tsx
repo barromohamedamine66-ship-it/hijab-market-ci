@@ -20,7 +20,7 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 import type { Profile, UserRole, Shop } from '@/lib/supabase/types';
 import { DBService } from '@/lib/supabase/db-service';
 
-// Liste des comptes administrateurs officiels
+// Liste des comptes administrateurs officiels (liste blanche stricte)
 export const ADMIN_EMAILS = [
   'barromohamedamine66@gmail.com',
   'admin@hijabmarket.ci',
@@ -29,7 +29,8 @@ export const ADMIN_EMAILS = [
 export const isAdminEmail = (email?: string | null): boolean => {
   if (!email) return false;
   const normalized = email.trim().toLowerCase();
-  return ADMIN_EMAILS.includes(normalized) || normalized.includes('admin');
+  // Comparaison stricte uniquement — pas de .includes() pour éviter les faux positifs
+  return ADMIN_EMAILS.includes(normalized);
 };
 
 interface AuthContextValue {
