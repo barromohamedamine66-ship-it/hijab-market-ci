@@ -1,3 +1,2 @@
-import StoreDetailPage from '@/app/stores/[slug]/page';
-
-export default StoreDetailPage;
+export { generateMetadata } from '../../../stores/[slug]/page';
+export { default } from '../../../stores/[slug]/page';
