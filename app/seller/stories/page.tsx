@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { DBService } from '@/lib/supabase/db-service';
-import { Play, Image as ImageIcon, Plus, Trash2, Loader2, Sparkles, Upload, Video, X, CheckCircle2, Film } from 'lucide-react';
+import { Image as ImageIcon, Plus, Trash2, Loader2, Sparkles, Upload, X, CheckCircle2 } from 'lucide-react';
 import type { Product, Shop, Story } from '@/lib/supabase/types';
 
 export default function SellerStoriesPage() {
@@ -18,7 +18,6 @@ export default function SellerStoriesPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string>('');
   const [mediaUrl, setMediaUrl] = useState('');
-  const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
   const [selectedProductId, setSelectedProductId] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [inputMode, setInputMode] = useState<'file' | 'url'>('file');
@@ -37,12 +36,19 @@ export default function SellerStoriesPage() {
     setLoading(true);
     if (shop) {
       try {
-        const [storeProducts, allStories] = await Promise.all([
+        const [storeProducts, sellerStoriesRes] = await Promise.all([
           DBService.getProducts({ store_id: shop.id }),
-          DBService.getStories()
+          fetch('/api/seller/stories')
+            .then((r) => (r.ok ? r.json() : { stories: [] }))
+            .catch(() => ({ stories: [] })),
         ]);
         setProducts(storeProducts || []);
-        setStories((allStories || []).filter(s => s.shop_id === shop.id));
+        if (sellerStoriesRes?.stories && Array.isArray(sellerStoriesRes.stories)) {
+          setStories(sellerStoriesRes.stories);
+        } else {
+          const allStories = await DBService.getStories();
+          setStories((allStories || []).filter((s) => s.shop_id === shop.id));
+        }
       } catch (error) {
         console.error('Error loading stories data:', error);
       }
@@ -55,28 +61,20 @@ export default function SellerStoriesPage() {
     if (!file) return;
 
     setErrorMsg('');
-    const isVideo = file.type.startsWith('video/');
     const isImage = file.type.startsWith('image/');
 
-    if (!isVideo && !isImage) {
-      setErrorMsg('Veuillez sélectionner un fichier image (JPG, PNG) ou vidéo (MP4, MOV, WebM).');
+    if (!isImage) {
+      setErrorMsg('Veuillez sélectionner un fichier photo/image (JPG, PNG, WebP).');
       return;
     }
 
-    // Limite vidéo augmentée à 100 Mo
-    if (isVideo && file.size > 100 * 1024 * 1024) {
-      setErrorMsg('La vidéo dépasse la taille maximale autorisée de 100 Mo.');
-      return;
-    }
-
-    // Limite image à 20 Mo
-    if (isImage && file.size > 20 * 1024 * 1024) {
-      setErrorMsg("L'image dépasse la taille maximale de 20 Mo.");
+    // Limite image à 15 Mo
+    if (file.size > 15 * 1024 * 1024) {
+      setErrorMsg("L'image dépasse la taille maximale autorisée de 15 Mo.");
       return;
     }
 
     setSelectedFile(file);
-    setMediaType(isVideo ? 'video' : 'image');
 
     // Aperçu local instantané
     const objectUrl = URL.createObjectURL(file);
@@ -92,20 +90,20 @@ export default function SellerStoriesPage() {
 
     if (inputMode === 'file') {
       if (!selectedFile) {
-        setErrorMsg('Veuillez sélectionner un fichier photo ou vidéo depuis votre appareil.');
+        setErrorMsg('Veuillez sélectionner une photo depuis votre appareil.');
         return;
       }
       setSubmitting(true);
       try {
         const uploadedUrl = await DBService.uploadStoryMedia(selectedFile, shop.id);
         if (!uploadedUrl) {
-          setErrorMsg("Impossible d'importer le média. Essayez avec un fichier plus léger ou utilisez un lien direct.");
+          setErrorMsg("Impossible d'importer l'image. Essayez avec un fichier plus léger ou utilisez un lien direct.");
           setSubmitting(false);
           return;
         }
         finalMediaUrl = uploadedUrl;
       } catch (err: any) {
-        setErrorMsg(err?.message || "Erreur lors du téléversement du média.");
+        setErrorMsg(err?.message || "Erreur lors du téléversement de la photo.");
         setSubmitting(false);
         return;
       }
@@ -116,22 +114,13 @@ export default function SellerStoriesPage() {
       }
     }
 
-    // Détection automatique du type de média si lien URL
-    let effectiveType = mediaType;
-    if (inputMode === 'url') {
-      const lower = finalMediaUrl.toLowerCase();
-      if (lower.includes('.mp4') || lower.includes('.webm') || lower.includes('.mov') || lower.includes('youtube.com') || lower.includes('youtu.be')) {
-        effectiveType = 'video';
-      }
-    }
-
     setSubmitting(true);
     try {
       const newStory = await DBService.createStory({
         shop_id: shop.id,
         product_id: selectedProductId || null,
         media_url: finalMediaUrl,
-        media_type: effectiveType,
+        media_type: 'image',
       });
 
       if (newStory) {
@@ -155,7 +144,7 @@ export default function SellerStoriesPage() {
     if (confirm('Voulez-vous vraiment supprimer cette story ?')) {
       const success = await DBService.deleteStory(id);
       if (success) {
-        setStories(stories.filter(s => s.id !== id));
+        setStories(stories.filter((s) => s.id !== id));
       }
     }
   };
@@ -173,13 +162,13 @@ export default function SellerStoriesPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900 font-heading flex items-center gap-2.5">
-            <span>Mes Stories</span>
+            <span>Mes Stories Photos</span>
             <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
               Actives ({stories.length})
             </span>
           </h1>
           <p className="text-gray-500 text-sm mt-1">
-            Publiez des photos ou vidéos depuis votre téléphone pour mettre en avant vos nouveautés.
+            Publiez des photos de vos nouveaux arrivages ou articles phares (visibles 7 jours).
           </p>
         </div>
         {!isCreating && (
@@ -188,7 +177,7 @@ export default function SellerStoriesPage() {
             className="btn btn-primary gap-2 shadow-sm"
           >
             <Plus className="w-4 h-4" />
-            Créer une Story
+            Ajouter une Photo Story
           </button>
         )}
       </div>
@@ -198,7 +187,7 @@ export default function SellerStoriesPage() {
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
             <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-emerald-500" />
-              Nouvelle Story Boutique
+              Nouvelle Story Photo
             </h2>
             <button
               onClick={() => {
@@ -228,7 +217,7 @@ export default function SellerStoriesPage() {
                   inputMode === 'file' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900'
                 }`}
               >
-                📱 Depuis mon appareil / téléphone
+                📱 Photo depuis mon appareil
               </button>
               <button
                 type="button"
@@ -241,13 +230,13 @@ export default function SellerStoriesPage() {
               </button>
             </div>
 
-            {/* Zone d'import de fichier */}
+            {/* Zone d'import de photo */}
             {inputMode === 'file' ? (
               <div>
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*,video/*"
+                  accept="image/*"
                   onChange={handleFileSelect}
                   className="hidden"
                 />
@@ -262,45 +251,31 @@ export default function SellerStoriesPage() {
                     </div>
                     <div>
                       <p className="text-sm font-bold text-gray-900">
-                        Cliquez pour choisir une Vidéo ou une Photo
+                        Cliquez pour choisir une belle Photo
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        Formats acceptés : <strong>MP4, MOV, WebM, JPG, PNG</strong>
-                      </p>
-                      <p className="text-[11px] text-emerald-700 font-semibold mt-1">
-                        🚀 Capacité vidéo étendue : jusqu’à 100 Mo & 60 secondes
+                        Formats acceptés : <strong>JPG, PNG, WebP</strong>
                       </p>
                     </div>
                   </div>
                 ) : (
                   <div className="flex flex-col sm:flex-row items-center gap-6 p-4 bg-gray-50 rounded-3xl border border-gray-200">
                     <div className="w-40 h-64 rounded-2xl overflow-hidden bg-black flex-shrink-0 relative shadow-md">
-                      {mediaType === 'video' ? (
-                        <video
-                          src={filePreview}
-                          autoPlay
-                          loop
-                          muted
-                          playsInline
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <img
-                          src={filePreview}
-                          alt="Aperçu Story"
-                          className="w-full h-full object-cover"
-                        />
-                      )}
+                      <img
+                        src={filePreview}
+                        alt="Aperçu Story"
+                        className="w-full h-full object-cover"
+                      />
                       <span className="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
-                        {mediaType === 'video' ? <Film className="w-3 h-3" /> : <ImageIcon className="w-3 h-3" />}
-                        Aperçu réel
+                        <ImageIcon className="w-3 h-3" />
+                        Aperçu
                       </span>
                     </div>
 
                     <div className="space-y-3 flex-1">
                       <div>
                         <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                          {mediaType === 'video' ? 'Vidéo prête' : 'Photo prête'}
+                          Photo prête
                         </span>
                         <h4 className="text-sm font-bold text-gray-900 mt-1 truncate max-w-xs sm:max-w-md">
                           {selectedFile?.name}
@@ -315,7 +290,7 @@ export default function SellerStoriesPage() {
                         onClick={() => fileInputRef.current?.click()}
                         className="text-xs font-bold text-emerald-600 hover:text-emerald-700 underline block"
                       >
-                        Changer de fichier
+                        Changer de photo
                       </button>
                     </div>
                   </div>
@@ -325,35 +300,15 @@ export default function SellerStoriesPage() {
               /* Mode Lien Direct */
               <div className="space-y-3">
                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                  Lien de l'image ou de la vidéo
+                  Lien direct de l'image (URL)
                 </label>
                 <input
                   type="url"
                   value={mediaUrl}
                   onChange={(e) => setMediaUrl(e.target.value)}
-                  placeholder="https://mon-site.com/video.mp4 ou https://..."
+                  placeholder="https://mon-site.com/image.jpg"
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none text-sm"
                 />
-                <div className="flex gap-4 pt-1">
-                  <label className="flex items-center gap-2 text-xs font-bold text-gray-700 cursor-pointer">
-                    <input
-                      type="radio"
-                      checked={mediaType === 'image'}
-                      onChange={() => setMediaType('image')}
-                      className="text-emerald-600"
-                    />
-                    <ImageIcon className="w-4 h-4 text-gray-500" /> Photo
-                  </label>
-                  <label className="flex items-center gap-2 text-xs font-bold text-gray-700 cursor-pointer">
-                    <input
-                      type="radio"
-                      checked={mediaType === 'video'}
-                      onChange={() => setMediaType('video')}
-                      className="text-emerald-600"
-                    />
-                    <Film className="w-4 h-4 text-emerald-600" /> Vidéo
-                  </label>
-                </div>
               </div>
             )}
 
@@ -375,7 +330,7 @@ export default function SellerStoriesPage() {
                 ))}
               </select>
               <p className="text-[11px] text-gray-400 mt-1">
-                Si sélectionné, un bouton d'accès rapide vers cet article apparaîtra sur la story.
+                Si sélectionné, un bouton d'accès direct vers cet article apparaîtra sur la story pour les clientes.
               </p>
             </div>
 
@@ -402,7 +357,7 @@ export default function SellerStoriesPage() {
                     <Loader2 className="w-4 h-4 animate-spin" /> Téléversement...
                   </span>
                 ) : (
-                  'Publier la Story'
+                  'Publier la Photo'
                 )}
               </button>
             </div>
@@ -415,44 +370,26 @@ export default function SellerStoriesPage() {
         {stories.map((story) => {
           const product = products.find((p) => p.id === story.product_id);
           const isExpired = new Date(story.expires_at) < new Date();
-          const isVideo =
-            story.media_type === 'video' ||
-            story.media_url.startsWith('data:video/') ||
-            story.media_url.includes('.mp4') ||
-            story.media_url.includes('.webm') ||
-            story.media_url.includes('.mov');
 
           return (
             <div
               key={story.id}
               className="relative group rounded-2xl overflow-hidden aspect-[9/16] bg-gray-900 shadow-sm border border-gray-200"
             >
-              {isVideo ? (
-                <video
-                  src={story.media_url}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className={`w-full h-full object-cover ${isExpired ? 'opacity-50 grayscale' : ''}`}
-                />
-              ) : (
-                <img
-                  src={story.media_url}
-                  alt="Story"
-                  className={`w-full h-full object-cover ${isExpired ? 'opacity-50 grayscale' : ''}`}
-                  onError={(e) => {
-                    // Fallback visuel si l'image est indisponible
-                    (e.currentTarget as HTMLImageElement).src = '/logo.png';
-                  }}
-                />
-              )}
+              <img
+                src={story.media_url}
+                alt="Story"
+                className={`w-full h-full object-cover ${isExpired ? 'opacity-50 grayscale' : ''}`}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = '/logo.png';
+                }}
+              />
 
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
 
-              {/* Statut & Type */}
+              {/* Statut */}
               <div className="absolute top-2 left-2 right-2 flex justify-between items-start z-10">
-                <div className="flex flex-col gap-1">
+                <div>
                   {isExpired ? (
                     <span className="bg-red-500/80 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs backdrop-blur-sm">
                       Expirée
@@ -460,11 +397,6 @@ export default function SellerStoriesPage() {
                   ) : (
                     <span className="bg-emerald-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs backdrop-blur-sm">
                       Active
-                    </span>
-                  )}
-                  {isVideo && (
-                    <span className="bg-black/50 text-white text-[9px] font-bold px-1.5 py-0.5 rounded backdrop-blur-sm flex items-center gap-1 w-max">
-                      <Film className="w-2.5 h-2.5" /> Vidéo
                     </span>
                   )}
                 </div>
@@ -494,13 +426,13 @@ export default function SellerStoriesPage() {
             <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-700 font-bold">Vous n'avez aucune story active.</p>
             <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
-              Importez une photo ou une vidéo depuis votre téléphone pour faire briller votre boutique !
+              Ajoutez une photo pour mettre en valeur les nouveautés de votre boutique auprès des clientes !
             </p>
             <button
               onClick={() => setIsCreating(true)}
               className="mt-4 px-5 py-2.5 rounded-full bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition inline-flex items-center gap-2"
             >
-              <Plus className="w-4 h-4" /> Publier ma première story
+              <Plus className="w-4 h-4" /> Publier ma première photo story
             </button>
           </div>
         )}

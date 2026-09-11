@@ -10,14 +10,16 @@ import HowItWorks from '@/components/home/HowItWorks';
 import Testimonials from '@/components/home/Testimonials';
 import JoinAsBoutique from '@/components/home/JoinAsBoutique';
 
-// VideoStories et FlashSales sont conservés en fichiers mais désactivés pour le MVP
-// Ils seront réactivés après validation du marché
+import VideoStories from '@/components/home/VideoStories';
 
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col bg-[#fcfaf6]">
       {/* Navbar */}
       <Navbar />
+
+      {/* Stories Vidéo & Photo des Boutiques */}
+      <VideoStories />
 
       {/* Hero — Positionnement Bouaké */}
       <Hero />

@@ -229,9 +229,25 @@
 }
 
 /* ==============================================================================
-   ESTHÉTIQUE AFRICAINE MODERNE & CHIC — HIJAB MARKET CI
-   Motifs géométriques subtils & Dégradés chaleureux
+   ESTHÉTIQUE ISLAMIQUE MODERNE & CHIC — HIJAB MARKET CI
+   Motifs arabesques géométriques subtils & Dégradés vert émeraude & or champagne
    ============================================================================== */
+.bg-islamic-pattern {
+  background-color: #faf8f5;
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.06) 0%, transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(212, 175, 55, 0.07) 0%, transparent 45%),
+    url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23d4af37' stroke-width='0.75' stroke-opacity='0.14'%3E%3Cpath d='M40 0L80 40L40 80L0 40Z'/%3E%3Cpath d='M40 10L70 40L40 70L10 40Z' stroke='%23059669' stroke-opacity='0.12'/%3E%3Cpath d='M40 20L60 40L40 60L20 40Z'/%3E%3Ccircle cx='40' cy='40' r='3.5' fill='%23d4af37' fill-opacity='0.15'/%3E%3Cpath d='M0 0L20 20M80 0L60 20M80 80L60 60M0 80L20 60' stroke='%2310b981' stroke-opacity='0.1'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.bg-islamic-pattern-dark {
+  background-color: #04100e;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.22) 0%, transparent 70%),
+    radial-gradient(circle at 100% 100%, rgba(212, 175, 55, 0.15) 0%, transparent 60%),
+    url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%2310b981' stroke-width='0.75' stroke-opacity='0.18'%3E%3Cpath d='M40 0L80 40L40 80L0 40Z'/%3E%3Cpath d='M40 10L70 40L40 70L10 40Z' stroke='%23d4af37' stroke-opacity='0.16'/%3E%3Ccircle cx='40' cy='40' r='3' fill='%23d4af37' fill-opacity='0.2'/%3E%3C/g%3E%3C/svg%3E");
+}
+
 .bg-african-pattern {
   background-color: #fcfaf6;
   background-image: 

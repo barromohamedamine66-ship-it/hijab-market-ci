@@ -167,6 +167,11 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link href="/products?category=gourdes-thermos" className="text-sm text-amber-300 hover:text-amber-200 transition font-medium flex items-center gap-1.5">
+                  <span>🍼 Gourdes & Thermos</span>
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -207,10 +212,10 @@ export default function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm">
-          <p>© {year} HIJAB MARKET CI. Tous droits réservés.</p>
-          <p className="flex items-center gap-1.5">
-            Fait avec <Heart className="w-4 h-4 text-emerald-500 fill-emerald-500" /> en Côte d'Ivoire
+        <div className="border-t border-gray-800/80 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs sm:text-sm text-gray-400">
+          <p>© {year} HIJAB MARKET CI · Commerce éthique, pudique et bienveillant.</p>
+          <p className="flex items-center gap-1.5 text-amber-300/80 font-medium">
+            <span>🌙 Développé avec excellence en Côte d'Ivoire</span>
           </p>
         </div>
       </div>

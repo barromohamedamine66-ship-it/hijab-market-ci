@@ -437,6 +437,35 @@ DO $$ BEGIN
   CREATE TRIGGER after_review_insert AFTER INSERT ON public.reviews FOR EACH ROW EXECUTE FUNCTION public.update_product_rating();
 EXCEPTION WHEN duplicate_object THEN null; END $$;
 
+-- Fonction de Sécurité: Empêcher l'escalade de privilège (modification non-autorisée du rôle)
+CREATE OR REPLACE FUNCTION public.prevent_role_escalation()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  -- Si le rôle est modifié
+  IF NEW.role IS DISTINCT FROM OLD.role THEN
+    -- Seul un administrateur existant ou le service_role peut changer le rôle
+    IF NOT (
+      EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') OR
+      auth.role() = 'service_role'
+    ) THEN
+      -- Forcer le rôle précédent sans lever d'erreur bloquante ou rejeter
+      NEW.role := OLD.role;
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.prevent_role_escalation() FROM public, anon, authenticated;
+
+DO $$ BEGIN
+  CREATE TRIGGER check_role_escalation BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION public.prevent_role_escalation();
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
 -- ==============================================================================
 -- 6. Row Level Security (RLS)
 -- ==============================================================================

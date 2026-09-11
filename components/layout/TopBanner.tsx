@@ -12,10 +12,14 @@ export default function TopBanner() {
       {/* Top Announcement Bar - 100% Client Friendly */}
       <div className="bg-gradient-to-r from-emerald-950 via-gray-950 to-emerald-950 text-emerald-100 py-1.5 px-3 border-b border-emerald-800/40">
         <div className="container flex flex-wrap items-center justify-between gap-2 text-[11px]">
-          {/* Reassurances & Info Client */}
+          {/* Reassurances & Info Client with Muslim Spirit */}
           <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 font-semibold text-amber-300/90 text-[10px] sm:text-[11px] bg-emerald-900/60 px-2 py-0.5 rounded-full border border-amber-400/30">
+              <span>🌙</span> <span>As-Salamu Alaykum</span>
+            </span>
+            <span className="hidden md:inline text-emerald-600">•</span>
             <span className="inline-flex items-center gap-1 font-semibold text-white">
-              <span>🚚</span> <strong>Livraison express</strong> Abidjan, Bouaké & toute la Côte d'Ivoire
+              <span>🚚</span> <strong>Livraison express</strong> Abidjan, Bouaké & CI
             </span>
             <span className="hidden lg:inline text-emerald-600">•</span>
             <span className="hidden lg:inline text-emerald-300/80">🌊 Wave & Orange Money acceptés</span>

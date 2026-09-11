@@ -1,49 +1,20 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { X, ExternalLink, Play, Pause, Volume2, VolumeX, Sparkles, Store, ShoppingBag } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Play, Pause, Sparkles, Store, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-
 import { DBService } from '@/lib/supabase/db-service';
-import type { Story } from '@/lib/supabase/types';
-
-// Helper pour déterminer avec certitude si l'URL est une vidéo
-function isVideoMedia(url: string, explicitType?: string): boolean {
-  if (explicitType === 'video') return true;
-  if (!url) return false;
-  if (url.startsWith('data:video/')) return true;
-  const clean = url.split('?')[0].toLowerCase();
-  return (
-    clean.endsWith('.mp4') ||
-    clean.endsWith('.webm') ||
-    clean.endsWith('.mov') ||
-    clean.endsWith('.m4v') ||
-    clean.endsWith('.ogg')
-  );
-}
-
-// Helper pour YouTube
-function getYouTubeEmbedId(url: string): string | null {
-  if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : null;
-}
 
 export default function VideoStories() {
   const [stories, setStories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeStoryIndex, setActiveStoryIndex] = useState<number | null>(null);
-
-  // Contrôles média
-  const [isMuted, setIsMuted] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
   const [mediaError, setMediaError] = useState(false);
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-
   useEffect(() => {
     DBService.getStories().then((data) => {
+      // Filtrer les stories valides
       setStories(data || []);
       setLoading(false);
     });
@@ -71,28 +42,15 @@ export default function VideoStories() {
     }
   };
 
-  // Progression automatique avec gestion pause
+  // Progression automatique : 7 secondes par photo story
   useEffect(() => {
     if (activeStoryIndex !== null && !isPaused) {
       const timer = setTimeout(() => {
         handleNext();
-      }, 15000); // 15 secondes par story
+      }, 7000);
       return () => clearTimeout(timer);
     }
   }, [activeStoryIndex, isPaused]);
-
-  // Synchronisation lecture vidéo
-  useEffect(() => {
-    if (videoRef.current) {
-      if (isPaused) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play().catch(() => {
-          // Autoplay fallback
-        });
-      }
-    }
-  }, [isPaused, activeStoryIndex]);
 
   if (loading || stories.length === 0) {
     return null;
@@ -101,8 +59,6 @@ export default function VideoStories() {
   const shopName = activeStory?.store?.name || 'Boutique Partenaire';
   const shopLogo = activeStory?.store?.logo_url || '/logo.png';
   const mediaUrl = activeStory?.media_url || '';
-  const isVideo = isVideoMedia(mediaUrl, activeStory?.media_type);
-  const youtubeId = getYouTubeEmbedId(mediaUrl);
 
   return (
     <div className="bg-white border-b border-gray-100 py-3 sm:py-4">
@@ -128,9 +84,6 @@ export default function VideoStories() {
                         (e.currentTarget as HTMLImageElement).src = '/logo.png';
                       }}
                     />
-                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Play className="w-6 h-6 text-white fill-white" />
-                    </div>
                   </div>
                 </div>
                 <span className="text-[10px] sm:text-xs font-semibold text-gray-800 w-16 sm:w-20 truncate text-center">
@@ -142,12 +95,33 @@ export default function VideoStories() {
         </div>
       </div>
 
-      {/* MODAL STORY PLEIN ÉCRAN */}
+      {/* MODAL STORY PHOTO PLEIN ÉCRAN */}
       {activeStory && (
         <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center">
-          {/* Container du contenu style TikTok / Instagram */}
+          {/* Boutons de navigation bureau */}
+          {activeStoryIndex! > 0 && (
+            <button
+              onClick={handlePrev}
+              className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white items-center justify-center backdrop-blur-md transition"
+              title="Story précédente"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+          )}
+
+          {activeStoryIndex! < stories.length - 1 && (
+            <button
+              onClick={handleNext}
+              className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white items-center justify-center backdrop-blur-md transition"
+              title="Story suivante"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          )}
+
+          {/* Container du contenu style Instagram Stories */}
           <div className="relative w-full h-full sm:w-[420px] sm:h-[88vh] sm:rounded-3xl overflow-hidden bg-gray-950 shadow-2xl flex flex-col justify-between">
-            {/* Zones tactiles latérales pour naviguer (gauche = précédent, droite = suivant) */}
+            {/* Zones tactiles latérales pour naviguer */}
             <div className="absolute inset-0 z-20 flex">
               <div
                 className="w-1/3 h-full cursor-pointer"
@@ -161,10 +135,9 @@ export default function VideoStories() {
               />
             </div>
 
-            {/* Arrière-plan Média (Vidéo, Image, YouTube ou Fallback) */}
-            <div className="absolute inset-0 z-0">
+            {/* Photo / Média */}
+            <div className="absolute inset-0 z-0 bg-gray-900">
               {mediaError || !mediaUrl ? (
-                /* Fallback élégant si le média est indisponible */
                 <div className="w-full h-full bg-gradient-to-b from-gray-900 via-emerald-950 to-black flex flex-col items-center justify-center p-6 text-center text-white">
                   <div className="w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 overflow-hidden flex items-center justify-center mb-4 shadow-xl">
                     <img src={shopLogo} alt={shopName} className="w-full h-full object-cover" />
@@ -180,24 +153,6 @@ export default function VideoStories() {
                     </div>
                   )}
                 </div>
-              ) : youtubeId ? (
-                <iframe
-                  src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=${isMuted ? 1 : 0}&playsinline=1&controls=0&loop=1&playlist=${youtubeId}`}
-                  className="w-full h-full object-cover pointer-events-none"
-                  allow="autoplay; encrypted-media"
-                />
-              ) : isVideo ? (
-                <video
-                  ref={videoRef}
-                  src={mediaUrl}
-                  autoPlay
-                  loop
-                  muted={isMuted}
-                  playsInline
-                  webkit-playsinline="true"
-                  className="w-full h-full object-cover"
-                  onError={() => setMediaError(true)}
-                />
               ) : (
                 <div className="w-full h-full animate-ken-burns">
                   <img
@@ -213,14 +168,14 @@ export default function VideoStories() {
               <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/85 pointer-events-none" />
             </div>
 
-            {/* En-tête : Barre de progression & Boutons de contrôle */}
+            {/* En-tête : Barre de progression & Boutique */}
             <div className="relative z-30 p-4 sm:p-5 flex flex-col gap-3">
-              {/* Barres de progression segments style Instagram */}
+              {/* Barres de progression */}
               <div className="flex gap-1.5 w-full">
                 {stories.map((s, idx) => (
                   <div key={s.id} className="h-1 flex-1 bg-white/30 rounded-full overflow-hidden">
                     <div
-                      className={`h-full bg-white transition-all duration-300 ${
+                      className={`h-full bg-white transition-all ${
                         idx < activeStoryIndex!
                           ? 'w-full'
                           : idx === activeStoryIndex && !isPaused
@@ -234,7 +189,7 @@ export default function VideoStories() {
                 ))}
               </div>
 
-              {/* Barre supérieure : Boutique & Boutons (Fermer, Son, Pause) */}
+              {/* Barre supérieure : Boutique & Boutons */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full border-2 border-white/80 overflow-hidden shadow-lg bg-gray-800">
@@ -258,20 +213,6 @@ export default function VideoStories() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {/* Bouton Son pour les vidéos */}
-                  {isVideo && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsMuted(!isMuted);
-                      }}
-                      className="w-9 h-9 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center text-white transition shadow-md"
-                      title={isMuted ? 'Activer le son' : 'Couper le son'}
-                    >
-                      {isMuted ? <VolumeX className="w-4 h-4 text-white/80" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
-                    </button>
-                  )}
-
                   {/* Bouton Pause / Lecture */}
                   <button
                     onClick={(e) => {
@@ -344,23 +285,23 @@ export default function VideoStories() {
         </div>
       )}
 
-      {/* Keyframes pour zoom doux (Ken Burns) & barre de progression */}
+      {/* Keyframes pour effet Ken Burns doux et progression */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
         @keyframes ken-burns {
           0% { transform: scale(1); }
-          100% { transform: scale(1.08); }
+          100% { transform: scale(1.05); }
         }
         .animate-ken-burns {
-          animation: ken-burns 15s ease-out forwards;
+          animation: ken-burns 7s ease-out forwards;
         }
         @keyframes story-progress {
           0% { width: 0%; }
           100% { width: 100%; }
         }
         .animate-story-progress {
-          animation: story-progress 15s linear forwards;
+          animation: story-progress 7s linear forwards;
         }
       `,
         }}

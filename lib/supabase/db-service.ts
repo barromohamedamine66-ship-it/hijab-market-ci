@@ -1,27 +1,22 @@
 import { supabase, isSupabaseConfigured } from './client';
 import type { Product, Shop, Category, Order, OrderItem, SellerWallet, Address, PaymentMethod, SubscriptionPlan, StoreSubscription, PlatformSettings } from './types';
 
-// Catégories officielles Hijab Market CI — Mode Modeste & Lifestyle Ivoirien
-// Couvre les priorités du prompt maître : Hijabs, Abayas, Bazins, Robes, Ensembles, etc.
+// Catégories officielles Hijab Market CI — Mode Modeste & Lifestyle Islamique Ivoirien
 const DEFAULT_CATEGORIES: Category[] = [
-  // Priorités 1 — Cœur de marché Bouaké
-  { id: 'c1000000-0000-0000-0000-000000000001', name: 'Hijabs & Voiles', slug: 'hijabs-voiles', emoji: '🧕', icon: 'sparkles', image_url: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&auto=format&fit=crop&q=80', description: 'Soie de Médine, mousseline, jersey, plissé, turbans', order_index: 1, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000002', name: 'Abayas & Robes', slug: 'abayas-robes', emoji: '👑', icon: 'crown', image_url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80', description: 'Abayas Dubaï, robes longues, kimonos chics et tenues de fête', order_index: 2, is_active: true, created_at: new Date().toISOString() },
-  // Bazins — Priorité spéciale marché ivoirien
-  { id: 'c1000000-0000-0000-0000-000000000020', name: 'Bazins & Tissus', slug: 'bazins-tissus', emoji: '🪡', icon: 'layers', image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop&q=80', description: 'Bazin riche Getzner, bazin imprimé, bazin brodé, tissus pagne et wax', order_index: 3, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000003', name: 'Boubous Femme', slug: 'boubous-femme', emoji: '🌸', icon: 'gem', image_url: 'https://images.unsplash.com/photo-1516223725307-6f76b9ec8742?w=800&auto=format&fit=crop&q=80', description: 'Bazin riche Getzner, soie, broderies raffinées et coupes modernes', order_index: 4, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000005', name: 'Ensembles & Prêt-à-porter', slug: 'ensembles-pret-a-porter', emoji: '👗', icon: 'layout', image_url: 'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=800&auto=format&fit=crop&q=80', description: 'Ensembles modestes, tailleurs amples, tuniques et pantalons', order_index: 5, is_active: true, created_at: new Date().toISOString() },
-  // Homme & Enfants
-  { id: 'c1000000-0000-0000-0000-000000000004', name: 'Qamis & Tenues Homme', slug: 'tenues-homme', emoji: '👔', icon: 'shirt', image_url: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&auto=format&fit=crop&q=80', description: 'Qamis émiratis, grands boubous 3 pièces et chéchias brodées', order_index: 6, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000021', name: 'Mode Enfants', slug: 'mode-enfants', emoji: '👶', icon: 'heart', image_url: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=800&auto=format&fit=crop&q=80', description: 'Tenues modestes pour filles et garçons, robes de fête enfant', order_index: 7, is_active: true, created_at: new Date().toISOString() },
-  // Accessoires
-  { id: 'c1000000-0000-0000-0000-000000000008', name: 'Bonnets & Accessoires Hijab', slug: 'bonnets-accessoires-hijab', emoji: '💎', icon: 'sparkles', image_url: 'https://images.unsplash.com/photo-1611080313621-e946a36c4bba?w=800&auto=format&fit=crop&q=80', description: 'Épingles magnétiques, bonnets croisés, cagoules et bandeaux', order_index: 8, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000022', name: 'Sacs & Chaussures', slug: 'sacs-chaussures', emoji: '👜', icon: 'shopping-bag', image_url: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80', description: 'Sacs à main, sacoches, sandales et chaussures mode modeste', order_index: 9, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000023', name: 'Bijoux & Accessoires', slug: 'bijoux-accessoires', emoji: '✨', icon: 'gem', image_url: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&auto=format&fit=crop&q=80', description: 'Bijoux, bracelets, colliers et accessoires mode', order_index: 10, is_active: true, created_at: new Date().toISOString() },
-  // Beauté & Lifestyle
-  { id: 'c1000000-0000-0000-0000-000000000010', name: 'Beauté & Cosmétiques', slug: 'beaute-cosmetiques', emoji: '🌿', icon: 'heart', image_url: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800&auto=format&fit=crop&q=80', description: 'Soins naturels, cosmétiques halal, henné et parfums islamiques', order_index: 11, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000016', name: 'Cadeaux & Coffrets', slug: 'cadeaux-coffrets', emoji: '🎁', icon: 'gift', image_url: 'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=800&auto=format&fit=crop&q=80', description: 'Coffrets mariage, dot, Aïd et cadeaux islamiques', order_index: 12, is_active: true, created_at: new Date().toISOString() },
-  { id: 'c1000000-0000-0000-0000-000000000011', name: 'Autres & Artisanat', slug: 'autres', emoji: '🏷️', icon: 'tag', image_url: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=800&auto=format&fit=crop&q=80', description: 'Autres articles de mode modeste et lifestyle islamique', order_index: 13, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000001', name: 'Hijabs & Voiles', slug: 'hijabs-voiles', emoji: '🧕', icon: 'sparkles', image_url: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&auto=format&fit=crop&q=80', description: 'Soie de Médine, mousseline, jersey premium, plissé et turbans chics', order_index: 1, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000002', name: 'Abayas & Robes', slug: 'abayas-robes', emoji: '👑', icon: 'crown', image_url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80', description: 'Abayas Dubaï brodées, kimonos luxe, robes longues et tenues de fête', order_index: 2, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000020', name: 'Bazins & Tissus', slug: 'bazins-tissus', emoji: '🪡', icon: 'layers', image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop&q=80', description: 'Bazin riche Getzner, bazin brodé, soies, pagnes et dentelles raffinées', order_index: 3, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000003', name: 'Boubous Femme', slug: 'boubous-femme', emoji: '🌸', icon: 'gem', image_url: 'https://images.unsplash.com/photo-1516223725307-6f76b9ec8742?w=800&auto=format&fit=crop&q=80', description: 'Grands boubous ivoiriens et sénégalais, broderies dorées et coupes nobles', order_index: 4, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000005', name: 'Ensembles & Prêt-à-porter', slug: 'ensembles-pret-a-porter', emoji: '👗', icon: 'layout', image_url: 'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=800&auto=format&fit=crop&q=80', description: 'Ensembles modestes coordonnés, tailleurs amples et tuniques élégantes', order_index: 5, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000004', name: 'Qamis & Homme', slug: 'tenues-homme', emoji: '👔', icon: 'shirt', image_url: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&auto=format&fit=crop&q=80', description: 'Qamis émiratis et saoudiens, grands boubous 3 pièces et chéchias', order_index: 6, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000024', name: 'Gourdes & Thermos', slug: 'gourdes-thermos', emoji: '🍼', icon: 'coffee', image_url: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=800&auto=format&fit=crop&q=80', description: 'Gourdes isothermes Bismillah, thermos inox, bouteilles infuseur & lifestyle', order_index: 7, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000021', name: 'Mode Enfants', slug: 'mode-enfants', emoji: '👶', icon: 'heart', image_url: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=800&auto=format&fit=crop&q=80', description: 'Hijabs fillettes, mini abayas, qamis garçons et ensembles Aïd', order_index: 8, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000008', name: 'Bonnets & Accessoires Hijab', slug: 'bonnets-accessoires-hijab', emoji: '💎', icon: 'sparkles', image_url: 'https://images.unsplash.com/photo-1611080313621-e946a36c4bba?w=800&auto=format&fit=crop&q=80', description: 'Bonnets croisés satin, épingles magnétiques, cagoules et bandeaux', order_index: 9, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000022', name: 'Sacs & Maroquinerie', slug: 'sacs-chaussures', emoji: '👜', icon: 'shopping-bag', image_url: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80', description: 'Sacs à main modestes, pochettes d’apparat et cabas élégants', order_index: 10, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000023', name: 'Bijoux & Parures', slug: 'bijoux-accessoires', emoji: '✨', icon: 'gem', image_url: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&auto=format&fit=crop&q=80', description: 'Parures dorées, bagues fines, colliers calligraphie et bracelets d’Orient', order_index: 11, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000010', name: 'Parfums, Muscs & Sunnah', slug: 'beaute-cosmetiques', emoji: '🌿', icon: 'heart', image_url: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800&auto=format&fit=crop&q=80', description: 'Musc Tahara blanc, huiles de parfum de Dubaï, encens Bakhoor et siwak', order_index: 12, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000016', name: 'Coffrets & Cadeaux', slug: 'cadeaux-coffrets', emoji: '🎁', icon: 'gift', image_url: 'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=800&auto=format&fit=crop&q=80', description: 'Coffrets Coran avec Tasbih, trousseaux de mariage, coffrets Aïd et dot', order_index: 13, is_active: true, created_at: new Date().toISOString() },
+  { id: 'c1000000-0000-0000-0000-000000000011', name: 'Tapis de Prière & Déco', slug: 'tapis-deco', emoji: '🕌', icon: 'compass', image_url: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800&auto=format&fit=crop&q=80', description: 'Tapis de prière rembourrés en velours, cadres calligraphie islamique', order_index: 14, is_active: true, created_at: new Date().toISOString() },
 ];
 
 
@@ -453,8 +448,58 @@ const DEFAULT_PRODUCTS: Product[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[1],
-    category: DEFAULT_CATEGORIES[6],
+    category: DEFAULT_CATEGORIES[12],
     images: [{ id: 'img10', product_id: 'p1000000-0000-0000-0000-000000000010', image_url: 'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=800&auto=format&fit=crop&q=80', position: 0, is_cover: true, created_at: new Date().toISOString() }]
+  },
+  {
+    id: 'p1000000-0000-0000-0000-000000000011',
+    store_id: 's1000000-0000-0000-0000-000000000001',
+    category_id: 'c1000000-0000-0000-0000-000000000024',
+    name: 'Gourde Isotherme Inox « Bismillah » 500ml — Or Champagne',
+    slug: 'gourde-isotherme-inox-bismillah-500ml-or',
+    description: 'Bouteille isotherme premium en acier inoxydable 304 double paroi sous vide. Maintient 24h au frais et 12h au chaud. Gravure calligraphique élégante « Bismillah » et bouchon antifuite sans BPA.',
+    price: 9500,
+    old_price: 12000,
+    stock: 35,
+    status: 'approved',
+    featured: true,
+    badge: 'Coup de Cœur',
+    material: 'Acier Inoxydable 304 Alimentaire Double Paroi',
+    colors: ['Or Champagne Satiné', 'Vert Émeraude & Or', 'Noir Mat'],
+    sizes: ['500 ml'],
+    rating: 0,
+    reviews_count: 0,
+    admin_notes: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    store: DEFAULT_SHOPS[0],
+    category: DEFAULT_CATEGORIES[6],
+    images: [{ id: 'img11', product_id: 'p1000000-0000-0000-0000-000000000011', image_url: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=800&auto=format&fit=crop&q=80', position: 0, is_cover: true, created_at: new Date().toISOString() }]
+  },
+  {
+    id: 'p1000000-0000-0000-0000-000000000012',
+    store_id: 's1000000-0000-0000-0000-000000000002',
+    category_id: 'c1000000-0000-0000-0000-000000000024',
+    name: 'Thermos Nomade Infuseur Thé & Menthe — Bambou & Inox',
+    slug: 'thermos-nomade-infuseur-the-menthe-bambou',
+    description: 'Thermos écologique avec revêtement en bambou naturel et filtre infuseur amovible en inox pour vos tisanes, thés à la menthe et boissons détox au quotidien.',
+    price: 11000,
+    old_price: 14000,
+    stock: 25,
+    status: 'approved',
+    featured: false,
+    badge: 'Éco-Responsable',
+    material: 'Bambou Naturel & Inox Alimentaire',
+    colors: ['Bois Bambou Naturel'],
+    sizes: ['450 ml'],
+    rating: 0,
+    reviews_count: 0,
+    admin_notes: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    store: DEFAULT_SHOPS[1],
+    category: DEFAULT_CATEGORIES[6],
+    images: [{ id: 'img12', product_id: 'p1000000-0000-0000-0000-000000000012', image_url: 'https://images.unsplash.com/photo-1577937927133-66ef06acdf18?w=800&auto=format&fit=crop&q=80', position: 0, is_cover: true, created_at: new Date().toISOString() }]
   }
 ];
 
@@ -462,10 +507,10 @@ const DEFAULT_ORDERS: Order[] = [];
 
 // Helper pour stockage persistant local (client-side)
 const STORAGE_KEYS = {
-  SHOPS: 'hm_shops_v6',
-  PRODUCTS: 'hm_products_v6',
-  ORDERS: 'hm_orders_v6',
-  CATEGORIES: 'hm_categories_v3',
+  SHOPS: 'hm_shops_v7',
+  PRODUCTS: 'hm_products_v7',
+  ORDERS: 'hm_orders_v7',
+  CATEGORIES: 'hm_categories_v4',
   PLANS: 'hm_subscription_plans',
   FAVORITES: 'hm_favorites',
 };
@@ -2008,6 +2053,20 @@ export const DBService = {
   // STORIES & FLASH SALES
   // ==========================================
   async getStories(): Promise<any[]> {
+    try {
+      if (typeof window !== 'undefined') {
+        const res = await fetch('/api/stories');
+        if (res.ok) {
+          const json = await res.json();
+          if (Array.isArray(json.stories)) {
+            return json.stories;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('API getStories failed, falling back to Supabase client:', e);
+    }
+
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabase
@@ -2069,91 +2128,76 @@ export const DBService = {
   async uploadStoryMedia(file: File, shopId: string): Promise<string | null> {
     if (!file) return null;
 
-    // 1. Pour une image : tentative stockage Supabase avec fallback DataURL compressé
-    if (file.type.startsWith('image/')) {
-      try {
-        if (isSupabaseConfigured()) {
-          const ext = file.name.split('.').pop() || 'jpg';
-          const path = `stories/${shopId}_${Date.now()}.${ext}`;
-          const { error: upErr } = await supabase.storage.from('product-images').upload(path, file, {
-            contentType: file.type,
-            upsert: true,
-          });
-          if (!upErr) {
-            const { data } = supabase.storage.from('product-images').getPublicUrl(path);
-            if (data?.publicUrl) return data.publicUrl;
-          }
-        }
-      } catch (e) {
-        console.warn('Storage image upload error, using local fallback:', e);
-      }
-
-      // Fallback DataURL compressé via canvas (haute qualité, taille réduite)
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let w = img.width;
-            let h = img.height;
-            const max = 1200;
-            if (w > h && w > max) {
-              h = Math.round((h * max) / w);
-              w = max;
-            } else if (h > max) {
-              w = Math.round((w * max) / h);
-              h = max;
-            }
-            canvas.width = w;
-            canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            ctx?.drawImage(img, 0, 0, w, h);
-            resolve(canvas.toDataURL('image/jpeg', 0.85));
-          };
-          img.onerror = () => resolve(reader.result as string);
-          img.src = reader.result as string;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // 2. Pour une vidéo : téléversement direct vers Supabase Storage
-    if (file.type.startsWith('video/')) {
-      try {
-        if (isSupabaseConfigured()) {
-          const ext = file.name.split('.').pop() || 'mp4';
-          const path = `stories/videos/${shopId}_${Date.now()}.${ext}`;
-          const { error: upErr } = await supabase.storage.from('product-images').upload(path, file, {
-            contentType: file.type,
-            upsert: true,
-          });
-          if (!upErr) {
-            const { data } = supabase.storage.from('product-images').getPublicUrl(path);
-            if (data?.publicUrl) return data.publicUrl;
-          }
-        }
-      } catch (e) {
-        console.warn('Storage video upload error:', e);
-      }
-
-      // Si la vidéo fait moins de 25 Mo, encoder en DataURL
-      if (file.size <= 25 * 1024 * 1024) {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(file);
+    // Tentative stockage Supabase avec fallback DataURL compressé
+    try {
+      if (isSupabaseConfigured()) {
+        const ext = file.name.split('.').pop() || 'jpg';
+        const path = `stories/${shopId}_${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from('product-images').upload(path, file, {
+          contentType: file.type || 'image/jpeg',
+          upsert: true,
         });
+        if (!upErr) {
+          const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+          if (data?.publicUrl) return data.publicUrl;
+        }
       }
+    } catch (e) {
+      console.warn('Storage image upload error, using local fallback:', e);
     }
 
-    return null;
+    // Fallback DataURL compressé via canvas (haute qualité, format léger et rapide)
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width;
+          let h = img.height;
+          const max = 1200;
+          if (w > h && w > max) {
+            h = Math.round((h * max) / w);
+            w = max;
+          } else if (h > max) {
+            w = Math.round((w * max) / h);
+            h = max;
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.85));
+        };
+        img.onerror = () => resolve(reader.result as string);
+        img.src = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
   },
 
   async createStory(storyData: any): Promise<any | null> {
+    // 1. Try server API route first (which bypasses RLS using admin client)
+    try {
+      const res = await fetch('/api/seller/stories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(storyData),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.story) return json.story;
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        console.warn('POST /api/seller/stories returned error:', errJson);
+      }
+    } catch (e) {
+      console.warn('POST /api/seller/stories fetch error:', e);
+    }
+
+    // 2. Direct Supabase fallback
     if (!isSupabaseConfigured()) return null;
     
-    // Durée de validité de 7 jours
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
     
@@ -2178,6 +2222,19 @@ export const DBService = {
   },
 
   async deleteStory(id: string): Promise<boolean> {
+    // 1. Try server API route first
+    try {
+      const res = await fetch(`/api/seller/stories?id=${id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        return true;
+      }
+    } catch (e) {
+      console.warn('DELETE /api/seller/stories fetch error:', e);
+    }
+
+    // 2. Direct Supabase fallback
     if (!isSupabaseConfigured()) return false;
     try {
       const { error } = await supabase.from('stories').delete().eq('id', id);

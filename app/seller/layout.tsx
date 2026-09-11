@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import {
   LayoutDashboard, Package, ShoppingCart,
-  DollarSign, ArrowDownCircle, Store, Bell, LogOut, ShieldAlert, Sparkles, PlayCircle, MessageSquareText
+  DollarSign, ArrowDownCircle, Store, Bell, LogOut, ShieldAlert, Sparkles, Camera, MessageSquareText
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -13,7 +13,7 @@ const navItems = [
   { href: '/seller/dashboard', icon: LayoutDashboard, label: 'Tableau de bord' },
   { href: '/seller/shop', icon: Store, label: 'Profil & Logo Boutique' },
   { href: '/seller/products', icon: Package, label: 'Mes Produits' },
-  { href: '/seller/stories', icon: PlayCircle, label: 'Mes Stories' },
+  { href: '/seller/stories', icon: Camera, label: 'Mes Stories' },
   { href: '/seller/orders', icon: ShoppingCart, label: 'Commandes Reçues' },
   { href: '/seller/messages', icon: MessageSquareText, label: 'Messagerie' },
 ];
