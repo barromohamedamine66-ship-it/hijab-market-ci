@@ -251,17 +251,17 @@ export default function DevenirVendeurPage() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-900">Pour Débuter</h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-extrabold text-gray-900">0 F</span>
+                  <span className="text-3xl font-extrabold text-gray-900">3 000 F</span>
                   <span className="text-xs text-gray-400">/ mois</span>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Idéal pour tester la marketplace et publier ses premiers articles sans frais.
+                  Idéal pour démarrer sur la marketplace et vendre ses premiers articles à petit prix.
                 </p>
 
                 <ul className="space-y-2.5 pt-4 border-t border-gray-100 text-xs text-gray-600">
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                    <span>Jusqu’à <strong>5 articles</strong> en ligne</span>
+                    <span>Jusqu’à <strong>15 articles</strong> en ligne</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
@@ -269,11 +269,11 @@ export default function DevenirVendeurPage() {
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                    <span>Commandes directes WhatsApp</span>
+                    <span>Commandes directes WhatsApp (0% commission)</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                    <span>Support standard par email</span>
+                    <span>Support par email & WhatsApp</span>
                   </li>
                 </ul>
               </div>
@@ -282,7 +282,7 @@ export default function DevenirVendeurPage() {
                 href="/auth/register/vendor"
                 className="w-full py-3 text-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs transition"
               >
-                Démarrer Gratuitement
+                Choisir Découverte (3 000 F)
               </Link>
             </div>
 
@@ -298,11 +298,11 @@ export default function DevenirVendeurPage() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-900">Boutiques Actives</h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-extrabold text-emerald-600">15 000 F</span>
+                  <span className="text-3xl font-extrabold text-emerald-600">5 000 F</span>
                   <span className="text-xs text-gray-400">/ mois</span>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Pour les créatrices et boutiques régulières qui souhaitent un catalogue complet et vérifié.
+                  Pour les créatrices et boutiques régulières qui souhaitent un catalogue illimité et vérifié.
                 </p>
 
                 <ul className="space-y-2.5 pt-4 border-t border-gray-100 text-xs text-gray-600">
@@ -333,7 +333,7 @@ export default function DevenirVendeurPage() {
                 href="/auth/register/vendor"
                 className="w-full py-3 text-center rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md hover:shadow-lg transition"
               >
-                Choisir la Formule Business
+                Choisir la Formule Business (5 000 F)
               </Link>
             </div>
 
@@ -345,7 +345,7 @@ export default function DevenirVendeurPage() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-900">Visibilité Maximale</h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-extrabold text-amber-600">30 000 F</span>
+                  <span className="text-3xl font-extrabold text-amber-600">10 000 F</span>
                   <span className="text-xs text-gray-400">/ mois</span>
                 </div>
                 <p className="text-xs text-gray-500">
@@ -380,7 +380,7 @@ export default function DevenirVendeurPage() {
                 href="/auth/register/vendor"
                 className="w-full py-3 text-center rounded-full bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold text-xs shadow transition"
               >
-                Devenir Boutique VIP
+                Devenir Boutique VIP (10 000 F)
               </Link>
             </div>
           </div>
@@ -392,7 +392,7 @@ export default function DevenirVendeurPage() {
             </div>
             <h3 className="text-base sm:text-lg font-bold text-white">Règlement direct des formules par Wave Côte d'Ivoire</h3>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Pour activer votre Formule Business (15 000 F) ou Premium (30 000 F), réglez directement via Wave au compte officiel de la plateforme :
+              Pour activer votre formule (Découverte 3 000 F, Business 5 000 F ou Premium 10 000 F), réglez directement via Wave au compte officiel de la plateforme :
             </p>
             <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
               <div className="px-3.5 py-2 bg-slate-900 rounded-xl border border-sky-500/40 text-xs font-mono font-extrabold text-sky-400">

@@ -20,30 +20,30 @@ const DEFAULT_CATEGORIES: Category[] = [
 ];
 
 
-// Plans d'abonnements officiels
+// Plans d'abonnements officiels (3 000, 5 000, 10 000 FCFA)
 const DEFAULT_SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'plan-decouverte',
     code: 'decouverte',
     slug: 'decouverte',
     name: 'Formule Découverte',
-    description: 'Idéal pour tester la marketplace sans aucun engagement',
-    price: 0,
-    price_monthly: 0,
-    price_yearly: 0,
+    description: 'Idéal pour démarrer et tester la marketplace à tout petit prix',
+    price: 3000,
+    price_monthly: 3000,
+    price_yearly: 30000,
     duration: 'monthly',
-    max_products: 5,
-    featured_products: 0,
+    max_products: 15,
+    featured_products: 1,
     analytics: false,
     priority_visibility: false,
     active: true,
     created_at: new Date().toISOString(),
     features: [
-      '5 produits en ligne',
+      'Jusqu’à 15 articles en ligne',
       'Boutique personnalisée avec lien unique',
       'Bouton de commande direct WhatsApp',
       'Affichage dans les catégories',
-      'Support par email standard'
+      'Support par email & WhatsApp'
     ],
     badge_name: 'Découverte',
     is_popular: false,
@@ -56,9 +56,9 @@ const DEFAULT_SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     slug: 'business',
     name: 'Formule Business',
     description: 'La formule préférée des créatrices et boutiques régulières',
-    price: 15000,
-    price_monthly: 15000,
-    price_yearly: 150000,
+    price: 5000,
+    price_monthly: 5000,
+    price_yearly: 50000,
     duration: 'monthly',
     max_products: -1,
     featured_products: 5,
@@ -85,9 +85,9 @@ const DEFAULT_SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     slug: 'premium',
     name: 'Formule Premium VIP',
     description: 'Visibilité maximale et accompagnement dédié pour les marques phares',
-    price: 30000,
-    price_monthly: 30000,
-    price_yearly: 300000,
+    price: 10000,
+    price_monthly: 10000,
+    price_yearly: 100000,
     duration: 'monthly',
     max_products: -1,
     featured_products: 15,
@@ -511,7 +511,7 @@ const STORAGE_KEYS = {
   PRODUCTS: 'hm_products_v7',
   ORDERS: 'hm_orders_v7',
   CATEGORIES: 'hm_categories_v4',
-  PLANS: 'hm_subscription_plans',
+  PLANS: 'hm_subscription_plans_v2',
   FAVORITES: 'hm_favorites',
 };
 

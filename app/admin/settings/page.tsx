@@ -101,7 +101,7 @@ export default function AdminSettingsPage() {
           </div>
 
           <p className="text-xs text-slate-400 leading-relaxed">
-            Ces coordonnées sont affichées aux vendeuses lorsqu'elles souscrivent ou renouvellent leur formule (Business 15.000 FCFA ou Premium VIP 30.000 FCFA).
+            Ces coordonnées sont affichées aux vendeuses lorsqu'elles souscrivent ou renouvellent leur formule (Découverte 3.000 FCFA, Business 5.000 FCFA ou Premium VIP 10.000 FCFA).
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

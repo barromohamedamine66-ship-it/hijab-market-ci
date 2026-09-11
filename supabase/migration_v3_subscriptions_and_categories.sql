@@ -47,17 +47,17 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 4. Insertion des Formules d'Abonnement Initiales (Prix modifiables par l'admin)
+-- 4. Insertion des Formules d'Abonnement Initiales (3 000, 5 000, 10 000 FCFA)
 INSERT INTO public.subscription_plans (name, slug, price, duration, description, max_products, featured_products, analytics, priority_visibility, active)
 VALUES 
 (
     'Formule Découverte',
     'decouverte',
-    0,
-    'gratuit',
-    'Idéale pour lancer sa boutique en ligne et tester la plateforme sans frais.',
-    10,
-    0,
+    3000,
+    'mensuel',
+    'Idéale pour démarrer et tester la marketplace à petit prix.',
+    15,
+    1,
     FALSE,
     FALSE,
     TRUE
@@ -65,10 +65,10 @@ VALUES
 (
     'Formule Business',
     'business',
-    15000,
+    5000,
     'mensuel',
-    'Pour les boutiques qui souhaitent accélérer leurs ventes et obtenir des statistiques.',
-    50,
+    'Pour les boutiques qui souhaitent un catalogue illimité, badge vérifié et visibilité accrue.',
+    -1, -- illimité
     5,
     TRUE,
     TRUE,
@@ -77,9 +77,9 @@ VALUES
 (
     'Formule Premium',
     'premium',
-    30000,
+    10000,
     'mensuel',
-    'Visibilité maximale, catalogue illimité, badge d''excellence et support prioritaire.',
+    'Visibilité maximale, catalogue illimité, badge VIP, bannière accueil et support prioritaire.',
     -1, -- illimité
     15,
     TRUE,
@@ -88,6 +88,8 @@ VALUES
 )
 ON CONFLICT (slug) DO UPDATE SET
     name = EXCLUDED.name,
+    price = EXCLUDED.price,
+    duration = EXCLUDED.duration,
     description = EXCLUDED.description,
     max_products = EXCLUDED.max_products,
     featured_products = EXCLUDED.featured_products,
