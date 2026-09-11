@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from './client';
-import type { Product, Shop, Category, Order, OrderItem, SellerWallet, Address, PaymentMethod, SubscriptionPlan, StoreSubscription, PlatformSettings } from './types';
+import type { Product, Shop, Category, Order, OrderItem, OrderStatus, SellerWallet, Address, PaymentMethod, SubscriptionPlan, StoreSubscription, PlatformSettings } from './types';
 
 // Catégories officielles Hijab Market CI — Mode Modeste & Lifestyle Islamique Ivoirien
 const DEFAULT_CATEGORIES: Category[] = [
