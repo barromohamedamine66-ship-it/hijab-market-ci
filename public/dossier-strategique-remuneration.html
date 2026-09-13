@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dossier Stratégique — Modèle Économique & Rémunération | HIJAB MARKET CI</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap');
+
+    :root {
+      --primary: #065f46;
+      --primary-dark: #022c22;
+      --gold: #d97706;
+      --gold-light: #fef3c7;
+      --text: #1f2937;
+      --text-muted: #4b5563;
+      --bg: #faf9f6;
+      --card-bg: #ffffff;
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text);
+      background-color: var(--bg);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .document-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 3.5rem 4rem;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+    }
+
+    .action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .btn-print {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .btn-print:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .header-badge {
+      display: inline-block;
+      padding: 0.35rem 1rem;
+      border-radius: 9999px;
+      background: var(--gold-light);
+      color: var(--gold);
+      font-weight: 800;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.3rem;
+      color: var(--primary-dark);
+      line-height: 1.25;
+      margin-bottom: 0.75rem;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid #f3f4f6;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+      padding: 1.25rem 1.5rem;
+      background: #f8fafc;
+      border-radius: 16px;
+      font-size: 0.85rem;
+    }
+
+    .meta-grid span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .meta-grid strong {
+      color: var(--primary-dark);
+      font-size: 0.95rem;
+    }
+
+    h2 {
+      font-family: 'Playfair Display', serif;
+      color: var(--primary-dark);
+      font-size: 1.5rem;
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    h3 {
+      font-size: 1.15rem;
+      color: var(--primary-dark);
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+      color: #374151;
+    }
+
+    .highlight-box {
+      background: linear-gradient(135deg, rgba(6, 95, 70, 0.05) 0%, rgba(217, 119, 6, 0.05) 100%);
+      border-left: 4px solid var(--primary);
+      padding: 1.5rem;
+      border-radius: 0 16px 16px 0;
+      margin: 1.5rem 0;
+    }
+
+    .highlight-box p {
+      margin: 0;
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0 2rem;
+      font-size: 0.85rem;
+    }
+
+    th {
+      background: var(--primary-dark);
+      color: #fff;
+      padding: 0.9rem 1rem;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tr:nth-child(even) {
+      background: #fcfaf8;
+    }
+
+    .badge-win {
+      background: #d1fae5;
+      color: #065f46;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      font-weight: 800;
+      font-size: 0.75rem;
+      display: inline-block;
+    }
+
+    .badge-risk {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      font-weight: 800;
+      font-size: 0.75rem;
+      display: inline-block;
+    }
+
+    .quote-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin: 1.25rem 0;
+      font-style: italic;
+      color: #334155;
+      border-left: 4px solid var(--gold);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .card-gold {
+      border: 2px solid var(--gold);
+      background: #fffdfa;
+    }
+
+    .signature-section {
+      margin-top: 3.5rem;
+      padding-top: 2rem;
+      border-top: 2px dashed #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+      }
+      .document-container {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        max-width: 100%;
+      }
+      .action-bar {
+        display: none;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="document-container">
+    
+    <!-- Action Bar (Invisible à l'impression) -->
+    <div class="action-bar">
+      <div>
+        <span style="font-size: 0.85rem; color: #6b7280;">Document officiel d'aide à la décision</span>
+      </div>
+      <button class="btn-print" onclick="window.print()">
+        🖨️ Imprimer ou Sauvegarder en PDF
+      </button>
+    </div>
+
+    <!-- En-tête officiel -->
+    <div class="header-badge">Stratégie Commerciale & Financière 2026</div>
+    <h1>Modélisation Économique & Rémunération</h1>
+    <p class="subtitle">Justification stratégique des options de monétisation pour l'équipe de direction de HIJAB MARKET CI</p>
+
+    <div class="meta-grid">
+      <div>
+        <span>Marché & Villes</span>
+        <strong>Côte d'Ivoire (Bouaké & Abidjan)</strong>
+      </div>
+      <div>
+        <span>Date d'Émission</span>
+        <strong>Septembre 2026</strong>
+      </div>
+      <div>
+        <span>Recommandation</span>
+        <strong>Abonnements Récurrents (Option A)</strong>
+      </div>
+    </div>
+
+    <!-- Synthèse Exécutive -->
+    <div class="highlight-box">
+      <p>
+        🎯 <strong>Conclusion Clé :</strong> Sur le marché ivoirien de la mode modeste, le modèle à la commission avec blocage de fonds (séquestre) présente plus de 80% de risque d'échec commercial. Le modèle par <strong>Abonnements Mensuels Fixes (3 000 F / 5 000 F / 10 000 F)</strong> est le seul garantissant une adhésion massive des commerçantes, une trésorerie prévisible dès le premier mois et zéro gestion de litige colis.
+      </p>
+    </div>
+
+    <!-- Tableau Comparatif -->
+    <h2>1. Synthèse Comparative des 3 Options</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Critère</th>
+          <th>Option A : Abonnements (Recommandé)</th>
+          <th>Option B : Commission / Vente</th>
+          <th>Option C : Hybride</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Tarification Vendeuse</strong></td>
+          <td>3 000 F / 5 000 F / 10 000 F par mois</td>
+          <td>7% à 12% sur chaque commande</td>
+          <td>3 000 F/mois + Options Boost</td>
+        </tr>
+        <tr>
+          <td><strong>Paiement Cliente</strong></td>
+          <td>Direct à la boutique (WhatsApp/Wave/Cash)</td>
+          <td>Bloqué sur compte marketplace</td>
+          <td>Direct à la boutique</td>
+        </tr>
+        <tr>
+          <td><strong>Charge Opérationnelle</strong></td>
+          <td><span class="badge-win">Très faible (Zéro tracas)</span></td>
+          <td><span class="badge-risk">Très lourde (SAV & Litiges H24)</span></td>
+          <td><span class="badge-win">Faible</span></td>
+        </tr>
+        <tr>
+          <td><strong>Adhésion des Boutiques</strong></td>
+          <td><span class="badge-win">Immédiate (1er mois offert)</span></td>
+          <td><span class="badge-risk">Forte méfiance & Refus</span></td>
+          <td><span class="badge-win">Très forte</span></td>
+        </tr>
+        <tr>
+          <td><strong>Risque Colis Refusé</strong></td>
+          <td><span class="badge-win">Zéro pour la plateforme</span></td>
+          <td><span class="badge-risk">Remboursements & Pertes de frais</span></td>
+          <td><span class="badge-win">Zéro pour la plateforme</span></td>
+        </tr>
+        <tr>
+          <td><strong>Prévisibilité Revenus</strong></td>
+          <td><strong>100% stable et garanti (MRR)</strong></td>
+          <td>Aléatoire et saisonnier</td>
+          <td>Très stable + bonus</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="page-break"></div>
+
+    <!-- Analyse Détaillée -->
+    <h2>2. Pourquoi le Modèle à la Commission (Option B) est Dangereux en Côte d'Ivoire</h2>
+    <p>À Bouaké (au grand marché, à Commerce, Koko) comme à Abidjan (Adjamé, Treichville, Cocody), les commerçantes de tissus, hijabs, bazins et abayas ont des contraintes bien réelles :</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>💸 Le besoin immédiat de trésorerie</h3>
+        <p>Les commerçantes tournent avec des liquidités quotidiennes. Si nous retenons leur argent 3 à 5 jours le temps de la livraison et de la validation par code secret, elles perçoivent la plateforme comme un frein et refusent d'adhérer.</p>
+      </div>
+
+      <div class="card">
+        <h3>📦 Les annulations de livraison</h3>
+        <p>En Côte d'Ivoire, 20% à 35% des livraisons subissent des imprévus (cliente injoignable, monnaie introuvable, refus de la teinte). Si nous avons déjà encaissé les fonds, notre équipe doit gérer les litiges et remboursements manuels.</p>
+      </div>
+    </div>
+
+    <!-- Réponse à l'Objection Clé -->
+    <h2>3. Réponse à l'Objection Équipe : La Désintermédiation</h2>
+    <div class="quote-box">
+      « Si nous mettons toujours les clientes en contact direct avec les boutiques, les clientes ne vont-elles pas devenir fidèles aux boutiques physiquement sans repasser par le site ? »
+    </div>
+
+    <h3>1. La cliente recherche le CHOIX, pas une seule boutique</h3>
+    <p>Une femme qui aime la mode modeste ne s'habille jamais auprès d'une seule enseigne. Elle cherche une abaya chez l'une, un bazin chez l'autre, et des soies de Médine chez une troisième. <strong>Elle revient constamment sur HIJAB MARKET CI parce que c'est le seul endroit où tout est réuni en un clic.</strong></p>
+
+    <h3>2. Le besoin vital de NOUVELLES clientes pour la commerçante</h3>
+    <p>Une boutique physique ne survit pas avec seulement ses habituées. Si notre plateforme lui envoie <strong>15 à 30 nouvelles clientes chaque mois</strong>, payer 5 000 FCFA est une évidence absolue : <strong>une seule vente d'un ensemble ou d'une abaya rembourse son abonnement pour 2 mois complets !</strong></p>
+
+    <!-- Simulation Financière -->
+    <h2>4. Projections Financières Prévisionnelles (12 Mois)</h2>
+    <p>Simulation prudente basée sur un abonnement moyen de <strong>5 500 FCFA / boutique / mois</strong> :</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Étape</th>
+          <th>Boutiques Actives</th>
+          <th>Revenu Mensuel Récurrent</th>
+          <th>Marge Nette Estimée</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Mois 1 - 2</strong></td>
+          <td>30 boutiques (Pionnières)</td>
+          <td>0 FCFA <em>(Offert pour amorçage)</em></td>
+          <td>Phase d'acquisition</td>
+        </tr>
+        <tr>
+          <td><strong>Mois 3</strong></td>
+          <td>25 boutiques converties</td>
+          <td><strong>137 500 FCFA / mois</strong></td>
+          <td><strong>+ 102 500 FCFA</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Mois 6</strong></td>
+          <td>50 boutiques (Bouaké + Abidjan)</td>
+          <td><strong>275 000 FCFA / mois</strong></td>
+          <td><strong>+ 225 000 FCFA</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Mois 12</strong></td>
+          <td>120 boutiques</td>
+          <td><strong>660 000 FCFA / mois</strong></td>
+          <td><strong>+ 580 000 FCFA</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Plan d'Action -->
+    <h2>5. Script Commercial pour Convaincre les Boutiques</h2>
+    <div class="card card-gold">
+      <p style="font-weight: 700; color: #92400e; margin-bottom: 0.5rem;">Discours officiel à tenir aux commerçantes :</p>
+      <p style="font-style: italic; color: #1f2937;">
+        « Salam Alaykoum Madame. Nous avons sélectionné votre boutique parmi les meilleures enseignes de mode pudique pour faire partie des <strong>30 Boutiques Fondatrices</strong> de HIJAB MARKET CI.<br><br>
+        1. Votre présence et la mise en ligne de votre catalogue sont <strong>100% GRATUITES pendant vos 30 premiers jours</strong>.<br>
+        2. Les commandes des clientes arrivent directement sur votre propre WhatsApp.<br>
+        3. Vous encaissez 100% de votre argent sur votre propre compte Wave ou en magasin, avec zéro commission.<br><br>
+        Après 30 jours, lorsque vous aurez constaté vous-même les clientes que nous vous envoyons, vous pourrez continuer pour seulement <strong>5 000 FCFA par mois</strong> (soit moins de 170 F par jour). »
+      </p>
+    </div>
+
+    <!-- Signature -->
+    <div class="signature-section">
+      <div>
+        <strong>Pour la Direction Générale :</strong><br>
+        HIJAB MARKET CI — Côte d'Ivoire
+      </div>
+      <div style="text-align: right;">
+        <strong>Validation & Approbation :</strong><br>
+        Comité Stratégique — Septembre 2026
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
