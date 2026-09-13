@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Données de commande incomplètes' }, { status: 400 });
     }
 
-    const origin = req.headers.get('origin') || 'https://hijab-market-ci.vercel.app';
+    const origin = req.headers.get('origin') || 'https://hijabmarket-ci.com';
 
     const result = await createWaveCheckoutSession({
       orderNumber,

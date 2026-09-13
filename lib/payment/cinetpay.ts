@@ -114,7 +114,7 @@ export async function launchCinetPayCheckout(params: CinetPayPaymentParams): Pro
 
   const notifyUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/api/payments/cinetpay/notify`
-    : 'https://hijab-market-ci.vercel.app/api/payments/cinetpay/notify';
+    : 'https://hijabmarket-ci.com/api/payments/cinetpay/notify';
 
   window.CinetPay.setConfig({
     apikey: apiKey,

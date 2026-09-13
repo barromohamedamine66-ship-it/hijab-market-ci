@@ -270,7 +270,7 @@ export default function CheckoutPage() {
     const otpCode = confirmedOrder.delivery_otp || (confirmedOrder.order_number ? confirmedOrder.order_number.replace(/\D/g, '').slice(-6) : '839214');
 
     // Lien de retour vers cette page pour déverrouiller l'OTP après paiement
-    const originUrl = typeof window !== 'undefined' ? window.location.origin : 'https://hijab-market-ci.vercel.app';
+    const originUrl = typeof window !== 'undefined' ? window.location.origin : 'https://hijabmarket-ci.com';
     const returnUnlockUrl = `${originUrl}/checkout?order=${confirmedOrder.order_number}&unlock=1`;
 
     // Message pré-rempli pour WhatsApp officiel (01 52 18 28 40)

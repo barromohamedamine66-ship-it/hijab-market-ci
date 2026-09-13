@@ -319,7 +319,7 @@ export default function AdminDeliveriesPage() {
       `📱 *Tél Cliente :* ${order.customerPhone}\n\n` +
       `💰 *Tarif Livreur :* ${order.deliveryFee.toLocaleString('fr-FR')} FCFA\n` +
       `🔐 *Consigne Sécurité :* Demandez impérativement le code secret OTP à 6 chiffres à la cliente avant de lui remettre le colis.\n\n` +
-      `Lien d'accès livreur : https://hijab-market-ci-vqg6.vercel.app/dashboard/delivery`
+      `Lien d'accès livreur : https://hijabmarket-ci.com/dashboard/delivery`
     );
     return `https://wa.me/2250152182840?text=${text}`;
   };
@@ -329,7 +329,7 @@ export default function AdminDeliveriesPage() {
     const text = encodeURIComponent(
       `Bonjour ${drv.name},\n\n` +
       `Voici votre accès officiel pour vos livraisons sur HIJAB MARKET CI :\n\n` +
-      `🛵 Lien de votre tournée : https://hijab-market-ci-vqg6.vercel.app/dashboard/delivery\n` +
+      `🛵 Lien de votre tournée : https://hijabmarket-ci.com/dashboard/delivery\n` +
       `📱 Votre identifiant : ${drv.phone}\n` +
       `🔐 Votre Code PIN secret : ${drv.pinCode}\n\n` +
       `⚠️ Consignes de sécurité impératives :\n` +
