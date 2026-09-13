@@ -1,9 +1,102 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X, Play, Pause, Sparkles, Store, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { DBService } from '@/lib/supabase/db-service';
+
+const FALLBACK_STORIES = [
+  {
+    id: 'story-demo-1',
+    media_url: '/images/categories/cat_hijabs.jpg',
+    media_type: 'image',
+    store: {
+      id: 's1000000-0000-0000-0000-000000000001',
+      name: 'Les Voiles de Babi',
+      slug: 'les-voiles-de-babi',
+      logo_url: '/logo.png',
+      city: 'Abidjan',
+    },
+    product: {
+      id: 'p1000000-0000-0000-0000-000000000001',
+      name: 'Hijab Soie de Médine Vert Sauge',
+      slug: 'hijab-soie-medine-vert-sauge',
+      price: 5000,
+    }
+  },
+  {
+    id: 'story-demo-2',
+    media_url: '/images/categories/cat_abayas.jpg',
+    media_type: 'image',
+    store: {
+      id: 's1000000-0000-0000-0000-000000000002',
+      name: 'Modesty Style CI',
+      slug: 'modesty-style-ci',
+      logo_url: '/logo.png',
+      city: 'Abidjan',
+    },
+    product: {
+      id: 'p1000000-0000-0000-0000-000000000002',
+      name: 'Abaya Dubaï Brodée Or Impérial',
+      slug: 'abaya-dubai-broderie-or',
+      price: 35000,
+    }
+  },
+  {
+    id: 'story-demo-3',
+    media_url: '/images/categories/cat_gourdes.jpg',
+    media_type: 'image',
+    store: {
+      id: 's1000000-0000-0000-0000-000000000025',
+      name: 'Boutique Oumou Lifestyle',
+      slug: 'boutique-oumou',
+      logo_url: '/logo.png',
+      city: 'Bouaké',
+    },
+    product: {
+      id: 'p1000000-0000-0000-0000-000000000025',
+      name: 'Gourde Isotherme Bismillah Inox 500ml',
+      slug: 'gourde-bismillah-inox-500ml',
+      price: 12500,
+    }
+  },
+  {
+    id: 'story-demo-4',
+    media_url: '/images/categories/cat_bazins.jpg',
+    media_type: 'image',
+    store: {
+      id: 's1000000-0000-0000-0000-000000000004',
+      name: 'Keita Mode & Bazin',
+      slug: 'keita-mode',
+      logo_url: '/logo.png',
+      city: 'Bouaké',
+    },
+    product: {
+      id: 'p1000000-0000-0000-0000-000000000003',
+      name: 'Bazin Riche Getzner Damassé',
+      slug: 'bazin-riche-getzner-violet',
+      price: 45000,
+    }
+  },
+  {
+    id: 'story-demo-5',
+    media_url: '/images/categories/cat_muscs.jpg',
+    media_type: 'image',
+    store: {
+      id: 's1000000-0000-0000-0000-000000000005',
+      name: 'Prestige Sunnah & Parfums',
+      slug: 'prestige-sunnah',
+      logo_url: '/logo.png',
+      city: 'Abidjan',
+    },
+    product: {
+      id: 'p1000000-0000-0000-0000-000000000005',
+      name: 'Musc Tahara Blanc Crémeux Authentique',
+      slug: 'musc-tahara-blanc-cremeux',
+      price: 4000,
+    }
+  },
+];
 
 export default function VideoStories() {
   const [stories, setStories] = useState<any[]>([]);
@@ -14,8 +107,11 @@ export default function VideoStories() {
 
   useEffect(() => {
     DBService.getStories().then((data) => {
-      // Filtrer les stories valides
-      setStories(data || []);
+      if (Array.isArray(data) && data.length > 0) {
+        setStories(data);
+      } else {
+        setStories(FALLBACK_STORIES);
+      }
       setLoading(false);
     });
   }, []);
@@ -28,19 +124,23 @@ export default function VideoStories() {
     setIsPaused(false);
   }, [activeStoryIndex]);
 
-  const handleNext = () => {
-    if (activeStoryIndex !== null && activeStoryIndex < stories.length - 1) {
-      setActiveStoryIndex(activeStoryIndex + 1);
-    } else {
-      setActiveStoryIndex(null);
-    }
-  };
+  const handleNext = useCallback(() => {
+    setActiveStoryIndex((prev) => {
+      if (prev !== null && prev < stories.length - 1) {
+        return prev + 1;
+      }
+      return null;
+    });
+  }, [stories.length]);
 
-  const handlePrev = () => {
-    if (activeStoryIndex !== null && activeStoryIndex > 0) {
-      setActiveStoryIndex(activeStoryIndex - 1);
-    }
-  };
+  const handlePrev = useCallback(() => {
+    setActiveStoryIndex((prev) => {
+      if (prev !== null && prev > 0) {
+        return prev - 1;
+      }
+      return prev;
+    });
+  }, []);
 
   // Progression automatique : 7 secondes par photo story
   useEffect(() => {
@@ -50,7 +150,26 @@ export default function VideoStories() {
       }, 7000);
       return () => clearTimeout(timer);
     }
-  }, [activeStoryIndex, isPaused]);
+  }, [activeStoryIndex, isPaused, handleNext]);
+
+  // Support clavier (Escape pour fermer, flèches pour naviguer, espace pour pause)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (activeStoryIndex === null) return;
+      if (e.key === 'Escape') {
+        setActiveStoryIndex(null);
+      } else if (e.key === 'ArrowRight') {
+        handleNext();
+      } else if (e.key === 'ArrowLeft') {
+        handlePrev();
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        setIsPaused((p) => !p);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeStoryIndex, handleNext, handlePrev]);
 
   if (loading || stories.length === 0) {
     return null;
@@ -70,9 +189,10 @@ export default function VideoStories() {
 
             return (
               <button
-                key={story.id}
+                key={story.id || index}
                 onClick={() => setActiveStoryIndex(index)}
-                className="flex flex-col items-center gap-1.5 sm:gap-2 group outline-none"
+                className="flex flex-col items-center gap-1.5 sm:gap-2 group outline-none cursor-pointer"
+                title={`Voir la story de ${sName}`}
               >
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-0.5 sm:p-1 transition-transform group-hover:scale-105 bg-gradient-to-tr from-amber-400 via-emerald-500 to-emerald-600 shadow-sm">
                   <div className="w-full h-full rounded-full border-2 border-white overflow-hidden bg-gray-100 relative flex items-center justify-center">
@@ -102,8 +222,8 @@ export default function VideoStories() {
           {activeStoryIndex! > 0 && (
             <button
               onClick={handlePrev}
-              className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white items-center justify-center backdrop-blur-md transition"
-              title="Story précédente"
+              className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white items-center justify-center backdrop-blur-md transition cursor-pointer"
+              title="Story précédente (←)"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
@@ -112,8 +232,8 @@ export default function VideoStories() {
           {activeStoryIndex! < stories.length - 1 && (
             <button
               onClick={handleNext}
-              className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white items-center justify-center backdrop-blur-md transition"
-              title="Story suivante"
+              className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white items-center justify-center backdrop-blur-md transition cursor-pointer"
+              title="Story suivante (→)"
             >
               <ChevronRight className="w-6 h-6" />
             </button>
@@ -173,7 +293,7 @@ export default function VideoStories() {
               {/* Barres de progression */}
               <div className="flex gap-1.5 w-full">
                 {stories.map((s, idx) => (
-                  <div key={s.id} className="h-1 flex-1 bg-white/30 rounded-full overflow-hidden">
+                  <div key={s.id || idx} className="h-1 flex-1 bg-white/30 rounded-full overflow-hidden">
                     <div
                       className={`h-full bg-white transition-all ${
                         idx < activeStoryIndex!
@@ -219,8 +339,8 @@ export default function VideoStories() {
                       e.stopPropagation();
                       setIsPaused(!isPaused);
                     }}
-                    className="w-9 h-9 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center text-white transition shadow-md"
-                    title={isPaused ? 'Reprendre' : 'Mettre en pause'}
+                    className="w-9 h-9 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center text-white transition shadow-md cursor-pointer"
+                    title={isPaused ? 'Reprendre (Espace)' : 'Mettre en pause (Espace)'}
                   >
                     {isPaused ? <Play className="w-4 h-4 fill-white" /> : <Pause className="w-4 h-4" />}
                   </button>
@@ -231,8 +351,8 @@ export default function VideoStories() {
                       e.stopPropagation();
                       setActiveStoryIndex(null);
                     }}
-                    className="w-9 h-9 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center text-white transition shadow-md"
-                    title="Fermer"
+                    className="w-9 h-9 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center text-white transition shadow-md cursor-pointer"
+                    title="Fermer (Échap)"
                   >
                     <X className="w-5 h-5" />
                   </button>
