@@ -125,8 +125,14 @@ export default function StoreDetailClient({ params }: { params: { slug: string }
     return matchSearch && matchCat;
   });
 
-  const whatsappUrl = shop.whatsapp
-    ? `https://wa.me/${shop.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(
+  const rawShopPhone = shop.whatsapp || shop.phone;
+  const cleanShopPhone = rawShopPhone ? rawShopPhone.replace(/\D/g, '') : '';
+  const formattedShopPhone = cleanShopPhone
+    ? (cleanShopPhone.startsWith('225') ? cleanShopPhone : `225${cleanShopPhone}`)
+    : null;
+
+  const whatsappUrl = formattedShopPhone
+    ? `https://wa.me/${formattedShopPhone}?text=${encodeURIComponent(
         `Bonjour ${shop.name}, je vous contacte depuis la marketplace HIJAB MARKET CI.`
       )}`
     : null;

@@ -691,6 +691,25 @@ Merci de valider mon paiement pour confirmer la commande :
     );
   }
 
+  if (items.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#faf9f6]">
+        <Navbar />
+        <main className="flex-1 container py-16 max-w-md mx-auto text-center px-4 space-y-4 flex flex-col items-center justify-center">
+          <p className="text-5xl">🛒</p>
+          <h1 className="text-xl font-bold font-heading text-gray-900">Votre panier est vide</h1>
+          <p className="text-xs text-gray-500 leading-relaxed">
+            Vous n&apos;avez aucun article en attente de commande pour le moment.
+          </p>
+          <Link href="/products" className="btn btn-primary btn-sm inline-flex">
+            Découvrir les articles
+          </Link>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-[#faf9f6]">
       <Navbar />

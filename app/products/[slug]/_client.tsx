@@ -97,13 +97,11 @@ export default function ProductDetailClient({ params }: { params: { slug: string
 
   const coverImage = product.images?.[0]?.image_url;
   const store = product.store;
-  const storeWhatsApp = store?.whatsapp || store?.phone || '+2250777393813';
-  const cleanPhone = storeWhatsApp.replace(/[^0-9]/g, '');
-  const formattedPhone = cleanPhone.startsWith('225')
-    ? cleanPhone
-    : cleanPhone.length === 10
-    ? `225${cleanPhone}`
-    : `225${cleanPhone}`;
+  const storeWhatsApp = store?.whatsapp || store?.phone || '0777393813';
+  const cleanPhone = storeWhatsApp.replace(/\D/g, '');
+  const formattedPhone = cleanPhone
+    ? (cleanPhone.startsWith('225') ? cleanPhone : `225${cleanPhone}`)
+    : '2250777393813';
 
   const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://hijabmarket.ci/products/${product.slug}`;
   const orderMessage = encodeURIComponent(
