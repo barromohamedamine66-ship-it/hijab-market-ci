@@ -5811,6 +5811,104 @@
 
     // Live search listener
     document.getElementById('liveSearchInput').addEventListener('input', applyFilters);
+
+    /* ==============================================================
+       SYSTEME DE NOTIFICATIONS PUSH SUR TELEPHONE (ENGAGEMENT MOBILE)
+    ============================================================== */
+    function initMobilePushNotifications() {
+      if (!("Notification" in window)) return;
+
+      if (Notification.permission === 'default') {
+        setTimeout(() => {
+          showNotificationOptInBanner();
+        }, 3500);
+      } else if (Notification.permission === 'granted') {
+        schedulePrototypeNotifications();
+      }
+    }
+
+    function showNotificationOptInBanner() {
+      if (document.getElementById('notifOptInBanner')) return;
+      const banner = document.createElement('div');
+      banner.id = 'notifOptInBanner';
+      banner.style.cssText = `
+        position: fixed; top: 16px; right: 16px; left: 16px; max-width: 420px; margin-left: auto;
+        background: linear-gradient(135deg, #091512, #042f2e); color: #ffffff; padding: 1.15rem 1.25rem;
+        border-radius: 1.25rem; box-shadow: 0 20px 40px rgba(0,0,0,0.35); border: 1.5px solid rgba(16,185,129,0.4);
+        z-index: 10000; font-family: inherit; animation: slideDown 0.4s ease;
+      `;
+      banner.innerHTML = `
+        <div style="display:flex; align-items:flex-start; gap:0.85rem;">
+          <div style="width:40px; height:40px; border-radius:12px; background:linear-gradient(135deg, #10b981, #f59e0b); display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex-shrink:0;">
+            🔔
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:0.65rem; font-weight:800; color:#fbbf24; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.15rem;">
+              ✨ Restez Informée
+            </div>
+            <div style="font-size:0.88rem; font-weight:800; line-height:1.25; margin-bottom:0.35rem;">
+              Activer les alertes sur votre téléphone ?
+            </div>
+            <div style="font-size:0.75rem; color:#cbd5e1; line-height:1.4; margin-bottom:0.75rem;">
+              Recevez en direct les <strong>Ventes Flash</strong> et nouveaux arrivages de vos boutiques préférées.
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button onclick="acceptPushNotifications()" style="background:#10b981; color:#ffffff; border:none; padding:0.45rem 0.95rem; border-radius:999px; font-weight:800; font-size:0.75rem; cursor:pointer;">
+                Activer les alertes 🔔
+              </button>
+              <button onclick="dismissPushBanner()" style="background:transparent; color:#94a3b8; border:none; padding:0.45rem 0.65rem; font-weight:600; font-size:0.75rem; cursor:pointer;">
+                Plus tard
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(banner);
+    }
+
+    function dismissPushBanner() {
+      const el = document.getElementById('notifOptInBanner');
+      if (el) el.remove();
+    }
+
+    function acceptPushNotifications() {
+      if (!("Notification" in window)) {
+        showToast("Les notifications ne sont pas supportées par ce navigateur.");
+        dismissPushBanner();
+        return;
+      }
+      Notification.requestPermission().then((perm) => {
+        dismissPushBanner();
+        if (perm === 'granted') {
+          showToast("Alertes mobiles activées avec succès ! 🎉🧕");
+          try {
+            new Notification("Bienvenue sur HIJAB MARKET CI ! 🎉🧕", {
+              body: "Vous recevrez désormais les alertes de Ventes Flash, nouveaux arrivages et suivi de commandes.",
+              icon: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=128&auto=format&fit=crop&q=80"
+            });
+          } catch(e) {}
+          schedulePrototypeNotifications();
+        } else {
+          showToast("Notifications refusées. Vous pouvez les réactiver dans vos paramètres.");
+        }
+      });
+    }
+
+    function schedulePrototypeNotifications() {
+      // Rappel automatique après 15 secondes pour tester le réengagement
+      setTimeout(() => {
+        if (Notification.permission === 'granted') {
+          try {
+            new Notification("🔥 Ventes Flash HIJAB MARKET CI", {
+              body: "Nouvelles soies de Médine et abayas de Dubaï disponibles aujourd'hui !",
+              icon: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=128&auto=format&fit=crop&q=80"
+            });
+          } catch(e) {}
+        }
+      }, 15000);
+    }
+
+    window.addEventListener('DOMContentLoaded', initMobilePushNotifications);
   </script>
 
   <!-- Floating WhatsApp Customer Service Badge -->

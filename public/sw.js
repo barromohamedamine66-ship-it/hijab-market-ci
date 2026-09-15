@@ -255,3 +255,109 @@ async function handleNavigation(request) {
     }
   );
 }
+
+// ==============================================================================
+// GESTION DES NOTIFICATIONS PUSH SUR TÉLÉPHONE (ENGAGEMENT & RÉENGAGEMENT)
+// ==============================================================================
+
+// 1. Réception d'un Push Serveur (Web Push API)
+self.addEventListener('push', (event) => {
+  let data = {
+    title: 'HIJAB MARKET CI ✨',
+    body: 'Nouvelles créations et offres exclusives disponibles !',
+    url: '/products',
+    icon: '/icon-192x192.png',
+    badge: '/favicon.png',
+    tag: 'hm-general-notif',
+    vibrate: [200, 100, 200],
+  };
+
+  if (event.data) {
+    try {
+      const parsed = event.data.json();
+      data = { ...data, ...parsed };
+    } catch (_) {
+      data.body = event.data.text() || data.body;
+    }
+  }
+
+  const options = {
+    body: data.body,
+    icon: data.icon || '/icon-192x192.png',
+    badge: data.badge || '/favicon.png',
+    image: data.image || undefined,
+    tag: data.tag || `hm-notif-${Date.now()}`,
+    data: {
+      url: data.url || '/products',
+      timestamp: Date.now(),
+    },
+    vibrate: data.vibrate || [200, 100, 200],
+    requireInteraction: data.requireInteraction || false,
+    actions: data.actions || [
+      { action: 'open', title: '👀 Voir' },
+      { action: 'close', title: 'Fermer' },
+    ],
+  };
+
+  event.waitUntil(self.registration.showNotification(data.title, options));
+});
+
+// 2. Déclenchement de Notifications Locales Programmées (via Message)
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SHOW_LOCAL_NOTIFICATION') {
+    const { title, body, url, image, tag } = event.data;
+    const options = {
+      body: body || 'Découvrez nos nouveautés du jour !',
+      icon: '/icon-192x192.png',
+      badge: '/favicon.png',
+      image: image || undefined,
+      tag: tag || `hm-local-${Date.now()}`,
+      data: {
+        url: url || '/products',
+        timestamp: Date.now(),
+      },
+      vibrate: [200, 100, 200],
+      actions: [
+        { action: 'open', title: '👀 Découvrir' },
+        { action: 'close', title: 'Plus tard' },
+      ],
+    };
+    event.waitUntil(self.registration.showNotification(title || 'HIJAB MARKET CI 🧕', options));
+  }
+});
+
+// 3. Clic sur la Notification (Redirection fluide vers la page ciblée)
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  if (event.action === 'close') {
+    return;
+  }
+
+  const targetUrl = (event.notification.data && event.notification.data.url) || '/';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // Si une fenêtre HIJAB MARKET CI est déjà ouverte, on la focalise et navigue
+      for (const client of clientList) {
+        if ('focus' in client) {
+          client.focus();
+          if ('navigate' in client) {
+            return client.navigate(targetUrl);
+          }
+          return;
+        }
+      }
+      // Sinon on ouvre une nouvelle fenêtre/onglet
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
+});
+
+// 4. Fermeture de notification (Optionnel : analytics)
+self.addEventListener('notificationclose', (event) => {
+  // Notification fermée par l'utilisateur
+});
+

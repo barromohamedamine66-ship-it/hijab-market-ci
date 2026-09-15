@@ -3,8 +3,18 @@
 import { useEffect } from 'react';
 import PwaInstallPrompt from './PwaInstallPrompt';
 import PwaUpdateToast from './PwaUpdateToast';
+import PushNotificationPrompt from './PushNotificationPrompt';
+import { initEngagementScheduler } from '@/lib/push-notifications';
+import { useCart } from '@/contexts/CartContext';
 
 export default function PwaRegistry() {
+  const { count, total } = useCart();
+
+  useEffect(() => {
+    // Initialiser le planificateur d'engagement (ventes flash & paniers)
+    initEngagementScheduler(count, total);
+  }, [count, total]);
+
   useEffect(() => {
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
       return;
@@ -63,6 +73,8 @@ export default function PwaRegistry() {
     <>
       <PwaInstallPrompt />
       <PwaUpdateToast />
+      <PushNotificationPrompt />
     </>
   );
 }
+

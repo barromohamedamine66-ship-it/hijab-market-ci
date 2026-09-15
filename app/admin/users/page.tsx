@@ -72,7 +72,19 @@ export default function AdminUsersPage() {
     if (!selectedUser || !notifTitle || !notifMsg) return;
     
     await DBService.sendNotification(selectedUser.id, notifTitle, notifMsg, 'system');
-    alert(`Notification envoyée à ${selectedUser.full_name}`);
+
+    // Déclencher également la notification push locale/mobile
+    try {
+      const { sendLocalPushNotification } = await import('@/lib/push-notifications');
+      await sendLocalPushNotification({
+        title: notifTitle,
+        body: notifMsg,
+        url: '/products',
+        tag: `hm-admin-${Date.now()}`,
+      });
+    } catch (_) {}
+
+    alert(`Notification Push & Système envoyée avec succès à ${selectedUser.full_name || 'l\'utilisatrice'} ! 🔔`);
     setShowNotifModal(false);
     setNotifTitle('');
     setNotifMsg('');

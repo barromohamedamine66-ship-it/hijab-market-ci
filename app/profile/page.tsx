@@ -343,18 +343,58 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                    <Bell className="w-5 h-5" />
+                <div className="bg-emerald-50/50 p-4 sm:p-5 rounded-2xl border border-emerald-100 space-y-3">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <Bell className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-gray-900">Notifications Push sur Téléphone</h4>
+                        <p className="text-xs text-gray-500">Alertes ventes flash, promos exclusives et suivi de commande</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={pushEnabled}
+                        onChange={async (e) => {
+                          const checked = e.target.checked;
+                          if (checked) {
+                            const { requestPushPermission } = await import('@/lib/push-notifications');
+                            const granted = await requestPushPermission();
+                            setPushEnabled(granted);
+                          } else {
+                            setPushEnabled(false);
+                          }
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    </label>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="text-sm font-bold text-gray-900">Notifications Push</h4>
-                    <p className="text-[10px] text-gray-500">Recevoir des alertes pour vos commandes et favoris</p>
+
+                  <div className="pt-2 border-t border-emerald-100/80 flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-[11px] text-emerald-800 font-medium">
+                      {pushEnabled ? '✅ Notifications actives sur cet appareil' : '⚠️ Notifications désactivées'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const { sendTestNotification } = await import('@/lib/push-notifications');
+                        const ok = await sendTestNotification();
+                        if (ok) {
+                          setPushEnabled(true);
+                          alert('Notification de test envoyée avec succès sur votre téléphone ! 🔔✨');
+                        } else {
+                          alert('Veuillez autoriser les notifications dans votre navigateur pour recevoir les alertes.');
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded-full bg-white hover:bg-emerald-100 text-emerald-700 font-bold text-xs border border-emerald-200 shadow-2xs transition flex items-center gap-1.5"
+                    >
+                      <span>📲</span> Tester une notification
+                    </button>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked={pushEnabled} onChange={(e) => setPushEnabled(e.target.checked)} className="sr-only peer" />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-                  </label>
                 </div>
               </div>
 
