@@ -103,11 +103,22 @@ export default function ProductDetailClient({ params }: { params: { slug: string
     ? (cleanPhone.startsWith('225') ? cleanPhone : `225${cleanPhone}`)
     : '2250777393813';
 
-  const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://hijabmarket.ci/products/${product.slug}`;
+  const [currentUrl, setCurrentUrl] = useState<string>(
+    typeof window !== 'undefined' ? window.location.href : `https://hijabmarket.ci/products/${params.slug}`
+  );
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentUrl(window.location.href);
+    }
+  }, [params.slug]);
+
   const orderMessage = encodeURIComponent(
     `Bonjour ${store?.name || 'Boutique'},\n\nJe suis intéressé(e) par votre article *${product.name}* (${product.price.toLocaleString('fr-FR')} FCFA)${
       selectedColor ? ` en couleur "${selectedColor}"` : ''
-    }${selectedSize ? ` en taille "${selectedSize}"` : ''} vu sur le portail HIJAB MARKET CI.\n\nEst-il toujours disponible pour une commande / livraison ?\nLien article : ${currentUrl}`
+    }${selectedSize ? ` en taille "${selectedSize}"` : ''} vu sur le portail HIJAB MARKET CI.\n\nEst-il toujours disponible pour une commande / livraison ?\n\n🔗 *Lien direct de l'article :*\n${currentUrl}${
+      coverImage ? `\n\n🖼️ *Photo de l'article :*\n${coverImage}` : ''
+    }`
   );
 
   const whatsappUrl = `https://wa.me/${formattedPhone}?text=${orderMessage}`;

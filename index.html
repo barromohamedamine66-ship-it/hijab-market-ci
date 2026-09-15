@@ -5,18 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HIJAB MARKET CI — La marketplace #1 des hijabs en Côte d'Ivoire</title>
   
-  <!-- SEO & Social Meta -->
-  <meta name="description" content="Découvrez la plus grande marketplace multi-vendeurs de hijabs en Côte d'Ivoire. Des dizaines de boutiques vérifiées, des milliers de hijabs, abayas et accessoires.">
+  <!-- SEO & Social Meta (WhatsApp, Facebook, Twitter) -->
+  <meta name="description" content="Découvrez la plus grande marketplace multi-vendeurs de hijabs et mode modeste en Côte d'Ivoire. Des dizaines de boutiques vérifiées, commande directe WhatsApp et livraison partout en Côte d'Ivoire.">
   <meta name="keywords" content="hijab, marketplace, boutique hijab Abidjan, mode modeste, abaya, soie de Médine, Côte d'Ivoire, Wave CI, Orange Money">
   <meta name="theme-color" content="#10b981">
-  <meta property="og:title" content="HIJAB MARKET CI — Toutes les boutiques de hijabs en un seul endroit">
-  <meta property="og:description" content="Commandez vos hijabs favoris auprès des meilleures créatrices d'Abidjan et de Côte d'Ivoire.">
-  <meta property="og:image" content="logo.png">
+  
+  <meta property="og:site_name" content="HIJAB MARKET CI">
+  <meta property="og:title" content="HIJAB MARKET CI — La marketplace #1 des hijabs en Côte d'Ivoire">
+  <meta property="og:description" content="Commandez vos hijabs, abayas et tenues modestes auprès des meilleures boutiques vérifiées de Côte d'Ivoire.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1200&auto=format&fit=crop&q=80">
+  <meta property="og:image:secure_url" content="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1200&auto=format&fit=crop&q=80">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:url" content="https://hijabmarket.ci">
   <meta property="og:type" content="website">
 
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="HIJAB MARKET CI — Marketplace Mode Modeste">
+  <meta name="twitter:description" content="Toutes les boutiques de mode modeste en Côte d'Ivoire.">
+  <meta name="twitter:image" content="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1200&auto=format&fit=crop&q=80">
+
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="logo.png">
-  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="icon" type="image/png" href="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=128&auto=format&fit=crop&q=80">
+  <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=180&auto=format&fit=crop&q=80">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5129,8 +5141,11 @@
 
     function quickWhatsAppOrder(name, price, storeName) {
       const store = stores.find(s => s.name === storeName) || stores[0];
+      const product = products.find(p => p.name === name) || null;
       const ref = 'HM-' + Math.floor(10000 + Math.random() * 90000);
       const checkoutUrl = `${window.location.origin}${window.location.pathname}?preorder=${ref}&amount=${price}`;
+      const articleUrl = window.location.href;
+      const imageUrl = product?.image || '';
 
       const msg = `🛍️ *HIJAB MARKET CI — Demande de Commande #${ref}*\n` +
                   `----------------------------------------------\n` +
@@ -5138,8 +5153,10 @@
                   `🏷️ *Prix :* ${price.toLocaleString('fr-FR')} FCFA\n` +
                   `🏪 *Boutique :* ${store.name}\n` +
                   `📍 *Lieu :* ${store.location}\n` +
+                  `🔗 *Lien de l'article :*\n${articleUrl}\n` +
+                  (imageUrl ? `🖼️ *Photo :*\n${imageUrl}\n` : '') +
                   `----------------------------------------------\n` +
-                  `💬 *Bonjour ! J'aimerais commander cet article sur HIJAB MARKET CI. Est-il disponible ?*\n\n` +
+                  `💬 *Bonjour ! J'aimerais commander cet article vu sur HIJAB MARKET CI. Est-il disponible pour livraison ?*\n\n` +
                   `🛡️ *Lien de Paiement Séquestre Garanti (Wave/MoMo - 93% reversés à la vendeuse) :*\n` +
                   `👉 ${checkoutUrl}`;
 
@@ -5147,7 +5164,7 @@
       const targetPhone = rawPhone.startsWith('225') ? rawPhone : ('225' + rawPhone);
 
       window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-      showToast(`Discussion WhatsApp ouverte pour #${ref} ! Le lien de paiement sécurisé garantit vos fonds. 🛡️✨`);
+      showToast(`Discussion WhatsApp ouverte pour #${ref} ! Le lien et la photo de l'article sont inclus. 🛡️✨`);
     }
 
     // Wishlist

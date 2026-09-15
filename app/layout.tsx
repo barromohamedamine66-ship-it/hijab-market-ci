@@ -48,7 +48,7 @@ export const metadata: Metadata = {
       { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
   },
-  metadataBase: new URL('https://hijabmarket-ci.com'),
+  metadataBase: new URL('https://hijabmarket.ci'),
   openGraph: {
     title: 'HIJAB MARKET CI — Découvrez. Comparez. Commandez.',
     description: 'Toutes les boutiques de mode modeste de Bouaké et de Côte d\'Ivoire, réunies au même endroit. Hijabs, abayas, bazins et tenues chics avec retrait boutique ou livraison.',
@@ -58,9 +58,11 @@ export const metadata: Metadata = {
     images: [
       {
         url: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1200&auto=format&fit=crop&q=80',
+        secureUrl: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1200&auto=format&fit=crop&q=80',
         width: 1200,
         height: 630,
-        alt: 'HIJAB MARKET CI — Marketplace Mode Modeste',
+        type: 'image/jpeg',
+        alt: 'HIJAB MARKET CI — Marketplace Mode Modeste Côte d\'Ivoire',
       },
     ],
   },
