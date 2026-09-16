@@ -47,29 +47,8 @@ export async function generateMetadata({
     };
   }
 
-  // Récupérer la première image réelle du produit (URL absolue requise par WhatsApp)
-  let ogImage = `${SITE_URL}/api/products/${params.slug}/image`;
-  if (product.images && Array.isArray(product.images) && product.images.length > 0) {
-    const firstImg = product.images[0];
-    const candidate = typeof firstImg === 'string' ? firstImg : (firstImg?.image_url || '');
-    if (candidate) {
-      if (candidate.startsWith('data:')) {
-        ogImage = `${SITE_URL}/api/products/${params.slug}/image`;
-      } else if (candidate.startsWith('http')) {
-        ogImage = candidate;
-      } else {
-        ogImage = `${SITE_URL}${candidate.startsWith('/') ? '' : '/'}${candidate}`;
-      }
-    }
-  } else if (product.imageUrl && typeof product.imageUrl === 'string') {
-    if (product.imageUrl.startsWith('data:')) {
-      ogImage = `${SITE_URL}/api/products/${params.slug}/image`;
-    } else if (product.imageUrl.startsWith('http')) {
-      ogImage = product.imageUrl;
-    } else {
-      ogImage = `${SITE_URL}${product.imageUrl.startsWith('/') ? '' : '/'}${product.imageUrl}`;
-    }
-  }
+  // Récupérer la première image réelle du produit via la route d'image dynamique garantie
+  const ogImage = `${SITE_URL}/api/products/${params.slug}/image`;
 
   const priceStr = product.price
     ? `${Number(product.price).toLocaleString('fr-FR')} FCFA`

@@ -52,16 +52,8 @@ export async function generateMetadata({
     shop.description ||
     `Découvrez la boutique ${shop.name} à ${shop.commune || shop.city || 'Côte d\'Ivoire'} sur HIJAB MARKET CI. Hijabs, abayas, tenues modestes et bien plus.`;
   
-  let ogImage = `${SITE_URL}/api/boutique/${params.slug}/image`;
-  if (shop.logo_url) {
-    if (shop.logo_url.startsWith('data:')) {
-      ogImage = `${SITE_URL}/api/boutique/${params.slug}/image`;
-    } else if (shop.logo_url.startsWith('http')) {
-      ogImage = shop.logo_url;
-    } else {
-      ogImage = `${SITE_URL}${shop.logo_url.startsWith('/') ? '' : '/'}${shop.logo_url}`;
-    }
-  }
+  // Récupérer le logo officiel via la route d'image dynamique garantie
+  const ogImage = `${SITE_URL}/api/boutique/${params.slug}/image`;
 
   const pageUrl = `${SITE_URL}/boutique/${params.slug}`;
 
