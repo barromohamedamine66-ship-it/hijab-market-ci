@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import LikeButton from '@/components/ui/LikeButton';
 import CommentsSection from '@/components/ui/CommentsSection';
 import type { Product } from '@/lib/supabase/types';
+import { getProductSizeDisplayLabel, getCategorySpec } from '@/lib/category-helpers';
 import {
   ArrowLeft,
   ShoppingCart,
@@ -104,6 +105,10 @@ export default function ProductDetailClient({ params }: { params: { slug: string
     );
   }
 
+  const categorySlug = product.category?.slug || product.category?.name;
+  const spec = getCategorySpec(categorySlug);
+  const sizeDisplayLabel = getProductSizeDisplayLabel(categorySlug);
+
   const coverImage = product.images?.[0]?.image_url;
   const store = product.store;
   const storeWhatsApp = store?.whatsapp || store?.phone || '0777393813';
@@ -114,8 +119,8 @@ export default function ProductDetailClient({ params }: { params: { slug: string
 
   const orderMessage = encodeURIComponent(
     `Bonjour ${store?.name || 'Boutique'},\n\nJe suis intéressé(e) par votre article *${product.name}* (${product.price.toLocaleString('fr-FR')} FCFA)${
-      selectedColor ? ` en couleur "${selectedColor}"` : ''
-    }${selectedSize ? ` en taille "${selectedSize}"` : ''} vu sur le portail HIJAB MARKET CI.\n\nEst-il toujours disponible pour une commande / livraison ?\n\n🔗 *Lien direct de l'article :*\n${currentUrl}${
+      selectedColor ? ` [${spec.colorsLabel.replace(' disponibles', '')} : "${selectedColor}"]` : ''
+    }${selectedSize ? ` [${sizeDisplayLabel} : "${selectedSize}"]` : ''} vu sur le portail HIJAB MARKET CI.\n\nEst-il toujours disponible pour une commande / livraison ?\n\n🔗 *Lien direct de l'article :*\n${currentUrl}${
       coverImage ? `\n\n🖼️ *Photo de l'article :*\n${coverImage}` : ''
     }`
   );
@@ -299,15 +304,15 @@ export default function ProductDetailClient({ params }: { params: { slug: string
                 </p>
                 {product.material && (
                   <p className="text-xs font-semibold text-gray-800 mt-2">
-                    Tissu / Matière : <span className="text-emerald-700 font-bold">{product.material}</span>
+                    {spec.materialLabel} : <span className="text-emerald-700 font-bold">{product.material}</span>
                   </p>
                 )}
               </div>
 
-              {/* Couleurs */}
+              {/* Couleurs / Senteurs */}
               {product.colors && product.colors.length > 0 && (
                 <div>
-                  <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Couleur disponible</h3>
+                  <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">{spec.colorsLabel}</h3>
                   <div className="flex flex-wrap gap-2">
                     {product.colors.map((col) => (
                       <button
@@ -327,10 +332,10 @@ export default function ProductDetailClient({ params }: { params: { slug: string
                 </div>
               )}
 
-              {/* Tailles */}
+              {/* Tailles / Dimensions / Formats */}
               {product.sizes && product.sizes.length > 0 && (
                 <div>
-                  <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Dimensions / Taille</h3>
+                  <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">{sizeDisplayLabel}</h3>
                   <div className="flex flex-wrap gap-2">
                     {product.sizes.map((sz) => (
                       <button

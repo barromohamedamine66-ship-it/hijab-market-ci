@@ -373,7 +373,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[0],
-    category: DEFAULT_CATEGORIES[2],
+    category: DEFAULT_CATEGORIES[8],
     images: [{ id: 'img7', product_id: 'p1000000-0000-0000-0000-000000000007', image_url: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&auto=format&fit=crop&q=80', position: 0, is_cover: true, created_at: new Date().toISOString() }]
   },
   {
@@ -391,20 +391,20 @@ const DEFAULT_PRODUCTS: Product[] = [
     badge: 'Coup de Cœur',
     material: 'Huile concentrée sans alcool (100% Halal)',
     colors: ['Duo Blanc & Ambré'],
-    sizes: ['12ml Musc Tahara + 6ml Oud'],
+    sizes: ['12ml Musc Tahara + 6ml Oud', 'Flacon 6ml Seul', 'Flacon 12ml Seul'],
     rating: 0,
     reviews_count: 0,
     admin_notes: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[1],
-    category: DEFAULT_CATEGORIES[3],
+    category: DEFAULT_CATEGORIES[11],
     images: [{ id: 'img8', product_id: 'p1000000-0000-0000-0000-000000000008', image_url: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=800&auto=format&fit=crop&q=80', position: 0, is_cover: true, created_at: new Date().toISOString() }]
   },
   {
     id: 'p1000000-0000-0000-0000-000000000009',
     store_id: 's1000000-0000-0000-0000-000000000001',
-    category_id: 'c1000000-0000-0000-0000-000000000014',
+    category_id: 'c1000000-0000-0000-0000-000000000011',
     name: 'Tapis de Prière Orthopédique Velours Émeraude & Or',
     slug: 'tapis-priere-orthopedique-velours-emeraude',
     description: 'Tapis de prière rembourré à mémoire de forme 2.5cm pour soulager les genoux et les articulations pendant la prosternation.',
@@ -423,7 +423,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     store: DEFAULT_SHOPS[0],
-    category: DEFAULT_CATEGORIES[4],
+    category: DEFAULT_CATEGORIES[13],
     images: [{ id: 'img9', product_id: 'p1000000-0000-0000-0000-000000000009', image_url: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?w=800&auto=format&fit=crop&q=80', position: 0, is_cover: true, created_at: new Date().toISOString() }]
   },
   {
