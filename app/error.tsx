@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { RefreshCw, Home, ShoppingBag, ShieldAlert } from 'lucide-react';
+import { RefreshCw, Home, ShoppingBag, ShieldAlert, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function ErrorBoundary({
   error,
@@ -11,13 +11,24 @@ export default function ErrorBoundary({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [showDetails, setShowDetails] = useState(false);
+
   useEffect(() => {
     // Log the error securely to console for debugging
     console.error('Erreur capturée par ErrorBoundary:', error);
   }, [error]);
 
+  const handleReload = () => {
+    try {
+      reset();
+    } catch (_) {}
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#faf9f6] flex flex-col items-center justify-center p-6 text-center">
+    <div className="min-h-screen bg-[#faf9f6] flex flex-col items-center justify-center p-6 text-center font-sans">
       <div className="max-w-md w-full bg-white rounded-3xl border border-gray-100 p-8 shadow-sm space-y-6">
         <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto text-3xl shadow-inner">
           <ShieldAlert className="w-8 h-8" />
@@ -35,10 +46,10 @@ export default function ErrorBoundary({
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <button
             type="button"
-            onClick={() => reset()}
+            onClick={handleReload}
             className="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
           >
-            <RefreshCw className="w-4 h-4" /> Réessayer
+            <RefreshCw className="w-4 h-4" /> Recharger la page
           </button>
 
           <Link
@@ -48,6 +59,25 @@ export default function ErrorBoundary({
             <Home className="w-4 h-4" /> Accueil
           </Link>
         </div>
+
+        {error?.message && (
+          <div className="pt-2 border-t border-gray-100 text-left">
+            <button
+              type="button"
+              onClick={() => setShowDetails(!showDetails)}
+              className="text-[11px] text-gray-400 hover:text-gray-600 flex items-center justify-between w-full py-1"
+            >
+              <span>Détails de l&apos;erreur</span>
+              {showDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
+            {showDetails && (
+              <div className="mt-2 p-3 bg-gray-50 rounded-xl border border-gray-200 text-[11px] text-gray-700 font-mono break-all max-h-32 overflow-y-auto">
+                <p className="font-semibold text-red-600">{error.name}: {error.message}</p>
+                {error.digest && <p className="text-[10px] text-gray-400 mt-1">Digest: {error.digest}</p>}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="pt-2 border-t border-gray-100">
           <Link

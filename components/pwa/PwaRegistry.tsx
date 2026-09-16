@@ -1,13 +1,16 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import PwaInstallPrompt from './PwaInstallPrompt';
 import PwaUpdateToast from './PwaUpdateToast';
 import PushNotificationPrompt from './PushNotificationPrompt';
 import { initEngagementScheduler } from '@/lib/push-notifications';
 
 export default function PwaRegistry() {
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
     // Initialiser le planificateur d'engagement (ventes flash & notifications)
     try {
       if (typeof window !== 'undefined') {
@@ -73,6 +76,8 @@ export default function PwaRegistry() {
       return () => window.removeEventListener('load', registerSW);
     }
   }, []);
+
+  if (!mounted) return null;
 
   return (
     <>
