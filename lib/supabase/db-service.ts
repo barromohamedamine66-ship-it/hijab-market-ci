@@ -1328,11 +1328,24 @@ export const DBService = {
               is_cover: true,
             });
           }
+          const fullProd = {
+            ...(prodData as unknown as Product),
+            images: productData.imageUrl
+              ? [{
+                  id: `img-${Date.now()}`,
+                  product_id: prodData.id,
+                  image_url: productData.imageUrl,
+                  position: 0,
+                  is_cover: true,
+                  created_at: new Date().toISOString(),
+                }]
+              : [],
+          };
           // Sauvegarder aussi en cache local
           const localProds = getLocalData<Product[]>(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
-          setLocalData(STORAGE_KEYS.PRODUCTS, [prodData as unknown as Product, ...localProds]);
+          setLocalData(STORAGE_KEYS.PRODUCTS, [fullProd, ...localProds]);
           invalidateCachePrefix('prods:');
-          return prodData as unknown as Product;
+          return fullProd;
         } else if (prodError) {
           console.warn('Supabase createProduct insert error:', prodError);
         }
@@ -1419,10 +1432,16 @@ export const DBService = {
               });
             }
           }
+          const fullProd = {
+            ...(prodData as unknown as Product),
+            images: newImageUrl
+              ? [{ id: 'img', product_id: productId, image_url: newImageUrl, position: 0, is_cover: true, created_at: '' }]
+              : ((prodData as any).images || [])
+          } as unknown as Product;
           const localProds = getLocalData<Product[]>(STORAGE_KEYS.PRODUCTS, DEFAULT_PRODUCTS);
-          const updatedLocal = localProds.map(p => p.id === productId ? { ...(prodData as unknown as Product), images: newImageUrl ? [{ id: 'img', product_id: productId, image_url: newImageUrl, position: 0, is_cover: true, created_at: '' }] : p.images } : p);
+          const updatedLocal = localProds.map(p => p.id === productId ? fullProd : p);
           setLocalData(STORAGE_KEYS.PRODUCTS, updatedLocal);
-          return prodData as unknown as Product;
+          return fullProd;
         }
       } catch (err) {
         console.warn('Supabase updateProduct error:', err);

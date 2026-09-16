@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import fs from 'fs/promises';
+import path from 'path';
 
 export const dynamic = 'force-dynamic';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hdiykdodruimphunpwjf.supabase.co';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_YP1b16EVjZ7rKoj80PjEjA_DHZeX5nP';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hijabmarket-ci.com';
 
 const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
@@ -25,24 +28,33 @@ export async function POST(req: Request) {
     // Nom de fichier unique et sécurisé
     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     const cleanExt = ['png', 'jpg', 'jpeg', 'webp', 'gif'].includes(ext) ? ext : 'jpg';
-    const fileName = `products/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${cleanExt}`;
+    const baseFilename = `prod_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${cleanExt}`;
 
-    // 1. Tenter l'upload vers Supabase Storage (bucket 'product-images' ou 'products')
+    // 1. Sauvegarde locale persistante dans public/uploads/
     try {
-      // S'assurer que le bucket existe
-      const { data: buckets } = await supabaseAdmin.storage.listBuckets();
-      const hasProductBucket = buckets?.some((b) => b.name === 'product-images');
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+      await fs.mkdir(uploadsDir, { recursive: true });
+      const filePath = path.join(uploadsDir, baseFilename);
+      await fs.writeFile(filePath, buffer);
+    } catch (fsErr) {
+      console.warn('Note sauvegarde filesystem local:', fsErr);
+    }
 
-      if (!hasProductBucket) {
+    // 2. Tenter l'upload vers Supabase Storage
+    try {
+      const { data: buckets } = await supabaseAdmin.storage.listBuckets();
+      const hasBucket = buckets?.some((b) => b.name === 'product-images');
+
+      if (!hasBucket) {
         await supabaseAdmin.storage.createBucket('product-images', {
           public: true,
-          fileSizeLimit: 10485760, // 10MB
+          fileSizeLimit: 10485760,
         });
       }
 
       const { error: uploadErr } = await supabaseAdmin.storage
         .from('product-images')
-        .upload(fileName, buffer, {
+        .upload(baseFilename, buffer, {
           contentType: file.type || `image/${cleanExt}`,
           upsert: true,
         });
@@ -50,7 +62,7 @@ export async function POST(req: Request) {
       if (!uploadErr) {
         const { data: publicUrlData } = supabaseAdmin.storage
           .from('product-images')
-          .getPublicUrl(fileName);
+          .getPublicUrl(baseFilename);
 
         if (publicUrlData?.publicUrl) {
           return NextResponse.json({
@@ -60,14 +72,13 @@ export async function POST(req: Request) {
         }
       }
     } catch (storageErr) {
-      console.warn('Erreur Supabase Storage bucket, utilisation du fallback public URL:', storageErr);
+      console.warn('Note Supabase Storage:', storageErr);
     }
 
-    // 2. Fallback direct si Supabase storage RLS restreint :
-    // On peut renvoyer l'URL publique Supabase construite
-    const fallbackPublicUrl = `${SUPABASE_URL}/storage/v1/object/public/product-images/${fileName}`;
+    // 3. URL publique de secours garantie via notre route dédiée /api/images/
+    const permanentPublicUrl = `${SITE_URL}/api/images/${baseFilename}`;
     return NextResponse.json({
-      url: fallbackPublicUrl,
+      url: permanentPublicUrl,
       success: true,
     });
   } catch (error: any) {
