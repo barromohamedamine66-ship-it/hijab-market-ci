@@ -5,12 +5,13 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import {
   ShieldCheck, Users, Store, Package, ShoppingCart,
-  Percent, ArrowDownCircle, AlertTriangle, Settings, LogOut, Truck, Tag, Award, TrendingUp
+  Percent, ArrowDownCircle, AlertTriangle, Settings, LogOut, Truck, Tag, Award, TrendingUp, BellRing
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const adminNavItems = [
   { href: '/admin', icon: ShieldCheck, label: 'Vue d\'ensemble' },
+  { href: '/admin/notifications', icon: BellRing, label: 'Notifications Push 🔔' },
   { href: '/admin/categories', icon: Tag, label: 'Gestion Catégories' },
   { href: '/admin/sellers', icon: Store, label: 'Boutiques & Vendeurs' },
   { href: '/admin/users', icon: Users, label: 'Clients & Utilisateurs' },
