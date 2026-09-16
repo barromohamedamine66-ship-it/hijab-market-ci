@@ -11,11 +11,13 @@ import {
 const PROMPT_DISMISSED_KEY = 'hm_notif_prompt_dismissed';
 
 export default function PushNotificationPrompt() {
+  const [mounted, setMounted] = useState(false);
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     try {
       // Vérifier si le support existe et si la permission n'a pas encore été accordée/refusée
       if (!isPushNotificationSupported()) return;
@@ -61,7 +63,7 @@ export default function PushNotificationPrompt() {
     localStorage.setItem(PROMPT_DISMISSED_KEY, Date.now().toString());
   };
 
-  if (!show) return null;
+  if (!mounted || !show) return null;
 
   return (
     <aside
