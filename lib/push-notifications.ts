@@ -17,7 +17,16 @@ export type NotificationPermissionStatus = 'granted' | 'denied' | 'default' | 'u
  */
 export function isPushNotificationSupported(): boolean {
   if (typeof window === 'undefined') return false;
-  return 'Notification' in window && 'serviceWorker' in navigator;
+  try {
+    return (
+      'Notification' in window &&
+      typeof window.Notification !== 'undefined' &&
+      'serviceWorker' in navigator &&
+      typeof navigator.serviceWorker !== 'undefined'
+    );
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -25,7 +34,11 @@ export function isPushNotificationSupported(): boolean {
  */
 export function getNotificationPermissionState(): NotificationPermissionStatus {
   if (!isPushNotificationSupported()) return 'unsupported';
-  return Notification.permission as NotificationPermissionStatus;
+  try {
+    return (window.Notification?.permission as NotificationPermissionStatus) || 'unsupported';
+  } catch {
+    return 'unsupported';
+  }
 }
 
 /**
@@ -35,11 +48,13 @@ export async function requestPushPermission(): Promise<boolean> {
   if (!isPushNotificationSupported()) return false;
 
   try {
-    const permission = await Notification.requestPermission();
+    const permission = await window.Notification.requestPermission();
     const isGranted = permission === 'granted';
 
     if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEYS.PUSH_ENABLED, isGranted ? 'true' : 'false');
+      try {
+        localStorage.setItem(STORAGE_KEYS.PUSH_ENABLED, isGranted ? 'true' : 'false');
+      } catch (_) {}
     }
 
     if (isGranted) {

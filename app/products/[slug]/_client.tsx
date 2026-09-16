@@ -104,7 +104,7 @@ export default function ProductDetailClient({ params }: { params: { slug: string
     : '2250777393813';
 
   const [currentUrl, setCurrentUrl] = useState<string>(
-    typeof window !== 'undefined' ? window.location.href : `https://hijabmarket.ci/products/${params.slug}`
+    `https://hijabmarket.ci/products/${params.slug}`
   );
 
   useEffect(() => {

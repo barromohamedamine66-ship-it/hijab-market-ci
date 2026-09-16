@@ -16,27 +16,29 @@ export default function PushNotificationPrompt() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    // Vérifier si le support existe et si la permission n'a pas encore été accordée/refusée
-    if (!isPushNotificationSupported()) return;
+    try {
+      // Vérifier si le support existe et si la permission n'a pas encore été accordée/refusée
+      if (!isPushNotificationSupported()) return;
 
-    const state = getNotificationPermissionState();
-    if (state !== 'default') return;
+      const state = getNotificationPermissionState();
+      if (state !== 'default') return;
 
-    // Vérifier si l'utilisateur a fermé la bannière récemment (3 jours)
-    const dismissedAt = localStorage.getItem(PROMPT_DISMISSED_KEY);
-    if (dismissedAt) {
-      const elapsed = Date.now() - parseInt(dismissedAt, 10);
-      if (elapsed < 3 * 24 * 60 * 60 * 1000) {
-        return;
+      // Vérifier si l'utilisateur a fermé la bannière récemment (3 jours)
+      const dismissedAt = localStorage.getItem(PROMPT_DISMISSED_KEY);
+      if (dismissedAt) {
+        const elapsed = Date.now() - parseInt(dismissedAt, 10);
+        if (elapsed < 3 * 24 * 60 * 60 * 1000) {
+          return;
+        }
       }
-    }
 
-    // Afficher après 4 secondes pour laisser le temps à l'utilisateur de voir le contenu
-    const timer = setTimeout(() => {
-      setShow(true);
-    }, 4000);
+      // Afficher après 4 secondes pour laisser le temps à l'utilisateur de voir le contenu
+      const timer = setTimeout(() => {
+        setShow(true);
+      }, 4000);
 
-    return () => clearTimeout(timer);
+      return () => clearTimeout(timer);
+    } catch (_) {}
   }, []);
 
   const handleEnable = async () => {
