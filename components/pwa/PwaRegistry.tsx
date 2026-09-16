@@ -5,15 +5,20 @@ import PwaInstallPrompt from './PwaInstallPrompt';
 import PwaUpdateToast from './PwaUpdateToast';
 import PushNotificationPrompt from './PushNotificationPrompt';
 import { initEngagementScheduler } from '@/lib/push-notifications';
-import { useCart } from '@/contexts/CartContext';
 
 export default function PwaRegistry() {
-  const { count, total } = useCart();
-
   useEffect(() => {
-    // Initialiser le planificateur d'engagement (ventes flash & paniers)
-    initEngagementScheduler(count, total);
-  }, [count, total]);
+    // Initialiser le planificateur d'engagement (ventes flash & notifications)
+    try {
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('hijab_market_cart');
+        const items = stored ? JSON.parse(stored) : [];
+        const count = items.reduce((sum: number, i: any) => sum + (i.quantity || 1), 0);
+        const total = items.reduce((sum: number, i: any) => sum + (i.price || 0) * (i.quantity || 1), 0);
+        initEngagementScheduler(count, total);
+      }
+    } catch (_) {}
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {

@@ -4,21 +4,39 @@ import StoreDetailClient from './_client';
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hdiykdodruimphunpwjf.supabase.co';
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_YP1b16EVjZ7rKoj80PjEjA_DHZeX5nP';
 
-import { DBService } from '@/lib/supabase/db-service';
-
 const DEFAULT_OG_IMAGE = 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1200&auto=format&fit=crop&q=80';
 const SITE_URL = 'https://hijabmarket.ci';
+
+async function fetchShopMeta(slug: string) {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/shops?slug=eq.${encodeURIComponent(slug)}&select=name,description,logo_url,city,commune&limit=1`,
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        next: { revalidate: 3600 },
+      }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data[0]) return data[0];
+    }
+  } catch {}
+  return null;
+}
 
 export async function generateMetadata({
   params,
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const shop = await DBService.getShopBySlug(params.slug);
+  const shop = await fetchShopMeta(params.slug);
 
   if (!shop) {
     return {
-      title: 'Boutique introuvable | HIJAB MARKET CI',
+      title: 'Boutique Mode Modeste | HIJAB MARKET CI',
     };
   }
 
