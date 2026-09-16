@@ -235,24 +235,18 @@ export default function StoreDetailClient({ params }: { params: { slug: string }
                   </a>
                 )}
 
-                {/* Partager la boutique */}
-                <button
-                  type="button"
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(
+                    `🏪 Découvrez la boutique officielle *${shop.name}* sur HIJAB MARKET CI :\n👉 https://hijabmarket-ci.com/boutique/${shop.slug || params.slug}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   id="store-share-btn"
-                  onClick={() => {
-                    const url = typeof window !== 'undefined' ? window.location.href : '';
-                    const shareText = `Découvrez ${shop.name} sur HIJAB MARKET CI :\n${url}`;
-                    if (navigator.share) {
-                      navigator.share({ title: shop.name, text: shareText, url });
-                    } else {
-                      navigator.clipboard?.writeText(url);
-                      alert('Lien copié !');
-                    }
-                  }}
-                  className="md:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition"
+                  className="md:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition"
+                  title="Partager le lien de la boutique sur WhatsApp et en statut"
                 >
-                  <Share2 className="w-4 h-4" /> Partager
-                </button>
+                  <Share2 className="w-4 h-4" /> Partager Vitrine
+                </a>
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import StoreDetailClient from './_client';
+import { DBService } from '@/lib/supabase/db-service';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hdiykdodruimphunpwjf.supabase.co';
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_YP1b16EVjZ7rKoj80PjEjA_DHZeX5nP';
@@ -32,7 +33,13 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const shop = await fetchShopMeta(params.slug);
+  let shop: any = await fetchShopMeta(params.slug);
+
+  if (!shop) {
+    try {
+      shop = await DBService.getShopBySlug(params.slug);
+    } catch {}
+  }
 
   if (!shop) {
     return {
@@ -44,10 +51,18 @@ export async function generateMetadata({
   const description =
     shop.description ||
     `Découvrez la boutique ${shop.name} à ${shop.commune || shop.city || 'Côte d\'Ivoire'} sur HIJAB MARKET CI. Hijabs, abayas, tenues modestes et bien plus.`;
-  let ogImage = shop.logo_url || DEFAULT_OG_IMAGE;
-  if (ogImage && !ogImage.startsWith('http')) {
-    ogImage = `${SITE_URL}${ogImage.startsWith('/') ? '' : '/'}${ogImage}`;
+  
+  let ogImage = `${SITE_URL}/api/boutique/${params.slug}/image`;
+  if (shop.logo_url) {
+    if (shop.logo_url.startsWith('data:')) {
+      ogImage = `${SITE_URL}/api/boutique/${params.slug}/image`;
+    } else if (shop.logo_url.startsWith('http')) {
+      ogImage = shop.logo_url;
+    } else {
+      ogImage = `${SITE_URL}${shop.logo_url.startsWith('/') ? '' : '/'}${shop.logo_url}`;
+    }
   }
+
   const pageUrl = `${SITE_URL}/boutique/${params.slug}`;
 
   return {

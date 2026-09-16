@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { DBService } from '@/lib/supabase/db-service';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Product } from '@/lib/supabase/types';
-import { Plus, Trash2, ExternalLink, Zap, X, Copy } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, Zap, X, Copy, Share2 } from 'lucide-react';
 
 export default function SellerProductsPage() {
   const { user, shop } = useAuth();
@@ -202,6 +202,17 @@ export default function SellerProductsPage() {
                         >
                           <Copy className="w-3.5 h-3.5" /> Dupliquer
                         </button>
+                        <a
+                          href={`https://wa.me/?text=${encodeURIComponent(
+                            `🛍️ *${product.name}*\n💰 Prix : ${product.price.toLocaleString('fr-FR')} FCFA\n\nCommandez directement sur ma boutique en ligne HIJAB MARKET CI :\n👉 https://hijabmarket-ci.com/products/${product.slug}`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-[11px] transition flex items-center gap-1 shadow-sm border border-emerald-200/50"
+                          title="Partager le produit sur WhatsApp"
+                        >
+                          <Share2 className="w-3.5 h-3.5 text-emerald-600" /> WhatsApp
+                        </a>
                         <Link
                           href={`/seller/products/${product.id}/edit`}
                           className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-[11px] transition flex items-center gap-1 shadow-sm border border-amber-200/50"
@@ -301,6 +312,17 @@ export default function SellerProductsPage() {
                             >
                               <Copy className="w-3.5 h-3.5" /> Dupliquer
                             </button>
+                            <a
+                              href={`https://wa.me/?text=${encodeURIComponent(
+                                `🛍️ *${product.name}*\n💰 Prix : ${product.price.toLocaleString('fr-FR')} FCFA\n\nCommandez directement sur ma boutique en ligne HIJAB MARKET CI :\n👉 https://hijabmarket-ci.com/products/${product.slug}`
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold transition flex items-center gap-1 shadow-sm border border-emerald-200/50"
+                              title="Partager le produit sur WhatsApp"
+                            >
+                              <Share2 className="w-3.5 h-3.5 text-emerald-600" /> WhatsApp
+                            </a>
                             <Link
                               href={`/seller/products/${product.id}/edit`}
                               className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold transition flex items-center gap-1.5 shadow-sm border border-amber-200/50"

@@ -69,8 +69,10 @@ export default function SellerShopSettingsPage() {
     }
   }, [shop]);
 
-  // Gestion de l'import de fichier image depuis l'appareil / smartphone avec compression
-  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  // Gestion de l'import de fichier image depuis l'appareil / smartphone avec upload serveur garanti
+  const handleLogoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -80,32 +82,46 @@ export default function SellerShopSettingsPage() {
     }
 
     setError('');
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const img = new window.Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-        const max_size = 500; // Logos can be smaller (500x500 is plenty)
-        if (width > height && width > max_size) {
-          height *= max_size / width;
-          width = max_size;
-        } else if (height > max_size) {
-          width *= max_size / height;
-          height = max_size;
+    const localPreview = URL.createObjectURL(file);
+    setLogoUrl(localPreview);
+    setUploadingLogo(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.url) {
+          setLogoUrl(data.url);
+          setSaved(false);
         }
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(img, 0, 0, width, height);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-        setLogoUrl(dataUrl);
-        setSaved(false);
+      } else {
+        // En cas d'erreur de route upload, fallback client
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (typeof reader.result === 'string') {
+            setLogoUrl(reader.result);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          setLogoUrl(reader.result);
+        }
       };
-      img.src = reader.result as string;
-    };
-    reader.readAsDataURL(file);
+      reader.readAsDataURL(file);
+    } finally {
+      setUploadingLogo(false);
+    }
   };
 
   // Enregistrement des modifications
@@ -220,6 +236,20 @@ export default function SellerShopSettingsPage() {
                   {showUrlInput ? 'Masquer URL' : 'Coller un lien web (URL)'}
                 </button>
               </div>
+
+              {uploadingLogo && (
+                <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 p-2 rounded-xl border border-amber-200">
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-600" />
+                  <span>Envoi du logo en cours vers le serveur...</span>
+                </div>
+              )}
+
+              {!uploadingLogo && logoUrl && (
+                <p className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  Logo optimisé pour le partage WhatsApp & Vitrine publique
+                </p>
+              )}
 
               <p className="text-[11px] text-gray-500">
                 Formats acceptés : PNG, JPG, JPEG, WebP. Format carré recommandé pour un rendu parfait sur les fiches produits.

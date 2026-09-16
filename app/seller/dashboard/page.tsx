@@ -19,6 +19,7 @@ import {
   Award,
   LogOut,
   Settings,
+  Share2,
 } from 'lucide-react';
 
 export default function SellerDashboardPage() {
@@ -115,6 +116,18 @@ export default function SellerDashboardPage() {
             <Store className="w-4 h-4 text-emerald-400" /> Voir ma vitrine
             <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
           </Link>
+
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(
+              `🏪 *Découvrez ma boutique ${shopName} sur HIJAB MARKET CI !*\n\nExplorez notre collection de hijabs, abayas et tenues modestes en ligne :\n👉 https://hijabmarket-ci.com/boutique/${shopSlug}`
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 md:flex-initial justify-center px-5 py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5"
+            title="Partager le lien de ma boutique sur WhatsApp et en statut"
+          >
+            <Share2 className="w-4 h-4" /> Partager sur WhatsApp
+          </a>
 
           <button
             onClick={signOut}
