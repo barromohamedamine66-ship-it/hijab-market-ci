@@ -7,7 +7,6 @@ export const dynamic = 'force-dynamic';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hdiykdodruimphunpwjf.supabase.co';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_YP1b16EVjZ7rKoj80PjEjA_DHZeX5nP';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hijabmarket-ci.com';
 
 const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
@@ -29,15 +28,17 @@ export async function POST(req: Request) {
     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     const cleanExt = ['png', 'jpg', 'jpeg', 'webp', 'gif'].includes(ext) ? ext : 'jpg';
     const baseFilename = `prod_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${cleanExt}`;
+    const mimeType = file.type || `image/${cleanExt === 'jpg' ? 'jpeg' : cleanExt}`;
+    const base64Data = `data:${mimeType};base64,${buffer.toString('base64')}`;
 
-    // 1. Sauvegarde locale persistante dans public/uploads/
+    // 1. Sauvegarde locale (environnement dev / persistant)
     try {
       const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
       await fs.mkdir(uploadsDir, { recursive: true });
       const filePath = path.join(uploadsDir, baseFilename);
       await fs.writeFile(filePath, buffer);
     } catch (fsErr) {
-      console.warn('Note sauvegarde filesystem local:', fsErr);
+      // Non bloquant sur Vercel serverless
     }
 
     // 2. Tenter l'upload vers Supabase Storage
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
       const { error: uploadErr } = await supabaseAdmin.storage
         .from('product-images')
         .upload(baseFilename, buffer, {
-          contentType: file.type || `image/${cleanExt}`,
+          contentType: mimeType,
           upsert: true,
         });
 
@@ -75,10 +76,10 @@ export async function POST(req: Request) {
       console.warn('Note Supabase Storage:', storageErr);
     }
 
-    // 3. URL publique de secours garantie via notre route dédiée /api/images/
-    const permanentPublicUrl = `${SITE_URL}/api/images/${baseFilename}`;
+    // 3. Si Supabase Storage n'est pas accessible, retourner le Base64 directement
+    // Notre route /api/products/[slug]/image le convertira automatiquement en binaire pour WhatsApp !
     return NextResponse.json({
-      url: permanentPublicUrl,
+      url: base64Data,
       success: true,
     });
   } catch (error: any) {

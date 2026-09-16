@@ -10,7 +10,6 @@ export async function GET(
 ) {
   try {
     const filename = params.id;
-    // Sécurité: empêcher la traversée de répertoires
     const sanitizedFilename = path.basename(filename);
     const filePath = path.join(process.cwd(), 'public', 'uploads', sanitizedFilename);
 
@@ -29,8 +28,7 @@ export async function GET(
         },
       });
     } catch {
-      // Si le fichier local n'existe pas, renvoyer une redirection vers l'image par défaut
-      return NextResponse.redirect('https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1200&auto=format&fit=crop&q=80', 307);
+      return NextResponse.json({ error: 'Image non trouvée' }, { status: 404 });
     }
   } catch (error) {
     return NextResponse.json({ error: 'Image introuvable' }, { status: 404 });

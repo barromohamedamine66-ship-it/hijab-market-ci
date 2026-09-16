@@ -95,33 +95,36 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // 1. Aperçu instantané local
-    const localPreviewUrl = URL.createObjectURL(file);
-    setImagePreview(localPreviewUrl);
     setUploadingImage(true);
 
-    try {
-      // 2. Téléversement réel sur le serveur pour obtenir une vraie URL publique HTTPS permanente
-      const formData = new FormData();
-      formData.append('file', file);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64Local = reader.result as string;
+      setImagePreview(base64Local);
+      setImageUrl(base64Local);
 
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
 
-      if (res.ok) {
-        const data = await res.json();
-        if (data.url) {
-          setImageUrl(data.url);
-          setImagePreview(data.url);
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.url) {
+            setImageUrl(data.url);
+          }
         }
+      } catch (err) {
+        console.warn('Erreur téléversement image:', err);
+      } finally {
+        setUploadingImage(false);
       }
-    } catch (err) {
-      console.warn('Erreur téléversement image:', err);
-    } finally {
-      setUploadingImage(false);
-    }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
