@@ -48,15 +48,27 @@ export async function generateMetadata({
   }
 
   // Récupérer la première image réelle du produit (URL absolue requise par WhatsApp)
-  let ogImage = DEFAULT_OG_IMAGE;
+  let ogImage = `${SITE_URL}/api/products/${params.slug}/image`;
   if (product.images && Array.isArray(product.images) && product.images.length > 0) {
     const firstImg = product.images[0];
-    const candidate = typeof firstImg === 'string' ? firstImg : (firstImg?.image_url || DEFAULT_OG_IMAGE);
-    if (candidate && !candidate.startsWith('data:')) {
-      ogImage = candidate.startsWith('http') ? candidate : `${SITE_URL}${candidate.startsWith('/') ? '' : '/'}${candidate}`;
+    const candidate = typeof firstImg === 'string' ? firstImg : (firstImg?.image_url || '');
+    if (candidate) {
+      if (candidate.startsWith('data:')) {
+        ogImage = `${SITE_URL}/api/products/${params.slug}/image`;
+      } else if (candidate.startsWith('http')) {
+        ogImage = candidate;
+      } else {
+        ogImage = `${SITE_URL}${candidate.startsWith('/') ? '' : '/'}${candidate}`;
+      }
     }
-  } else if (product.imageUrl && typeof product.imageUrl === 'string' && !product.imageUrl.startsWith('data:')) {
-    ogImage = product.imageUrl.startsWith('http') ? product.imageUrl : `${SITE_URL}${product.imageUrl.startsWith('/') ? '' : '/'}${product.imageUrl}`;
+  } else if (product.imageUrl && typeof product.imageUrl === 'string') {
+    if (product.imageUrl.startsWith('data:')) {
+      ogImage = `${SITE_URL}/api/products/${params.slug}/image`;
+    } else if (product.imageUrl.startsWith('http')) {
+      ogImage = product.imageUrl;
+    } else {
+      ogImage = `${SITE_URL}${product.imageUrl.startsWith('/') ? '' : '/'}${product.imageUrl}`;
+    }
   }
 
   const priceStr = product.price

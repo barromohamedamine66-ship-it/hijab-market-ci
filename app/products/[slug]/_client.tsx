@@ -117,11 +117,15 @@ export default function ProductDetailClient({ params }: { params: { slug: string
     ? (cleanPhone.startsWith('225') ? cleanPhone : `225${cleanPhone}`)
     : '2250777393813';
 
+  const cleanCoverImage = coverImage
+    ? (coverImage.startsWith('data:') ? `https://hijabmarket-ci.com/api/products/${params.slug}/image` : coverImage)
+    : '';
+
   const orderMessage = encodeURIComponent(
     `Bonjour ${store?.name || 'Boutique'},\n\nJe suis intéressé(e) par votre article *${product.name}* (${product.price.toLocaleString('fr-FR')} FCFA)${
       selectedColor ? ` [${spec.colorsLabel.replace(' disponibles', '')} : "${selectedColor}"]` : ''
     }${selectedSize ? ` [${sizeDisplayLabel} : "${selectedSize}"]` : ''} vu sur le portail HIJAB MARKET CI.\n\nEst-il toujours disponible pour une commande / livraison ?\n\n🔗 *Lien direct de l'article :*\n${currentUrl}${
-      coverImage ? `\n\n🖼️ *Photo de l'article :*\n${coverImage}` : ''
+      cleanCoverImage ? `\n\n🖼️ *Photo de l'article :*\n${cleanCoverImage}` : ''
     }`
   );
 
