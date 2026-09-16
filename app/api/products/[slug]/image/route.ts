@@ -16,31 +16,57 @@ export async function GET(
       return NextResponse.redirect(DEFAULT_IMAGE_FALLBACK, 307);
     }
 
-    // Interroger Supabase pour récupérer l'image du produit
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/products?slug=eq.${encodeURIComponent(slug)}&select=id,images:product_images(image_url)&limit=1`,
-      {
-        headers: {
-          apikey: SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        },
-        cache: 'no-store',
-      }
-    );
-
     let imageUrl: string | null = null;
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data[0] && data[0].images && data[0].images[0]) {
-        imageUrl = data[0].images[0].image_url;
+
+    // 1. Tenter la requête directe Supabase avec jointure
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/products?slug=eq.${encodeURIComponent(slug)}&select=id,images:product_images(image_url)&limit=1`,
+        {
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+          cache: 'no-store',
+        }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data[0]) {
+          if (data[0].images && Array.isArray(data[0].images) && data[0].images.length > 0) {
+            imageUrl = data[0].images[0].image_url;
+          }
+          // 2. Si pas d'image dans la jointure, interroger directement product_images par product_id
+          if (!imageUrl && data[0].id) {
+            const imgRes = await fetch(
+              `${SUPABASE_URL}/rest/v1/product_images?product_id=eq.${data[0].id}&select=image_url&order=position.asc&limit=1`,
+              {
+                headers: {
+                  apikey: SUPABASE_ANON_KEY,
+                  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                },
+                cache: 'no-store',
+              }
+            );
+            if (imgRes.ok) {
+              const imgData = await imgRes.json();
+              if (imgData && imgData[0]?.image_url) {
+                imageUrl = imgData[0].image_url;
+              }
+            }
+          }
+        }
       }
+    } catch (err) {
+      console.warn('Erreur fetch image Supabase:', err);
     }
 
     if (!imageUrl) {
       return NextResponse.redirect(DEFAULT_IMAGE_FALLBACK, 307);
     }
 
-    // 1. Si l'image est stockée en Base64 (anciens produits importés avant la mise à jour)
+    // A. Si l'image est stockée en Base64 (photos importées depuis le téléphone)
     if (imageUrl.startsWith('data:image/')) {
       const parts = imageUrl.split(';base64,');
       const mimeType = parts[0].replace('data:', '') || 'image/jpeg';
@@ -56,13 +82,13 @@ export async function GET(
       }
     }
 
-    // 2. Si c'est une URL relative (ex: /uploads/...)
+    // B. Si c'est une URL relative (ex: /uploads/...)
     if (imageUrl.startsWith('/')) {
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://hijabmarket-ci.com';
       return NextResponse.redirect(`${siteUrl}${imageUrl}`, 307);
     }
 
-    // 3. Si c'est une URL HTTPS absolue (CDN Supabase ou Unsplash)
+    // C. Si c'est une URL HTTPS absolue (CDN Supabase ou Unsplash)
     if (imageUrl.startsWith('http')) {
       return NextResponse.redirect(imageUrl, 307);
     }

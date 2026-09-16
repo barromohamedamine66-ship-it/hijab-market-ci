@@ -16,31 +16,36 @@ export async function GET(
       return NextResponse.redirect(DEFAULT_STORE_FALLBACK, 307);
     }
 
-    // Interroger Supabase pour récupérer le logo ou l'image de la boutique
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/shops?slug=eq.${encodeURIComponent(slug)}&select=id,name,logo_url&limit=1`,
-      {
-        headers: {
-          apikey: SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        },
-        cache: 'no-store',
-      }
-    );
-
     let logoUrl: string | null = null;
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data[0] && data[0].logo_url) {
-        logoUrl = data[0].logo_url;
+
+    try {
+      // 1. Interroger Supabase pour récupérer le logo ou l'image de la boutique
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/shops?slug=eq.${encodeURIComponent(slug)}&select=id,name,logo_url&limit=1`,
+        {
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+          cache: 'no-store',
+        }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data[0] && data[0].logo_url) {
+          logoUrl = data[0].logo_url;
+        }
       }
+    } catch (err) {
+      console.warn('Erreur fetch logo Supabase:', err);
     }
 
     if (!logoUrl) {
       return NextResponse.redirect(DEFAULT_STORE_FALLBACK, 307);
     }
 
-    // 1. Si le logo est en Base64 (anciens logos uploadés avant le CDN)
+    // 1. Si le logo est en Base64 (logos uploadés depuis un mobile)
     if (logoUrl.startsWith('data:image/')) {
       const parts = logoUrl.split(';base64,');
       const mimeType = parts[0].replace('data:', '') || 'image/jpeg';
