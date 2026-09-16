@@ -37,6 +37,15 @@ export default function ProductDetailClient({ params }: { params: { slug: string
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [currentUrl, setCurrentUrl] = useState<string>(
+    `https://hijabmarket.ci/products/${params.slug}`
+  );
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentUrl(window.location.href);
+    }
+  }, [params.slug]);
 
   useEffect(() => {
     DBService.getProductBySlug(params.slug).then((prod) => {
@@ -102,16 +111,6 @@ export default function ProductDetailClient({ params }: { params: { slug: string
   const formattedPhone = cleanPhone
     ? (cleanPhone.startsWith('225') ? cleanPhone : `225${cleanPhone}`)
     : '2250777393813';
-
-  const [currentUrl, setCurrentUrl] = useState<string>(
-    `https://hijabmarket.ci/products/${params.slug}`
-  );
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setCurrentUrl(window.location.href);
-    }
-  }, [params.slug]);
 
   const orderMessage = encodeURIComponent(
     `Bonjour ${store?.name || 'Boutique'},\n\nJe suis intéressé(e) par votre article *${product.name}* (${product.price.toLocaleString('fr-FR')} FCFA)${
