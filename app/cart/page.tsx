@@ -50,7 +50,7 @@ export default function CartPage() {
     const clean = storePhone.replace(/[^0-9]/g, '');
     const formatted = clean.startsWith('225') ? clean : (clean.length === 10 ? `225${clean}` : `225${clean}`);
 
-    const siteOrigin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'https://hijabmarket.ci';
+    const siteOrigin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'https://hijabmarket-ci.com';
     const groupTotal = group.items.reduce((sum, it) => sum + it.price * it.quantity, 0);
     const lines = group.items.map(
       (it, idx) =>

@@ -50,7 +50,7 @@ export default function SellerDashboardPage() {
 
   const shopName = shop?.name || `Boutique de ${profile?.full_name || 'Vendeuse'}`;
   const shopSlug = shop?.slug || 'ma-boutique';
-  const boutiqueUrl = typeof window !== 'undefined' ? `${window.location.origin}/boutique/${shopSlug}` : `https://hijabmarket.ci/boutique/${shopSlug}`;
+  const boutiqueUrl = typeof window !== 'undefined' ? `${window.location.origin}/boutique/${shopSlug}` : `https://hijabmarket-ci.com/boutique/${shopSlug}`;
 
   const copyBoutiqueLink = () => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {

@@ -38,7 +38,7 @@ export default function ProductDetailClient({ params }: { params: { slug: string
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [currentUrl, setCurrentUrl] = useState<string>(
-    `https://hijabmarket.ci/products/${params.slug}`
+    `https://hijabmarket-ci.com/products/${params.slug}`
   );
 
   useEffect(() => {

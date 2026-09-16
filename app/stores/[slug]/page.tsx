@@ -5,7 +5,7 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hdiykdodru
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_YP1b16EVjZ7rKoj80PjEjA_DHZeX5nP';
 
 const DEFAULT_OG_IMAGE = 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1200&auto=format&fit=crop&q=80';
-const SITE_URL = 'https://hijabmarket.ci';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hijabmarket-ci.com';
 
 async function fetchShopMeta(slug: string) {
   try {
