@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import ProductDetailClient from './_client';
+import { DBService } from '@/lib/supabase/db-service';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hdiykdodruimphunpwjf.supabase.co';
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_YP1b16EVjZ7rKoj80PjEjA_DHZeX5nP';
@@ -32,7 +33,13 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const product = await fetchProductMeta(params.slug);
+  let product: any = await fetchProductMeta(params.slug);
+
+  if (!product) {
+    try {
+      product = await DBService.getProductBySlug(params.slug);
+    } catch {}
+  }
 
   if (!product) {
     return {
@@ -40,14 +47,16 @@ export async function generateMetadata({
     };
   }
 
-  // Récupérer la première image du produit (URL absolue requise par WhatsApp)
+  // Récupérer la première image réelle du produit (URL absolue requise par WhatsApp)
   let ogImage = DEFAULT_OG_IMAGE;
   if (product.images && Array.isArray(product.images) && product.images.length > 0) {
     const firstImg = product.images[0];
     const candidate = typeof firstImg === 'string' ? firstImg : (firstImg?.image_url || DEFAULT_OG_IMAGE);
-    if (candidate) {
+    if (candidate && !candidate.startsWith('data:')) {
       ogImage = candidate.startsWith('http') ? candidate : `${SITE_URL}${candidate.startsWith('/') ? '' : '/'}${candidate}`;
     }
+  } else if (product.imageUrl && typeof product.imageUrl === 'string' && !product.imageUrl.startsWith('data:')) {
+    ogImage = product.imageUrl.startsWith('http') ? product.imageUrl : `${SITE_URL}${product.imageUrl.startsWith('/') ? '' : '/'}${product.imageUrl}`;
   }
 
   const priceStr = product.price

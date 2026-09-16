@@ -89,35 +89,38 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     }
   };
 
-  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const img = new window.Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          const max_size = 800;
-          if (width > height && width > max_size) {
-            height *= max_size / width;
-            width = max_size;
-          } else if (height > max_size) {
-            width *= max_size / height;
-            height = max_size;
-          }
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-          setImagePreview(dataUrl);
-          setImageUrl(dataUrl);
-        };
-        img.src = reader.result as string;
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // 1. Aperçu instantané local
+    const localPreviewUrl = URL.createObjectURL(file);
+    setImagePreview(localPreviewUrl);
+    setUploadingImage(true);
+
+    try {
+      // 2. Téléversement réel sur le serveur pour obtenir une vraie URL publique HTTPS permanente
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.url) {
+          setImageUrl(data.url);
+          setImagePreview(data.url);
+        }
+      }
+    } catch (err) {
+      console.warn('Erreur téléversement image:', err);
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -228,8 +231,24 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                 ) : (
                   <ImageIcon className="w-8 h-8 text-gray-400" />
                 )}
+                {uploadingImage && (
+                  <div className="absolute inset-0 bg-black/50 backdrop-blur-xs flex flex-col items-center justify-center text-white text-[10px] p-2 text-center font-bold">
+                    <span className="animate-spin text-lg mb-1">⏳</span>
+                    Envoi HD...
+                  </div>
+                )}
               </div>
-              <span className="text-[10px] text-gray-400 mt-1 font-semibold">Aperçu fiche produit</span>
+              {uploadingImage ? (
+                <span className="text-[10px] text-amber-600 mt-1 font-semibold flex items-center gap-1">
+                  Envoi en cours...
+                </span>
+              ) : imageUrl && imageUrl.startsWith('http') ? (
+                <span className="text-[10px] text-emerald-600 mt-1 font-bold flex items-center gap-1">
+                  <Check className="w-3 h-3" /> Photo HD prête pour WhatsApp
+                </span>
+              ) : (
+                <span className="text-[10px] text-gray-400 mt-1 font-semibold">Aperçu fiche produit</span>
+              )}
             </div>
           </div>
 
