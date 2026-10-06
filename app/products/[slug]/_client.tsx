@@ -166,6 +166,20 @@ export default function ProductDetailClient({ params }: { params: { slug: string
               )}
             </div>
 
+            {/* Accès Démo Vidéo TikTok */}
+            <Link
+              href="/feed"
+              className="w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-gray-950 via-emerald-950 to-gray-950 border border-emerald-500/40 text-white text-xs font-bold flex items-center justify-between shadow-md hover:border-emerald-400 transition group"
+            >
+              <span className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
+                  🎬
+                </span>
+                <span>Voir les démonstrations & tutos portés en vidéo</span>
+              </span>
+              <span className="text-emerald-400 group-hover:translate-x-1 transition font-black">→</span>
+            </Link>
+
             {/* Fiche de la Boutique Vendeuse */}
             {store && (
               <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50/50 to-amber-50/30 border border-emerald-100/80 space-y-3">

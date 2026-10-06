@@ -34,10 +34,11 @@ export default function MobileBottomNav() {
       isActive: pathname.startsWith('/products'),
     },
     {
-      label: 'Feed',
+      label: 'Vidéos',
       href: '/feed',
       icon: Sparkles,
       isActive: pathname.startsWith('/feed'),
+      badgeText: '🔥',
     },
     {
       label: 'Boutiques',
@@ -100,6 +101,13 @@ export default function MobileBottomNav() {
                 {item.badge !== undefined && item.badge > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-emerald-600 text-white text-[10px] font-extrabold rounded-full flex items-center justify-center px-1 shadow-sm animate-pulse">
                     {item.badge > 99 ? '99+' : item.badge}
+                  </span>
+                )}
+
+                {/* Badge dynamique texte (ex: 🔥 pour Vidéos) */}
+                {(item as any).badgeText && (
+                  <span className="absolute -top-1.5 -right-1 text-[11px] animate-bounce">
+                    {(item as any).badgeText}
                   </span>
                 )}
               </div>

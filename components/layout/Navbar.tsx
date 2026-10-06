@@ -10,7 +10,7 @@ const navLinks = [
   { href: '/#categories', label: 'Catégories' },
   { href: '/products', label: 'Produits' },
   { href: '/stores', label: 'Boutiques' },
-  { href: '/feed', label: 'Feed' },
+  { href: '/feed', label: '🎬 Vidéos TikTok', isHighlight: true },
   { href: '/devenir-vendeur', label: 'Devenir Vendeur' },
 ];
 
@@ -64,9 +64,16 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
+                  className={`px-3.5 py-2 text-sm font-medium rounded-xl transition flex items-center gap-1.5 ${
+                    (link as any).isHighlight
+                      ? 'text-emerald-700 bg-emerald-50/90 hover:bg-emerald-100 font-bold border border-emerald-200/80 shadow-xs'
+                      : 'text-gray-600 hover:text-emerald-600 hover:bg-emerald-50'
+                  }`}
                 >
-                  {link.label}
+                  <span>{link.label}</span>
+                  {(link as any).isHighlight && (
+                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                  )}
                 </Link>
               ))}
             </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { X, Play, Pause, Sparkles, Store, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Play, Pause, Sparkles, Store, ShoppingBag, ChevronLeft, ChevronRight, Volume2, VolumeX } from 'lucide-react';
 import Link from 'next/link';
 import { DBService } from '@/lib/supabase/db-service';
 
@@ -104,6 +104,7 @@ export default function VideoStories() {
   const [activeStoryIndex, setActiveStoryIndex] = useState<number | null>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [mediaError, setMediaError] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
     DBService.getStories().then((data) => {
@@ -181,6 +182,27 @@ export default function VideoStories() {
 
   return (
     <div className="bg-white border-b border-gray-100 py-3 sm:py-4">
+      {/* En-tête accrocheur TikTok Market */}
+      <div className="container mb-2.5 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="flex h-2.5 w-2.5 relative">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+          </span>
+          <h2 className="text-xs sm:text-sm font-black font-heading text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
+            <span>🔥 TikTok Market CI</span>
+            <span className="text-gray-400 font-normal hidden sm:inline">| En direct des boutiques</span>
+          </h2>
+        </div>
+        <Link
+          href="/feed"
+          className="text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-3 py-1 rounded-full transition flex items-center gap-1 shadow-xs"
+        >
+          <span>Feed Vidéos</span>
+          <span>→</span>
+        </Link>
+      </div>
+
       <div className="container overflow-x-auto no-scrollbar">
         <div className="flex gap-4 sm:gap-6 min-w-max px-2">
           {stories.map((story, index) => {
@@ -273,6 +295,15 @@ export default function VideoStories() {
                     </div>
                   )}
                 </div>
+              ) : activeStory.media_type === 'video' || mediaUrl.includes('.mp4') ? (
+                <video
+                  src={mediaUrl}
+                  autoPlay
+                  loop
+                  playsInline
+                  muted={isMuted}
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <div className="w-full h-full animate-ken-burns">
                   <img
@@ -333,6 +364,18 @@ export default function VideoStories() {
                 </div>
 
                 <div className="flex items-center gap-2">
+                  {/* Bouton Son Mute / Unmute */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMuted(!isMuted);
+                    }}
+                    className="w-9 h-9 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center text-white transition shadow-md cursor-pointer"
+                    title={isMuted ? 'Activer le son' : 'Couper le son'}
+                  >
+                    {isMuted ? <VolumeX className="w-4 h-4 text-amber-300" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
+                  </button>
+
                   {/* Bouton Pause / Lecture */}
                   <button
                     onClick={(e) => {

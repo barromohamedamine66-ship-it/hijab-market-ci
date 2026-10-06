@@ -2147,25 +2147,54 @@ export const DBService = {
   async uploadStoryMedia(file: File, shopId: string): Promise<string | null> {
     if (!file) return null;
 
-    // Tentative stockage Supabase avec fallback DataURL compressé
+    // 1. Tenter l'upload via la route API unifiée /api/upload (gère images et vidéos avec persistance)
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.url) return json.url;
+      }
+    } catch (apiErr) {
+      console.warn('API /api/upload error in uploadStoryMedia, attempting direct storage:', apiErr);
+    }
+
+    const isVideo = file.type.startsWith('video/') || ['mp4', 'webm', 'mov', 'ogg'].some((ext) => file.name.toLowerCase().endsWith(ext));
+
+    // 2. Tentative stockage direct Supabase
     try {
       if (isSupabaseConfigured()) {
-        const ext = file.name.split('.').pop() || 'jpg';
+        const ext = file.name.split('.').pop() || (isVideo ? 'mp4' : 'jpg');
+        const bucket = isVideo ? 'product-videos' : 'product-images';
         const path = `stories/${shopId}_${Date.now()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from('product-images').upload(path, file, {
-          contentType: file.type || 'image/jpeg',
+        const { error: upErr } = await supabase.storage.from(bucket).upload(path, file, {
+          contentType: file.type || (isVideo ? 'video/mp4' : 'image/jpeg'),
           upsert: true,
         });
         if (!upErr) {
-          const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+          const { data } = supabase.storage.from(bucket).getPublicUrl(path);
           if (data?.publicUrl) return data.publicUrl;
         }
       }
     } catch (e) {
-      console.warn('Storage image upload error, using local fallback:', e);
+      console.warn('Storage media upload error, using local fallback:', e);
     }
 
-    // Fallback DataURL compressé via canvas (haute qualité, format léger et rapide)
+    // 3. Fallback DataURL
+    if (isVideo) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Fallback DataURL compressé via canvas pour image
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onloadend = () => {
